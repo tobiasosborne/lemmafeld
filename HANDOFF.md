@@ -2,26 +2,29 @@
 
 ## Completed This Session
 
-- **lemmafeld-c8w (TC 1.1.1)**: Created `LemmaFeld/CategoryTheory/TensorCategories/Chapter1/Basic.lean` documenting §1.1 categorical prerequisites and notation. Maps book concepts (id_C, C^∨, locally small, essentially small) to mathlib equivalents.
+- **lemmafeld-c8w (TC 1.1.1)**: Created `Chapter1/Basic.lean` documenting §1.1 categorical prerequisites.
+- **lemmafeld-97w (TC 1.1.2)**: Created `Chapter1/Notation.lean` with notation conventions comparison table, composition order warning (book ∘ vs mathlib ≫), and working examples.
 
 ## Current State
 
-- **Chapter1/Basic.lean** exists and builds successfully
-- §1.1 is now formalized with book ↔ mathlib correspondence documented
-- Directory structure `LemmaFeld/CategoryTheory/TensorCategories/Chapter1/` is established
+- **Chapter1/Basic.lean** — §1.1 concepts (LocallySmall, EssentiallySmall, etc.)
+- **Chapter1/Notation.lean** — Notation comparison table + examples
+- Both build successfully
 
 ## Next Steps
 
-1. TC 1.1.2: Define any missing notation conventions (lemmafeld-97w)
-2. TC 1.1.3: Establish locally small and essentially small APIs (lemmafeld-xow)
-3. TC 1.2.1: Preadditive and Additive categories (lemmafeld-uth)
+1. TC 1.1.3: Establish locally small and essentially small APIs (lemmafeld-xow)
+2. TC 1.2.1: Preadditive and Additive categories (lemmafeld-uth)
+3. TC 1.2.2: Direct sum bifunctor (lemmafeld-8e7)
 4. Continue through Chapter 1 sections sequentially
 
 ## Known Issues / Gotchas
 
-- `bd ready` returns later chapter issues first - always check issue numbering and prioritize Chapter 1-2 (foundations) before later chapters
-- The abbrevs with universe polymorphism can cause issues - prefer comments over abbrevs when documenting mathlib correspondence
+- `bd ready` returns later chapter issues first - prioritize Chapter 1-2 foundations
+- Avoid `abbrev X := @SomeClass` with universe polymorphism - use comments instead
+- Universe constraints in `example : Type* := Cᵒᵖ` patterns - avoid
 
 ## Files Modified
 
-- `LemmaFeld/CategoryTheory/TensorCategories/Chapter1/Basic.lean` — Created new file with §1.1 formalization
+- `LemmaFeld/CategoryTheory/TensorCategories/Chapter1/Basic.lean` — §1.1 formalization
+- `LemmaFeld/CategoryTheory/TensorCategories/Chapter1/Notation.lean` — Notation conventions
