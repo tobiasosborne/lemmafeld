@@ -585,4 +585,9 @@ example : biprod.map (f ≫ h) (g ≫ k) = biprod.map f g ≫ biprod.map h k := 
 
 **API gotcha:** `mono_of_kernel_ι_eq_zero` in `CategoryTheory.Abelian` has section variable scoping that can cause issues. Use `Preadditive.mono_of_kernel_zero h` instead for clearer application. Similarly for `epi_of_cokernel_π_eq_zero`.
 
-**Mitchell embedding (Theorem 1.3.8):** Not in mathlib as of 2024 - would be a significant formalization project.
+**Freyd-Mitchell embedding (Theorem 1.3.8):** ✅ **IS IN MATHLIB** at `Mathlib.CategoryTheory.Abelian.FreydMitchell`.
+  - `FreydMitchell.EmbeddingRing C` — the ring into which we embed
+  - `FreydMitchell.functor C` — the full faithful embedding functor C → R-Mod
+  - `freyd_mitchell` — the main theorem (full, faithful, preserves finite limits/colimits)
+
+  **CORRECTION (2026-01-28):** Previous agent incorrectly claimed this was not in mathlib. This was wrong.

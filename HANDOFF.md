@@ -1,6 +1,14 @@
 # Handoff: 2026-01-28
 
-## Completed This Session
+## Completed This Session (Current)
+
+- **CORRECTION**: Fixed Abelian.lean to properly import and document Freyd-Mitchell embedding
+  - Previous agent incorrectly claimed Theorem 1.3.8 was "not in mathlib"
+  - Actually exists at `Mathlib.CategoryTheory.Abelian.FreydMitchell`
+  - Added import, examples, and proper mathlib correspondence documentation
+- **CLAUDE.md**: Added "Escalation Failure Mode" section documenting the anti-pattern of noting gaps in LEARNINGS.md without creating issues
+
+## Completed Previous Session
 
 - **lemmafeld-c8w (TC 1.1.1)**: Created `Chapter1/Basic.lean` documenting §1.1 categorical prerequisites.
 - **lemmafeld-97w (TC 1.1.2)**: Created `Chapter1/Notation.lean` with notation conventions and examples.
