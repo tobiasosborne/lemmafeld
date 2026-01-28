@@ -634,3 +634,42 @@ class SemisimpleCategory (C : Type*) [Category C] [HasZeroMorphisms C]
 - Prove zero object is semisimple (empty biproduct)
 - Prove biproduct of semisimple objects is semisimple
 - Connect to `IsSemisimpleModule` for ModuleCat
+
+## 2026-01-28: TC 1.5.4 - Finite Length Objects
+
+**Task:** Formalize finite length objects (Definition 1.5.3).
+
+**Book Definition 1.5.3:** An object X has finite length if there exists a filtration
+0 = X₀ ⊂ X₁ ⊂ ··· ⊂ Xₙ = X such that Xᵢ₊₁/Xᵢ is simple (Jordan-Hölder series).
+
+**Created:** `Chapter1/FiniteLength.lean`
+
+**Mathlib has:**
+
+| Concept | Mathlib | Import |
+|---------|---------|--------|
+| Artinian object | `IsArtinianObject X` | `Mathlib.CategoryTheory.Subobject.ArtinianObject` |
+| Noetherian object | `IsNoetherianObject X` | `Mathlib.CategoryTheory.Subobject.NoetherianObject` |
+| DCC on subobjects | `WellFoundedLT (Subobject X)` | same |
+| ACC on subobjects | `WellFoundedGT (Subobject X)` | same |
+| Module finite length | `IsFiniteLength R M` | `Mathlib.RingTheory.FiniteLength` |
+| Composition series | `CompositionSeries` | `Mathlib.Order.JordanHolder` |
+| Jordan-Hölder lattice | `JordanHolderLattice` | `Mathlib.Order.JordanHolder` |
+
+**Key mathlib insight:** For modules, `IsFiniteLength R M ↔ IsNoetherian R M ∧ IsArtinian R M`.
+
+**Implementation:**
+- Defined `IsFiniteLengthObject X := IsArtinianObject X ∧ IsNoetherianObject X`
+- Defined `FiniteLengthCategory C` class
+- Proved: `Simple X → IsFiniteLengthObject X` via:
+  - `Simple X → IsSimpleOrder (Subobject X)` (existing instance)
+  - `IsSimpleOrder → Finite` (`IsSimpleOrder.instFinite`)
+  - `Finite + Preorder → WellFoundedLT/GT` (`Finite.to_wellFoundedLT/GT`)
+
+**Gaps (noted as "Future work" in mathlib):**
+1. **Categorical Jordan-Hölder theorem** - mathlib has `JordanHolderLattice` for lattices but not `JordanHolderLattice (Subobject X)` for abelian categories
+2. **Categorical length function** - no `length : C → ℕ` for objects of finite length
+
+**API notes:**
+- `ObjectProperty.is_of_prop P hX` converts `hX : P X` to `P.Is X` (typeclass)
+- `Finite.to_wellFoundedLT` / `Finite.to_wellFoundedGT` give chain conditions for finite types

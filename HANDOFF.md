@@ -2,9 +2,13 @@
 
 ## Completed This Session (Current)
 
-- **lemmafeld-dy0 (TC 1.5.2)**: Created `Chapter1/Semisimple.lean` with semisimple object/category definitions
+- **lemmafeld-g16j (TC 1.5.4)**: Created `Chapter1/FiniteLength.lean` with finite length object definitions
 
 ## Previous Session
+
+- **lemmafeld-dy0 (TC 1.5.2)**: Created `Chapter1/Semisimple.lean` with semisimple object/category definitions
+
+## Earlier Session
 
 - **lemmafeld-457 (TC 1.5.1)**: Created `Chapter1/Simple.lean` with §1.5 simple objects
 - **lemmafeld-vxvh (TC 1.5.3)**: Covered by Simple.lean (Schur's Lemma via isIso_of_hom_simple)
@@ -45,11 +49,12 @@
 - **Chapter1/ExactSequences.lean** — §1.4 Exact sequences (ShortComplex, ShortExact, Ext¹ notes)
 - **Chapter1/Simple.lean** — §1.5 Simple objects (Simple X, Schur's Lemma, Indecomposable)
 - **Chapter1/Semisimple.lean** — §1.5 Semisimple objects (IsSemisimple X, SemisimpleCategory C)
-- All nine files build successfully
+- **Chapter1/FiniteLength.lean** — §1.5 Finite length (IsFiniteLengthObject, FiniteLengthCategory) (NEW)
+- All ten files build successfully
 
 ## Next Steps
 
-1. TC 1.5.4-1.5.8: Finite length, Jordan-Hölder, Krull-Schmidt, Grothendieck group
+1. TC 1.5.5-1.5.8: Jordan-Hölder series, length, Krull-Schmidt, Grothendieck group
 2. TC 1.6.x: Projective and injective objects
 3. TC 1.7.x: Derived functors and Ext
 
@@ -70,6 +75,8 @@
 - `isIso_of_hom_simple` requires `[HasKernels C]` — add this or use `[Abelian C]`
 - `biproductUniqueIso` gives `⨁ f ≅ f default` for unique index type (use with Unit)
 - No `biproduct.isoPEmpty` or `biproduct.isoUnit` — use `biproductUniqueIso` for single element
+- `IsArtinianObject X` is `ObjectProperty.Is isArtinianObject X` — use `ObjectProperty.is_of_prop` to construct from `WellFoundedLT (Subobject X)`
+- `Finite.to_wellFoundedLT` / `Finite.to_wellFoundedGT` require explicit type annotation: `(inferInstance : WellFoundedLT _)`
 
 ## Files Modified
 
@@ -81,4 +88,5 @@
 - `LemmaFeld/CategoryTheory/TensorCategories/Chapter1/Abelian.lean` — §1.3 abelian categories
 - `LemmaFeld/CategoryTheory/TensorCategories/Chapter1/ExactSequences.lean` — §1.4 exact sequences
 - `LemmaFeld/CategoryTheory/TensorCategories/Chapter1/Simple.lean` — §1.5 simple objects
-- `LemmaFeld/CategoryTheory/TensorCategories/Chapter1/Semisimple.lean` — §1.5 semisimple objects (NEW)
+- `LemmaFeld/CategoryTheory/TensorCategories/Chapter1/Semisimple.lean` — §1.5 semisimple objects
+- `LemmaFeld/CategoryTheory/TensorCategories/Chapter1/FiniteLength.lean` — §1.5 finite length objects (NEW)
