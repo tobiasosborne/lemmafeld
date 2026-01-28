@@ -2,6 +2,14 @@
 
 ## Completed This Session (Current)
 
+- **lemmafeld-yqib (Ex 1.4.3ii Hochschild H¹)**: Enhanced `Chapter1/ExtAsDerivations.lean`
+  - `HochschildH1 R A M := (A →ₗ[R] M) ⧸ InnerDerivations R A M` — quotient module
+  - `HochschildH1.mk` — quotient linear map
+  - `HochschildH1.mk_eq_zero`, `mk_eq_mk` — equality characterization lemmas
+  - `HochschildH1.eq_bot_iff` — H¹ vanishes iff all maps are inner
+
+## Previous Session
+
 - **lemmafeld-2vyn (Ex 1.4.3ii Extension → Derivation)**: Created `Chapter1/ExtDerivationIso.lean`
   - `extensionDerivationAux s a y = a • s(y) - s(a • y)` — auxiliary function
   - `extensionDerivationAux_mem_ker` — lands in ker π when s is section

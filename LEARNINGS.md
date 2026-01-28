@@ -867,3 +867,27 @@ Without these, the proof of `map_smul'` fails since `s(a • (r • y)) ≠ r �
 - `extensionDerivation_add` — D(a+b) = D(a) + D(b)
 
 **Remaining:** Prove Leibniz rule D(ab) = a·D(b) + D(a)·b (bimodule form).
+
+## 2026-01-28: Hochschild H¹ as Quotient Module
+
+**Task:** Define first Hochschild cohomology H¹(A, M) = Der(A, M) / InnerDer(A, M).
+
+**Created:** Added to `Chapter1/ExtAsDerivations.lean`:
+
+1. `HochschildH1 R A M := (A →ₗ[R] M) ⧸ InnerDerivations R A M` — the quotient module
+2. `HochschildH1.mk` — quotient map (linear)
+3. `HochschildH1.mk_eq_zero` — element is zero iff inner derivation
+4. `HochschildH1.mk_eq_mk` — equality iff differ by inner derivation
+5. `HochschildH1.eq_bot_iff` — H¹ = 0 iff all linear maps are inner
+
+**Technical notes:**
+- Requires `CommRing R` (not just `CommSemiring`) for `HasQuotient` instance
+- Import `Mathlib.LinearAlgebra.Quotient.Basic` for `⧸` notation
+- `Submodule.mkQ_surjective` useful for working with quotient elements
+- `Submodule.Quotient.mk_eq_zero` for membership characterization
+
+**Remaining work for Ex 1.4.3(ii):**
+1. Define BimoduleDerivations (maps satisfying Leibniz) as submodule
+2. Show InnerDerivations ⊆ BimoduleDerivations
+3. Construct maps: extensions ↔ derivations
+4. Prove the isomorphism Ext¹(Y, X) ≅ H¹(A, Hom_k(Y, X))

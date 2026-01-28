@@ -6,6 +6,7 @@ Authors: LemmaFeld Contributors
 import Mathlib.RingTheory.Derivation.Basic
 import Mathlib.Algebra.Category.ModuleCat.Abelian
 import Mathlib.Algebra.Homology.DerivedCategory.Ext.Basic
+import Mathlib.LinearAlgebra.Quotient.Basic
 
 /-!
 # Chapter 1, Exercise 1.4.3(ii): Ext¹ as Derivations
@@ -74,19 +75,16 @@ This establishes the isomorphism Ext¹(Y, X) ≅ H¹(A, Homₖ(Y, X)).
 1. ✅ `InnerDerivation R A M` — inner derivation defined by element f ∈ M
 2. ✅ `innerDerivationMap R A M : M →ₗ[R] (A →ₗ[R] M)` — R-linear map f ↦ D_f
 3. ✅ `InnerDerivations R A M : Submodule R (A →ₗ[R] M)` — submodule of inner derivations
+4. ✅ `HochschildH1 R A M := (A →ₗ[R] M) ⧸ InnerDerivations R A M` — quotient module
+5. ✅ `HochschildH1.mk` — quotient map with `mk_eq_zero`, `mk_eq_mk` lemmas
+6. ✅ `HomRightSMul` — right A-action on Hom_k(Y, X) via precomposition
 
 ### Remaining for full proof:
 
-1. Define the quotient as first Hochschild cohomology:
-   ```
-   def HochschildH1 (A M) := (A →ₗ[R] M) ⧸ InnerDerivations R A M
-   ```
-
-4. For A-modules X, Y, make Homₖ(Y, X) into an A-bimodule
-
-5. Construct explicit maps between extensions and derivations
-
-6. Show the maps are inverses up to the appropriate equivalences
+1. Define bimodule derivations (maps satisfying Leibniz) as submodule
+2. Show InnerDerivations ⊆ BimoduleDerivations
+3. Construct explicit maps between extensions and derivations
+4. Show the maps are inverses up to the appropriate equivalences
 
 This is a significant formalization project beyond the scope of a single session.
 
@@ -256,6 +254,68 @@ lemma mem_innerDerivations_iff (D : A →ₗ[R] M) :
 
 end InnerDerivationsSubmodule
 
+/-! ### First Hochschild Cohomology
+
+The first Hochschild cohomology H¹(A, M) is defined as:
+  H¹(A, M) = Der(A, M) / InnerDer(A, M)
+
+For the full definition, we should quotient the bimodule derivations Der(A, M).
+Here we define a preliminary version as the quotient of all linear maps
+by inner derivations. For M an A-bimodule, this captures the "outer part"
+of linear maps.
+-/
+
+section HochschildH1
+
+variable (R A M : Type*) [CommRing R] [CommRing A] [AddCommGroup M]
+variable [Algebra R A] [Module A M] [Module Aᵐᵒᵖ M] [Module R M]
+variable [IsScalarTower R A M] [IsScalarTower R Aᵐᵒᵖ M] [SMulCommClass R Aᵐᵒᵖ M]
+
+/-- The first Hochschild cohomology H¹(A, M) as a quotient module.
+
+Formally, H¹(A, M) should be Der(A, M) / InnerDer(A, M) where Der(A, M) consists
+of maps satisfying the bimodule Leibniz rule. This definition gives the quotient
+of all R-linear maps by inner derivations, which equals H¹ when restricted to
+maps satisfying the Leibniz rule.
+
+For A-modules X, Y and M = Hom_k(Y, X), Exercise 1.4.3(ii) shows:
+  Ext¹(Y, X) ≅ H¹(A, Hom_k(Y, X))
+-/
+abbrev HochschildH1 := (A →ₗ[R] M) ⧸ InnerDerivations R A M
+
+/-- The quotient map from linear maps to H¹. -/
+def HochschildH1.mk : (A →ₗ[R] M) →ₗ[R] HochschildH1 R A M :=
+  (InnerDerivations R A M).mkQ
+
+/-- An element represents the zero class in H¹ iff it is an inner derivation. -/
+theorem HochschildH1.mk_eq_zero (D : A →ₗ[R] M) :
+    HochschildH1.mk R A M D = 0 ↔ D ∈ InnerDerivations R A M :=
+  Submodule.Quotient.mk_eq_zero (InnerDerivations R A M)
+
+/-- Two linear maps represent the same class in H¹ iff they differ by inner derivation. -/
+theorem HochschildH1.mk_eq_mk (D₁ D₂ : A →ₗ[R] M) :
+    HochschildH1.mk R A M D₁ = HochschildH1.mk R A M D₂ ↔
+    D₁ - D₂ ∈ InnerDerivations R A M := by
+  rw [← sub_eq_zero, ← LinearMap.map_sub, HochschildH1.mk_eq_zero]
+
+/-- H¹ is zero iff every linear map is inner. -/
+theorem HochschildH1.eq_bot_iff :
+    (⊤ : Submodule R (HochschildH1 R A M)) = ⊥ ↔
+    InnerDerivations R A M = ⊤ := by
+  rw [Submodule.eq_bot_iff, Submodule.eq_top_iff']
+  constructor
+  · intro h D
+    have hmem : HochschildH1.mk R A M D ∈ (⊤ : Submodule R (HochschildH1 R A M)) :=
+      Submodule.mem_top
+    have heq : HochschildH1.mk R A M D = 0 := h _ hmem
+    rwa [HochschildH1.mk_eq_zero] at heq
+  · intro h x _
+    obtain ⟨D, rfl⟩ := (InnerDerivations R A M).mkQ_surjective x
+    simp only [Submodule.mkQ_apply, Submodule.Quotient.mk_eq_zero]
+    exact h D
+
+end HochschildH1
+
 end InnerDerivations
 
 /-! ## The A-bimodule Structure on Hom_k(Y, X)
@@ -348,10 +408,13 @@ The proof involves:
 ### What this file provides:
 - ✅ `InnerDerivation R A M` — inner derivations defined by elements of M
 - ✅ `InnerDerivations R A M` — submodule of linear maps that are inner derivations
+- ✅ `HochschildH1 R A M` — quotient (A →ₗ[R] M) / InnerDerivations as H¹
+- ✅ `HochschildH1.mk` — quotient map with equality characterization
 - ✅ `HomRightSMul` — right A-action on Hom_k(Y, X) via precomposition
 
 ### Remaining gaps:
-- Hochschild H¹ as quotient Der/InnerDer (needs bimodule derivation type)
+- Bimodule derivations (maps satisfying Leibniz rule) as submodule
+- Show InnerDerivations ⊆ BimoduleDerivations
 - The explicit isomorphism Ext¹ ≅ H¹
 -/
 
