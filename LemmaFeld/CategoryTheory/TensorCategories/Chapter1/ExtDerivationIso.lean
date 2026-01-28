@@ -382,6 +382,125 @@ theorem extension_roundtrip (π : E →ₗ[A] Y) (s : Y →ₗ[k] E)
 
 end ExtensionRoundTrip
 
+/-! ## A-Linear Round-Trip Compatibility
+
+The key insight: when the equivalence `X ≃ ker π` is A-linear (not just k-linear),
+the map `extensionToSemidirect` respects the semi-direct A-action.
+
+This is the missing piece for the full ExtensionEquiv construction.
+-/
+
+section ALinearRoundTrip
+
+variable {k A : Type*} [CommRing k] [Ring A] [Algebra k A]
+variable {X E Y : Type*} [AddCommGroup X] [AddCommGroup E] [AddCommGroup Y]
+variable [Module k X] [Module k E] [Module k Y]
+variable [Module A X] [Module A E] [Module A Y]
+variable [IsScalarTower k A X] [IsScalarTower k A E] [IsScalarTower k A Y]
+variable [SMulCommClass A k E] [SMulCommClass A k Y]
+
+/-- When equiv is A-linear, the first component of extensionToSemidirect respects A-action.
+
+Given:
+- π : E →ₗ[A] Y (A-linear projection)
+- s : Y →ₗ[k] E (k-linear section)
+- equiv : X ≃ₗ[A] ker π (A-linear equivalence)
+
+The key equation:
+  equiv⁻¹(a • e - s(π(a • e))) = a • equiv⁻¹(e - s(π(e))) + equiv⁻¹(a • s(π(e)) - s(a • π(e)))
+
+Using A-linearity of equiv⁻¹ and π(a • e) = a • π(e):
+  LHS = equiv⁻¹(a • e - s(a • π(e)))
+  RHS = equiv⁻¹(a • (e - s(π(e))) + (a • s(π(e)) - s(a • π(e))))
+      = equiv⁻¹(a • e - a • s(π(e)) + a • s(π(e)) - s(a • π(e)))
+      = equiv⁻¹(a • e - s(a • π(e))) = LHS
+-/
+theorem extensionToSemidirect_A_linear_aux (π : E →ₗ[A] Y) (s : Y →ₗ[k] E)
+    (hs : ∀ y, π (s y) = y) (equiv : X ≃ₗ[A] LinearMap.ker π) (a : A) (e : E) :
+    -- The first component of φ(a • e) equals the semi-direct transformed first component
+    equiv.symm ⟨a • e - s (π (a • e)), diff_mem_ker π s hs (a • e)⟩ =
+    a • equiv.symm ⟨e - s (π e), diff_mem_ker π s hs e⟩ +
+    equiv.symm ⟨a • s (π e) - s (a • π e), extensionDerivationAux_mem_ker π s hs a (π e)⟩ := by
+  -- Apply equiv to both sides (equiv is a bijection)
+  apply_fun equiv using equiv.injective
+  rw [map_add, LinearEquiv.apply_symm_apply, LinearEquiv.apply_symm_apply,
+      LinearEquiv.map_smul, LinearEquiv.apply_symm_apply]
+  -- Now we need: ⟨a • e - s(π(a•e)), _⟩ = a • ⟨e - s(πe), _⟩ + ⟨a•s(πe) - s(a•πe), _⟩
+  ext
+  simp only [Submodule.coe_add, Submodule.coe_smul_of_tower, Submodule.coe_mk, smul_sub, map_smul]
+  -- a • e - s(a • π e) = (a • e - a • s(π e)) + (a • s(π e) - s(a • π e))
+  abel
+
+/-- The extracted derivation as a k-linear map (using A-linear equiv). -/
+def extractedDerivationLinear (π : E →ₗ[A] Y) (s : Y →ₗ[k] E)
+    (hs : ∀ y, π (s y) = y) (equiv : X ≃ₗ[A] LinearMap.ker π) (a : A) : Y →ₗ[k] X where
+  toFun y := equiv.symm ⟨a • s y - s (a • y), extensionDerivationAux_mem_ker π s hs a y⟩
+  map_add' y₁ y₂ := by
+    apply_fun equiv using equiv.injective
+    simp only [map_add, LinearEquiv.apply_symm_apply]
+    ext
+    simp only [Submodule.coe_add, Submodule.coe_mk, smul_add, map_add]
+    abel
+  map_smul' r y := by
+    simp only [RingHom.id_apply, map_smul, smul_comm a r (s y), smul_comm a r y]
+    -- Apply equiv to both sides and compare
+    apply_fun equiv using equiv.injective
+    simp only [LinearEquiv.apply_symm_apply]
+    -- Now need: ⟨r • a • s y - r • s (a • y), _⟩ = equiv (r • equiv.symm ⟨a • s y - s(a • y), _⟩)
+    -- Use: equiv (r • x) = r • equiv x via scalar tower
+    have h : equiv (r • equiv.symm ⟨a • s y - s (a • y),
+        extensionDerivationAux_mem_ker π s hs a y⟩) =
+        r • ⟨a • s y - s (a • y), extensionDerivationAux_mem_ker π s hs a y⟩ := by
+      rw [← smul_one_smul A r (equiv.symm _), LinearEquiv.map_smul,
+          LinearEquiv.apply_symm_apply, smul_one_smul]
+    rw [h]
+    ext
+    simp only [Submodule.coe_smul_of_tower, Submodule.coe_mk, smul_sub]
+
+/-- The full A-linear compatibility: extensionToSemidirect respects semi-direct action.
+
+This shows that the first component of φ(a • e) = a • (first component of φ(e)) + D(a)(π(e))
+and the second component of φ(a • e) = a • (second component of φ(e)).
+-/
+theorem extensionToSemidirect_respects_action (π : E →ₗ[A] Y) (s : Y →ₗ[k] E)
+    (hs : ∀ y, π (s y) = y) (equiv : X ≃ₗ[A] LinearMap.ker π) (a : A) (e : E) :
+    let φ := fun e' => (equiv.symm ⟨e' - s (π e'), diff_mem_ker π s hs e'⟩, π e')
+    let D := extractedDerivationLinear π s hs equiv
+    φ (a • e) = SemidirectSMul D a (φ e) := by
+  simp only [SemidirectSMul, extractedDerivationLinear, LinearMap.coe_mk, AddHom.coe_mk]
+  ext
+  · -- First component
+    exact extensionToSemidirect_A_linear_aux π s hs equiv a e
+  · -- Second component: π(a • e) = a • π(e)
+    exact map_smul π a e
+
+/-- Construct ExtensionEquiv from A-linear equiv.
+
+When we have:
+- Extension 0 → X → E → Y → 0 with A-linear inclusion i and projection π
+- A-linear equivalence equiv : X ≃ₗ[A] ker π (induced by i)
+- k-linear section s
+
+The semi-direct extension E_D built from the extracted derivation D is
+equivalent to the original extension E via the A-linear equivalence.
+-/
+theorem extension_roundtrip_equiv (i : X →ₗ[A] E) (π : E →ₗ[A] Y) (s : Y →ₗ[k] E)
+    (hs : ∀ y, π (s y) = y)
+    (equiv : X ≃ₗ[A] LinearMap.ker π)
+    (hi : i.comp equiv.symm.toLinearMap = Submodule.subtype _) :
+    -- Properties showing compatibility (using π(a•e) form to match diff_mem_ker type)
+    (∀ a e, (equiv.symm ⟨a • e - s (π (a • e)), diff_mem_ker π s hs (a • e)⟩ : X) =
+            a • equiv.symm ⟨e - s (π e), diff_mem_ker π s hs e⟩ +
+            equiv.symm ⟨a • s (π e) - s (a • π e), extensionDerivationAux_mem_ker π s hs a (π e)⟩) ∧
+    (∀ e, π e = (equiv.symm ⟨e - s (π e), diff_mem_ker π s hs e⟩, π e).2) := by
+  constructor
+  · intro a e
+    exact extensionToSemidirect_A_linear_aux π s hs equiv a e
+  · intro e
+    rfl
+
+end ALinearRoundTrip
+
 /-! ## Equivalence of Extensions
 
 Two extensions 0 → X → E → Y → 0 and 0 → X → E' → Y → 0 are equivalent if there exists
