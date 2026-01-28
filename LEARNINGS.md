@@ -114,3 +114,59 @@ class EssentiallySmall (C : Type u) [Category.{v} C] : Prop where
 - Book "equivalent to a small category" = Mathlib `∃ S, Nonempty (C ≌ S)`
 
 **Conclusion:** Mathlib APIs match book definitions exactly. No code needed.
+
+## 2026-01-28: TC 1.2.1 - Preadditive and Additive Categories
+
+**Task:** Verify mathlib's Preadditive and Additive category definitions match §1.2.
+
+**Book §1.2 defines:**
+
+**Definition 1.2.1** (Additive category): A category C satisfying:
+- (A1) Every Hom(X,Y) is an abelian group, composition is biadditive
+- (A2) Zero object exists with Hom(0,0) = 0
+- (A3) Direct sums exist (with p₁i₁ = id, p₂i₂ = id, i₁p₁ + i₂p₂ = id)
+
+**Definition 1.2.2** (k-linear category): Additive category where Hom(X,Y) are k-vector spaces and composition is k-linear.
+
+**Definition 1.2.3** (Additive functor): Functor where Hom maps are group homomorphisms.
+
+**Proposition 1.2.4**: Additive functor F satisfies F(X⊕Y) ≅ F(X)⊕F(Y).
+
+**Mathlib equivalents:**
+
+| Book Concept | Mathlib | Import |
+|-------------|---------|--------|
+| (A1) Hom groups + biadditive | `Preadditive` class | `Mathlib.CategoryTheory.Preadditive.Basic` |
+| (A2) Zero object | `HasZeroObject` class | `Mathlib.CategoryTheory.Limits.Shapes.ZeroObjects` |
+| (A3) Direct sums | `HasBinaryBiproducts` class | `Mathlib.CategoryTheory.Limits.Shapes.BinaryBiproducts` |
+| k-linear category | `Linear R C` | `Mathlib.CategoryTheory.Linear.Basic` |
+| Additive functor | `Functor.Additive` | `Mathlib.CategoryTheory.Preadditive.AdditiveFunctor` |
+| k-linear functor | `Functor.Linear R` | `Mathlib.CategoryTheory.Linear.LinearFunctor` |
+| Prop 1.2.4 | `PreservesBinaryBiproducts` | `Mathlib.CategoryTheory.Limits.Preserves.Shapes.Biproducts` |
+
+**Key insight:** Mathlib doesn't have a single "Additive category" class. Instead, an "additive category" in the book's sense requires three typeclasses:
+```lean
+variable [Preadditive C] [HasZeroObject C] [HasBinaryBiproducts C]
+```
+
+**Mathlib definitions (verified):**
+
+```lean
+-- Preadditive (A1): Hom groups with biadditive composition
+class Preadditive where
+  homGroup : ∀ P Q : C, AddCommGroup (P ⟶ Q)
+  add_comp : ∀ (P Q R : C) (f f' : P ⟶ Q) (g : Q ⟶ R), (f + f') ≫ g = f ≫ g + f' ≫ g
+  comp_add : ∀ (P Q R : C) (f : P ⟶ Q) (g g' : Q ⟶ R), f ≫ (g + g') = f ≫ g + f ≫ g'
+
+-- Linear (k-linear): R-module structure on Hom
+class Linear (R : Type w) [Semiring R] (C : Type u) [Category C] [Preadditive C] where
+  homModule : ∀ X Y : C, Module R (X ⟶ Y)
+  smul_comp : ∀ (X Y Z : C) (r : R) (f : X ⟶ Y) (g : Y ⟶ Z), (r • f) ≫ g = r • f ≫ g
+  comp_smul : ∀ (X Y Z : C) (f : X ⟶ Y) (r : R) (g : Y ⟶ Z), f ≫ (r • g) = r • f ≫ g
+
+-- Additive functor: preserves addition
+class Functor.Additive (F : C ⥤ D) : Prop where
+  map_add : ∀ {X Y : C} {f g : X ⟶ Y}, F.map (f + g) = F.map f + F.map g
+```
+
+**Conclusion:** Mathlib has complete coverage of §1.2. No code needed.
