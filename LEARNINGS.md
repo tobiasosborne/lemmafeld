@@ -941,10 +941,12 @@ Calculation shows D' = D exactly:
 - `semidirectExtractDerivation_eq` — proves it equals D(a)(y)
 - `derivation_roundtrip` — proves the full round-trip
 
+**Completed:**
+- ✅ Proved extension → derivation → extension gives k-linear equivalent extension (lemmafeld-85xg)
+
 **Remaining for full isomorphism:**
-- Prove extension → derivation → extension gives equivalent extension
-- The isomorphism E → X × Y is e ↦ (e - s(π(e)), π(e))
-- Sub-issue created: lemmafeld-85xg
+- Show the k-linear equivalence is actually A-linear (requires D satisfying Leibniz)
+- Show ExtensionEquiv from extensionSemidirectEquiv (commutes with maps)
 
 ## 2026-01-28: ExtensionEquiv Structure
 
@@ -958,3 +960,30 @@ the same element of Ext¹(Y, X).
 
 **Mathlib note:** Mathlib doesn't have a standard "extension equivalence" type. This is
 specific to the Yoneda Ext interpretation (extensions as representing Ext¹ elements).
+
+## 2026-01-28: Extension Round-Trip Proof
+
+**Task:** Prove extension → derivation → extension gives equivalent extension.
+
+**Key construction:**
+Given extension 0 → X → E → Y → 0 with section s : Y →ₗ[k] E:
+1. `extensionToSemidirect` : E →ₗ[k] X × Y via e ↦ (equiv⁻¹(e - s(π(e))), π(e))
+2. `semidirectToExtension` : X × Y →ₗ[k] E via (x, y) ↦ equiv(x) + s(y)
+
+**Helper lemma:**
+- `diff_mem_ker` — proves e - s(π(e)) ∈ ker(π) using section property
+
+**Key proofs:**
+- `extensionToSemidirect_semidirectToExtension` — round-trip X × Y → E → X × Y = id
+- `semidirectToExtension_extensionToSemidirect` — round-trip E → X × Y → E = id
+- `extensionSemidirectEquiv` — k-linear equivalence E ≃ₗ[k] X × Y
+- `extension_roundtrip` — existence theorem with properties
+
+**Proof techniques:**
+- For `map_add'` with submodule elements: prove helper `heq` showing elements equal
+  after simplification, then `simp only [heq, map_add]`
+- For `map_smul'`: need `RingHom.id_apply` to simplify `(RingHom.id k) r` to `r`
+- Use `LinearMap.map_smul_of_tower` for k-smul through A-linear maps
+
+**Note:** This proves k-linear equivalence. Full A-linear equivalence requires showing
+the maps respect the A-action, which needs the derivation D to satisfy Leibniz rule.

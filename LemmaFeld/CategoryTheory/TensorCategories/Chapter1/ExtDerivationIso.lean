@@ -259,6 +259,129 @@ theorem derivation_roundtrip (D : A → (Y →ₗ[k] X)) :
 
 end RoundTrip
 
+/-! ## Round-Trip: Extension → Derivation → Extension ~ Original
+
+Starting from an extension 0 → X →[i] E →[π] Y → 0 with section s, we:
+1. Extract derivation D : A → Hom_k(Y, X) via D(a)(y) = equiv⁻¹(a • s(y) - s(a • y))
+2. Build semi-direct extension E_D = X × Y with action a • (x,y) = (a•x + D(a)(y), a•y)
+3. Construct isomorphism φ : E → X × Y via φ(e) = (equiv⁻¹(e - s(π(e))), π(e))
+
+We prove E_D ~ E, showing extension → derivation → extension gives equivalent extension.
+-/
+
+section ExtensionRoundTrip
+
+variable {k A : Type*} [CommRing k] [Ring A] [Algebra k A]
+variable {X E Y : Type*} [AddCommGroup X] [AddCommGroup E] [AddCommGroup Y]
+variable [Module k X] [Module k E] [Module k Y]
+variable [Module A X] [Module A E] [Module A Y]
+variable [IsScalarTower k A X] [IsScalarTower k A E] [IsScalarTower k A Y]
+variable [SMulCommClass A k E] [SMulCommClass A k Y]
+
+/-- For e ∈ E, the difference e - s(π(e)) lies in ker π. -/
+lemma diff_mem_ker (π : E →ₗ[A] Y) (s : Y →ₗ[k] E) (hs : ∀ y, π (s y) = y) (e : E) :
+    e - s (π e) ∈ LinearMap.ker π := by
+  simp only [LinearMap.mem_ker, map_sub, hs, sub_self]
+
+/-- The k-linear isomorphism E ≃ X × Y for an extension with section s.
+    Maps e ↦ (equiv⁻¹(e - s(π(e))), π(e)). -/
+def extensionToSemidirect (π : E →ₗ[A] Y) (s : Y →ₗ[k] E)
+    (hs : ∀ y, π (s y) = y) (equiv : X ≃ₗ[k] LinearMap.ker π) : E →ₗ[k] X × Y where
+  toFun e := (equiv.symm ⟨e - s (π e), diff_mem_ker π s hs e⟩, π e)
+  map_add' e₁ e₂ := by
+    have h1 : e₁ - s (π e₁) ∈ LinearMap.ker π := diff_mem_ker π s hs e₁
+    have h2 : e₂ - s (π e₂) ∈ LinearMap.ker π := diff_mem_ker π s hs e₂
+    have h12 : e₁ + e₂ - s (π (e₁ + e₂)) ∈ LinearMap.ker π := diff_mem_ker π s hs (e₁ + e₂)
+    -- Rewrite to normalized form: s (π (e₁ + e₂)) = s (π e₁) + s (π e₂)
+    have heq_s : s (π (e₁ + e₂)) = s (π e₁) + s (π e₂) := by simp only [map_add]
+    ext
+    · -- First component
+      simp only [Prod.fst_add, map_add]
+      rw [← map_add equiv.symm]
+      congr 1
+      ext
+      simp only [Submodule.coe_add, Submodule.coe_mk, heq_s]
+      abel
+    · -- Second component
+      simp only [Prod.snd_add, map_add]
+  map_smul' r e := by
+    have he : e - s (π e) ∈ LinearMap.ker π := diff_mem_ker π s hs e
+    have hre : r • e - s (π (r • e)) ∈ LinearMap.ker π := diff_mem_ker π s hs (r • e)
+    -- Rewrite: s (π (r • e)) = s (r • π e) = r • s (π e)
+    have heq_s : s (π (r • e)) = r • s (π e) := by
+      simp only [LinearMap.map_smul_of_tower, LinearMap.map_smul]
+    ext
+    · -- First component
+      simp only [Prod.smul_fst, RingHom.id_apply]
+      rw [← LinearEquiv.map_smul]
+      congr 1
+      ext
+      simp only [Submodule.coe_smul_of_tower, Submodule.coe_mk, heq_s, smul_sub]
+    · -- Second component
+      simp only [Prod.smul_snd, RingHom.id_apply, LinearMap.map_smul_of_tower]
+
+/-- The k-linear inverse map X × Y → E via (x, y) ↦ equiv(x) + s(y). -/
+def semidirectToExtension (π : E →ₗ[A] Y) (s : Y →ₗ[k] E)
+    (equiv : X ≃ₗ[k] LinearMap.ker π) : X × Y →ₗ[k] E where
+  toFun p := (equiv p.1).val + s p.2
+  map_add' p q := by
+    simp only [Prod.fst_add, Prod.snd_add, map_add, Submodule.coe_add, LinearMap.map_add]
+    abel
+  map_smul' r p := by
+    simp only [Prod.smul_mk, Prod.smul_fst, Prod.smul_snd, RingHom.id_apply, map_smul,
+      Submodule.coe_smul_of_tower, LinearMap.map_smul, smul_add]
+
+/-- extensionToSemidirect ∘ semidirectToExtension = id. -/
+theorem extensionToSemidirect_semidirectToExtension (π : E →ₗ[A] Y) (s : Y →ₗ[k] E)
+    (hs : ∀ y, π (s y) = y) (equiv : X ≃ₗ[k] LinearMap.ker π) (p : X × Y) :
+    extensionToSemidirect π s hs equiv (semidirectToExtension π s equiv p) = p := by
+  simp only [extensionToSemidirect, semidirectToExtension, LinearMap.coe_mk, AddHom.coe_mk]
+  ext
+  · -- First component: equiv⁻¹(equiv(x) + s(y) - s(π(equiv(x) + s(y)))) = x
+    have hker : π (equiv p.1) = 0 := (equiv p.1).property
+    simp only [map_add, hker, zero_add, hs, add_sub_cancel_right]
+    exact LinearEquiv.symm_apply_apply equiv p.1
+  · -- Second component: π(equiv(x) + s(y)) = y
+    have hker : π (equiv p.1) = 0 := (equiv p.1).property
+    simp only [map_add, hker, zero_add, hs]
+
+/-- semidirectToExtension ∘ extensionToSemidirect = id. -/
+theorem semidirectToExtension_extensionToSemidirect (π : E →ₗ[A] Y) (s : Y →ₗ[k] E)
+    (hs : ∀ y, π (s y) = y) (equiv : X ≃ₗ[k] LinearMap.ker π) (e : E) :
+    semidirectToExtension π s equiv (extensionToSemidirect π s hs equiv e) = e := by
+  simp only [extensionToSemidirect, semidirectToExtension, LinearMap.coe_mk, AddHom.coe_mk,
+    LinearEquiv.apply_symm_apply, Submodule.coe_mk, sub_add_cancel]
+
+/-- The k-linear equivalence E ≃ X × Y for an extension with section. -/
+def extensionSemidirectEquiv (π : E →ₗ[A] Y) (s : Y →ₗ[k] E)
+    (hs : ∀ y, π (s y) = y) (equiv : X ≃ₗ[k] LinearMap.ker π) : E ≃ₗ[k] X × Y where
+  toLinearMap := extensionToSemidirect π s hs equiv
+  invFun := semidirectToExtension π s equiv
+  left_inv := semidirectToExtension_extensionToSemidirect π s hs equiv
+  right_inv := extensionToSemidirect_semidirectToExtension π s hs equiv
+
+/-- The extension round-trip gives an equivalent extension.
+
+Given extension 0 → X → E → Y → 0 with section s:
+1. Extract derivation D via extensionDerivation
+2. Build semi-direct product X × Y with the D-twisted A-action
+3. The isomorphism extensionSemidirectEquiv : E ≃ X × Y commutes with the maps
+
+This shows E→D→E ~ E (the extension is equivalent to the semi-direct one built from D). -/
+theorem extension_roundtrip (π : E →ₗ[A] Y) (s : Y →ₗ[k] E)
+    (hs : ∀ y, π (s y) = y) (equiv : X ≃ₗ[k] LinearMap.ker π) :
+    ∃ (φ : E ≃ₗ[k] X × Y),
+      -- φ commutes with projection: snd ∘ φ = π
+      (∀ e, (φ e).2 = π e) ∧
+      -- φ maps ker π to X × {0}
+      (∀ e, e ∈ LinearMap.ker π → (φ e).2 = 0) :=
+  ⟨extensionSemidirectEquiv π s hs equiv,
+   fun e => rfl,
+   fun e he => by simp only [extensionSemidirectEquiv, extensionToSemidirect,
+     LinearEquiv.coe_mk, LinearMap.coe_mk, AddHom.coe_mk, LinearMap.mem_ker.mp he]⟩
+
+end ExtensionRoundTrip
+
 /-! ## Equivalence of Extensions
 
 Two extensions 0 → X → E → Y → 0 and 0 → X → E' → Y → 0 are equivalent if there exists

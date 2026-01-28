@@ -2,6 +2,18 @@
 
 ## Completed This Session (Current)
 
+- **lemmafeld-85xg (Ex 1.4.3ii Extension Round-Trip)**: Enhanced `Chapter1/ExtDerivationIso.lean`
+  - `diff_mem_ker` — helper: e - s(π(e)) ∈ ker(π)
+  - `extensionToSemidirect` — k-linear map E → X × Y via e ↦ (equiv⁻¹(e - s(π(e))), π(e))
+  - `semidirectToExtension` — k-linear inverse X × Y → E via (x, y) ↦ equiv(x) + s(y)
+  - `extensionToSemidirect_semidirectToExtension` — **PROVED**: round-trip is id
+  - `semidirectToExtension_extensionToSemidirect` — **PROVED**: other round-trip is id
+  - `extensionSemidirectEquiv` — k-linear equivalence E ≃ₗ[k] X × Y
+  - `extension_roundtrip` — main theorem: equivalence exists with projection compatibility
+  - File is now 476 LOC (hygiene issue lemmafeld-ehs6 still open)
+
+## Previous Session
+
 - **lemmafeld-izzr (Ex 1.4.3ii Isomorphism) - PARTIAL**: Enhanced `Chapter1/ExtDerivationIso.lean`
   - `semidirectExtractDerivation` — extraction function D'(a)(y) from semi-direct product
   - `derivation_roundtrip` — **PROVED**: D → E → D = D (one direction of isomorphism)
