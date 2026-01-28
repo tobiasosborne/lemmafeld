@@ -2,6 +2,12 @@
 
 ## Completed This Session (Current)
 
+- **TC 1.5.7 Krull-Schmidt**: Created `Chapter1/KrullSchmidt.lean`
+  - `IndecomposableDecomposition C X` structure for decomposition into indecomposables
+  - `DecompositionsEquivalent` - equivalence up to permutation
+  - `KrullSchmidt_Existence`, `KrullSchmidt_Uniqueness`, `KrullSchmidt_Theorem` statements
+  - `FittingLemma`, `EndomorphismRingIsLocal` - key supporting statements
+
 - **Ex 1.4.3(ii) InnerDerivation**: Added `InnerDerivation R A M` structure to `Chapter1/ExtAsDerivations.lean`
   - `toFun`: `a ↦ a • f - MulOpposite.op a • f`
   - `toLinearMap`: R-linear map with proper scalar tower conditions
@@ -78,7 +84,8 @@
 - **Chapter1/Semisimple.lean** — §1.5 Semisimple objects (IsSemisimple X, SemisimpleCategory C)
 - **Chapter1/FiniteLength.lean** — §1.5 Finite length (IsFiniteLengthObject, FiniteLengthCategory)
 - **Chapter1/JordanHolder.lean** — §1.5 Jordan-Hölder series + multiplicity independence (§1.5.6)
-- All thirteen files build successfully
+- **Chapter1/KrullSchmidt.lean** — §1.5 Krull-Schmidt theorem (statements, gaps noted)
+- All fourteen files build successfully
 
 ## Next Steps
 

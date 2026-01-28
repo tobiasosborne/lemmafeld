@@ -711,6 +711,32 @@ Would require:
 2. Define `Iso` for pairs (quotients isomorphic)
 3. Prove second isomorphism theorem for subobjects
 
+## 2026-01-28: TC 1.5.7 - Krull-Schmidt Theorem
+
+**Task:** Formalize Krull-Schmidt theorem (Theorem 1.5.7).
+
+**Book statement:** Any object of finite length admits a unique (up to isomorphism)
+decomposition into a direct sum of indecomposable objects.
+
+**Mathlib status:**
+- `CategoryTheory.Indecomposable X` exists - definition only
+- `indecomposable_of_simple` - simple ⟹ indecomposable
+- **NO Krull-Schmidt theorem** in mathlib
+
+**Created:** `Chapter1/KrullSchmidt.lean` with:
+- `IndecomposableDecomposition C X` structure (n, components, indecomposable, iso)
+- `DecompositionsEquivalent` - equivalence up to permutation and iso
+- `KrullSchmidt_Existence` - statement that finite length implies decomposition exists
+- `KrullSchmidt_Uniqueness` - statement that decompositions are unique
+- `FittingLemma` - statement for indecomposable objects (nilpotent or unit)
+- `EndomorphismRingIsLocal` - local ring property for End(X)
+
+**Gap:** Full proof requires:
+1. Fitting's Lemma (~50-100 LOC)
+2. Local endomorphism ring property (~30-50 LOC)
+3. Existence proof by induction on length (~50-100 LOC)
+4. Uniqueness proof using exchange lemma (~100-150 LOC)
+
 ## 2026-01-28: TC 1.5.6 - Multiplicity Independence
 
 **Task:** Formalize Jordan-Hölder theorem multiplicity independence (Theorem 1.5.4).
