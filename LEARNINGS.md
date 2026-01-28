@@ -557,3 +557,32 @@ example : biprod.map (f ≫ h) (g ≫ k) = biprod.map f g ≫ biprod.map h k := 
 2. Since `biprod ≅ prod` via `biprod.isoProd`, one can use `prod.functor` if a functor object is needed
 
 **Conclusion:** Mathlib has complete bifunctor API for direct sums. No code needed.
+
+## 2026-01-28: TC 1.3.1-1.3.4 - Abelian Categories (§1.3)
+
+**Created:** `Chapter1/Abelian.lean`
+
+**Book §1.3 covers:**
+- Kernel/cokernel definitions
+- Definition 1.3.1 (Abelian category via canonical decomposition)
+- Definition 1.3.4 (Mono = Ker is 0, Epi = Coker is 0)
+- Definition 1.3.5 (Subobjects and quotients)
+
+**Mathlib mapping:**
+
+| Book Concept | Mathlib | Notes |
+|--------------|---------|-------|
+| Kernel | `kernel f` | `kernel.ι f`, `kernel.condition f`, `kernel.lift` |
+| Cokernel | `cokernel f` | `cokernel.π f`, `cokernel.condition f`, `cokernel.desc` |
+| Abelian category | `Abelian C` | Combines Preadditive, HasKernels, HasCokernels, IsNormalMono/EpiCategory |
+| Coimage = Coker(Ker) | `Abelian.coimage f` | `cokernel (kernel.ι f)` |
+| Image = Ker(Coker) | `Abelian.image f` | `kernel (cokernel.π f)` |
+| Canonical decomposition | `coimage_image_factorisation f` | `coimage.π f ≫ coimageImageComparison f ≫ image.ι f = f` |
+| Coimage ≅ Image | `coimageImageComparison f` is `IsIso` | Key property of abelian categories |
+| Mono ↔ Ker = 0 | `kernel.ι_of_mono`, `Preadditive.mono_of_kernel_zero` | |
+| Epi ↔ Coker = 0 | `cokernel.π_of_epi`, `Preadditive.epi_of_cokernel_zero` | |
+| Mono + Epi → Iso | `isIso_of_mono_of_epi f` | Key abelian property |
+
+**API gotcha:** `mono_of_kernel_ι_eq_zero` in `CategoryTheory.Abelian` has section variable scoping that can cause issues. Use `Preadditive.mono_of_kernel_zero h` instead for clearer application. Similarly for `epi_of_cokernel_π_eq_zero`.
+
+**Mitchell embedding (Theorem 1.3.8):** Not in mathlib as of 2024 - would be a significant formalization project.
