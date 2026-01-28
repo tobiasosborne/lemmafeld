@@ -2,6 +2,11 @@
 
 ## Completed This Session (Current)
 
+- **lemmafeld-457 (TC 1.5.1)**: Created `Chapter1/Simple.lean` with §1.5 simple objects
+- **lemmafeld-vxvh (TC 1.5.3)**: Covered by Simple.lean (Schur's Lemma via isIso_of_hom_simple)
+
+## Previous Session
+
 - **lemmafeld-ada (TC 1.4.1)**: Created `Chapter1/ExactSequences.lean` with §1.4 exact sequences
 - **lemmafeld-011 (TC 1.4.2)**: Covered by ExactSequences.lean (short exact, fIsKernel, gIsCokernel)
 - **lemmafeld-0ni (TC 1.4.3)**: Covered by ExactSequences.lean (Ext¹ via derived functors noted)
@@ -34,13 +39,14 @@
 - **Chapter1/DirectSum.lean** — §1.2 direct sum bifunctor ⊕ : C × C → C
 - **Chapter1/Abelian.lean** — §1.3 Abelian categories (kernel, cokernel, canonical decomposition, mono/epi)
 - **Chapter1/ExactSequences.lean** — §1.4 Exact sequences (ShortComplex, ShortExact, Ext¹ notes)
-- All seven files build successfully
+- **Chapter1/Simple.lean** — §1.5 Simple objects (Simple X, Schur's Lemma, Indecomposable)
+- All eight files build successfully
 
 ## Next Steps
 
-1. TC 1.5.x: Simple objects, Jordan-Hölder theorem
-2. TC 1.6.x: Projective and injective objects
-3. TC 1.7.x: Higher Ext groups
+1. TC 1.5.2: Semisimple objects (gap - not in mathlib)
+2. TC 1.5.4-1.5.8: Finite length, Jordan-Hölder, Krull-Schmidt, Grothendieck group
+3. TC 1.6.x: Projective and injective objects
 
 ## Known Issues / Gotchas
 
@@ -56,6 +62,7 @@
 - `mono_of_kernel_ι_eq_zero` in Abelian namespace conflicts with variable scoping - use `Preadditive.mono_of_kernel_zero` instead
 - `epi_of_cokernel_π_eq_zero` similarly - use `Preadditive.epi_of_cokernel_zero` instead
 - `ShortExact.isIso_f_iff` not `isIso_f` — returns `IsIso S.f ↔ IsZero S.X₃`
+- `isIso_of_hom_simple` requires `[HasKernels C]` — add this or use `[Abelian C]`
 
 ## Files Modified
 
@@ -65,4 +72,5 @@
 - `LemmaFeld/CategoryTheory/TensorCategories/Chapter1/Additive.lean` — §1.2 additive categories
 - `LemmaFeld/CategoryTheory/TensorCategories/Chapter1/DirectSum.lean` — §1.2 direct sum bifunctor
 - `LemmaFeld/CategoryTheory/TensorCategories/Chapter1/Abelian.lean` — §1.3 abelian categories
-- `LemmaFeld/CategoryTheory/TensorCategories/Chapter1/ExactSequences.lean` — §1.4 exact sequences (NEW)
+- `LemmaFeld/CategoryTheory/TensorCategories/Chapter1/ExactSequences.lean` — §1.4 exact sequences
+- `LemmaFeld/CategoryTheory/TensorCategories/Chapter1/Simple.lean` — §1.5 simple objects (NEW)
