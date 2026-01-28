@@ -2,6 +2,17 @@
 
 ## Completed This Session (Current)
 
+- **lemmafeld-5rat (Ex 1.4.3ii A-Linear Equivalence) - COMPLETE**: Enhanced `Chapter1/ExtDerivationIso.lean`
+  - Added `ALinearRoundTrip` section with A-linear compatibility theorems
+  - `extensionToSemidirect_A_linear_aux` — core decomposition: `a•e - s(π(a•e)) = a•(e - s(π e)) + (a•s(π e) - s(a•π e))`
+  - `extractedDerivationLinear` — k-linear map `Y →ₗ[k] X` from A-linear equiv
+  - `extensionToSemidirect_respects_action` — compatibility with semi-direct A-action
+  - `extension_roundtrip_equiv` — main theorem combining both round-trip properties
+  - Key insight: when `equiv : X ≃ₗ[A] ker π` is A-linear (not just k-linear), the map respects semi-direct action
+  - File now 595 LOC (+119 lines), hygiene issue lemmafeld-ehs6 still open
+
+## Previous Session
+
 - **lemmafeld-izzr (Ex 1.4.3ii Isomorphism) - PARTIALLY BLOCKED**: Enhanced `Chapter1/ExtDerivationIso.lean`
   - Added documentation section "A-Linear Equivalence for Extensions (Gap)"
   - Identified key technical challenge: need A-linear (not just k-linear) equivalence
@@ -156,16 +167,16 @@
 
 ## Next Steps
 
-1. **lemmafeld-5rat**: Complete A-linear extension equivalence proof (~50 LOC)
-2. **lemmafeld-ehs6**: Split ExtDerivationIso.lean (495 LOC > 200 guideline)
+1. **lemmafeld-izzr**: Complete Ex 1.4.3(ii) isomorphism now that A-linearity is proved
+2. **lemmafeld-ehs6**: Split ExtDerivationIso.lean (595 LOC > 200 guideline) - URGENT
 3. TC 1.5.7-1.5.8: Krull-Schmidt theorem, Grothendieck group
 4. TC 1.6.x: Projective and injective objects
 
 ## Known Issues / Gotchas
 
-- **A-linearity gap in Ex 1.4.3(ii)**: k-linear equiv `E ≃ₗ[k] X × Y` proved, but A-linear version
-  needs `equiv : X ≃ₗ[A] ker π` (from A-linear inclusion). Use `LinearMap.restrictScalars`
-  and `CompatibleSMul` instances to connect A-linear and k-linear structures.
+- **A-linearity gap in Ex 1.4.3(ii)**: RESOLVED in lemmafeld-5rat. Key insight: use `IsScalarTower k A X`
+  and require `equiv : X ≃ₗ[A] ker π` (A-linear). Then scalar tower manipulation with
+  `smul_one_smul` handles k-scalar through A-linear equiv.
 - `bd ready` returns later chapter issues first - prioritize Chapter 1-2 foundations
 - Avoid `abbrev X := @SomeClass` with universe polymorphism - use comments instead
 - Universe variables need explicit `universe w` declaration in sections that use them

@@ -1008,3 +1008,26 @@ to be shown A-linear (respecting semi-direct action) to get a true `ExtensionEqu
 - `LinearMap.CompatibleSMul M N k A` for the instances to work together
 
 **Created issue:** lemmafeld-5rat for the A-linearity proof (~50 LOC remaining)
+
+## 2026-01-28: Ex 1.4.3(ii) A-Linearity Gap — RESOLVED
+
+**Resolution:** The A-linearity gap has been closed in lemmafeld-5rat.
+
+**Key techniques used:**
+1. **IsScalarTower k A X**: Establishes k-scalars work through A-scalars
+2. **apply_fun equiv using equiv.injective**: Move proofs to Subtype level
+3. **smul_one_smul A r x**: Rewrite `r • x` as `(r • 1) • x` for A-algebra manipulation
+4. **Explicit membership proofs**: Use `have hmem : _ ∈ ker π := ...` for subtype construction
+
+**Pattern for k-scalar through A-linear equiv:**
+```lean
+-- When equiv : X ≃ₗ[A] ker π is A-linear, handle k-scalar as:
+have h : equiv (r • equiv.symm ⟨...⟩) = r • ⟨...⟩ := by
+  rw [← smul_one_smul A r (equiv.symm _), LinearEquiv.map_smul,
+      LinearEquiv.apply_symm_apply, smul_one_smul]
+```
+
+**API gotchas:**
+- `LinearEquiv.map_smul_of_tower` doesn't exist — use `smul_one_smul` rewriting instead
+- Subtype equality proofs: use `ext` after `apply_fun` to access underlying element
+- `abel` tactic works well after `simp only` on Submodule.coe operations
