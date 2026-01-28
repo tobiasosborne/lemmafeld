@@ -842,3 +842,28 @@ The bijection `f` between indices with `Iso`-respecting property means:
 **Implementation note:** The right action is typically modeled as a left Aᵐᵒᵖ-action.
 The function `HomRightSMul (op a) f = f.comp (DistribMulAction.toLinearMap k Y a)`
 gives the expected behavior `HomRightSMul (op a) f y = f (a • y)`.
+
+## 2026-01-28: Extension-to-Derivation Construction
+
+**Task:** Given short exact sequence 0 → X → E → Y → 0 of A-modules and k-linear section s,
+construct derivation D : A → Hom_k(Y, X) by D(a)(y) = a • s(y) - s(a • y).
+
+**Created:** `Chapter1/ExtDerivationIso.lean`
+
+**Key insight:** For D(a) to be k-linear in y, we need:
+- `SMulCommClass A k E` — so `a • (r • e) = r • (a • e)` for r : k, a : A, e : E
+- `SMulCommClass A k Y` — similarly for Y
+
+Without these, the proof of `map_smul'` fails since `s(a • (r • y)) ≠ r • s(a • y)` in general.
+
+**Construction:**
+1. `extensionDerivationAux s a y = a • s y - s (a • y)` — lands in E
+2. `extensionDerivationAux_mem_ker` — proves this is in ker π (using section property)
+3. `extensionDerivationToKer` — k-linear map Y → ker π (using SMulCommClass)
+4. `extensionDerivation` — compose with equiv.symm to land in X
+
+**Properties proved:**
+- `extensionDerivation_one` — D(1) = 0
+- `extensionDerivation_add` — D(a+b) = D(a) + D(b)
+
+**Remaining:** Prove Leibniz rule D(ab) = a·D(b) + D(a)·b (bimodule form).

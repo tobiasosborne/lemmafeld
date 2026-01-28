@@ -2,6 +2,14 @@
 
 ## Completed This Session (Current)
 
+- **lemmafeld-2vyn (Ex 1.4.3ii Extension → Derivation)**: Created `Chapter1/ExtDerivationIso.lean`
+  - `extensionDerivationAux s a y = a • s(y) - s(a • y)` — auxiliary function
+  - `extensionDerivationAux_mem_ker` — lands in ker π when s is section
+  - `extensionDerivationToKer` — k-linear map Y → ker π for fixed a
+  - `extensionDerivation` — full map A → (Y →ₗ[k] X)
+  - `extensionDerivation_one`, `extensionDerivation_add` — basic properties
+  - Requires `[SMulCommClass A k E]`, `[SMulCommClass A k Y]` for k-linearity
+
 - **lemmafeld-oti7 (Ex 1.4.3ii InnerDerivations Submodule)**: Enhanced `Chapter1/ExtAsDerivations.lean`
   - `innerDerivationMap R A M : M →ₗ[R] (A →ₗ[R] M)` — R-linear map f ↦ D_f
   - `InnerDerivations R A M : Submodule R (A →ₗ[R] M)` — range of innerDerivationMap
