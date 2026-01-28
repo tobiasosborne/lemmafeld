@@ -591,3 +591,46 @@ example : biprod.map (f ≫ h) (g ≫ k) = biprod.map f g ≫ biprod.map h k := 
   - `freyd_mitchell` — the main theorem (full, faithful, preserves finite limits/colimits)
 
   **CORRECTION (2026-01-28):** Previous agent incorrectly claimed this was not in mathlib. This was wrong.
+
+## 2026-01-28: TC 1.5.2 - Semisimple Objects and Categories
+
+**Task:** Define semisimple objects and semisimple categories (Definition 1.5.1 second part).
+
+**Book Definition 1.5.1:**
+- Object X is *semisimple* if it is a direct sum of simple objects
+- Category C is *semisimple* if every object is semisimple
+
+**Created:** `Chapter1/Semisimple.lean`
+
+**Mathlib gap confirmed:** Mathlib does NOT have categorical semisimplicity:
+- `IsSemisimpleModule R M` exists for modules
+- `HomOrthogonal` exists (preliminary to semisimple categories)
+- No `Semisimple X` or `SemisimpleCategory C` for general abelian categories
+
+**Implementation:**
+
+```lean
+/-- An object X is semisimple if it is isomorphic to a finite biproduct of simple objects. -/
+def IsSemisimple (X : C) : Prop :=
+  ∃ (ι : Type) (_ : Fintype ι) (S : ι → C), (∀ i, Simple (S i)) ∧ Nonempty (X ≅ ⨁ S)
+
+/-- A category is semisimple if every object is semisimple. -/
+class SemisimpleCategory (C : Type*) [Category C] [HasZeroMorphisms C]
+    [HasFiniteBiproducts C] : Prop where
+  isSemisimple : ∀ X : C, IsSemisimple X
+```
+
+**Key lemmas proved:**
+- `Simple.isSemisimple` — simple objects are semisimple
+- `IsSemisimple.of_iso` — semisimplicity preserved by isomorphism
+- `homOrthogonal_of_simple` — simple objects form a hom orthogonal family
+
+**API notes:**
+- `biproductUniqueIso [Unique J] (f : J → C) : ⨁ f ≅ f default` — for single element biproduct
+- No `biproduct.isoPEmpty` or `biproduct.isoUnit` exist
+- Connecting `biprod X Y` to `biproduct (Sum.elim SX SY)` requires manual construction
+
+**Future work needed:**
+- Prove zero object is semisimple (empty biproduct)
+- Prove biproduct of semisimple objects is semisimple
+- Connect to `IsSemisimpleModule` for ModuleCat
