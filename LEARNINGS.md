@@ -889,5 +889,33 @@ Without these, the proof of `map_smul'` fails since `s(a • (r • y)) ≠ r �
 **Remaining work for Ex 1.4.3(ii):**
 1. Define BimoduleDerivations (maps satisfying Leibniz) as submodule
 2. Show InnerDerivations ⊆ BimoduleDerivations
-3. Construct maps: extensions ↔ derivations
+3. ✅ Construct maps: derivations → extensions (SemidirectSMul)
 4. Prove the isomorphism Ext¹(Y, X) ≅ H¹(A, Hom_k(Y, X))
+
+## 2026-01-28: Derivation-to-Extension Construction
+
+**Task:** Given derivation D : A → Hom_k(Y, X), construct extension 0 → X → E → Y → 0.
+
+**Created:** Enhanced `Chapter1/ExtDerivationIso.lean`
+
+**Book construction:**
+- E = X × Y as k-vector spaces
+- A-action: a · (x, y) = (a · x + D(a)(y), a · y)
+
+**Key mathlib APIs:**
+- `LinearMap.inl k X Y : X →ₗ[k] X × Y` — inclusion into first factor
+- `LinearMap.inr k X Y : Y →ₗ[k] X × Y` — inclusion into second factor
+- `LinearMap.fst k X Y : X × Y →ₗ[k] X` — first projection
+- `LinearMap.snd k X Y : X × Y →ₗ[k] Y` — second projection
+- Import: `Mathlib.LinearAlgebra.Prod`
+
+**Module property proofs require:**
+- `D(1) = 0` for `one_smul`
+- `D(ab) = a • D(b) + D(a) ∘ (b • ·)` (bimodule Leibniz) for `mul_smul`
+- `D(a + b) = D(a) + D(b)` for `add_smul`
+
+**Proof techniques:**
+- For `Prod.mk = Prod.mk` goals, use `Prod.mk.injEq` to split into components
+- `Prod.mk_add_mk` useful for simplifying `(a, b) + (c, d) = (a + c, b + d)`
+- After `simp ... [Prod.mk.injEq]`, goals may become `_ ∧ True` — use `trivial` not `rfl`
+- Use `mul_smul` (unqualified) for module associativity `(a * b) • x = a • (b • x)`

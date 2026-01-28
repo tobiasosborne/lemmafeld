@@ -2,13 +2,24 @@
 
 ## Completed This Session (Current)
 
+- **lemmafeld-sqw7 (Ex 1.4.3ii Derivation → Extension)**: Enhanced `Chapter1/ExtDerivationIso.lean`
+  - `SemidirectSMul D a p = (a • p.1 + D(a)(p.2), a • p.2)` — modified A-action from derivation
+  - `SemidirectSMul.one_smul` — 1 acts as identity when D(1) = 0
+  - `SemidirectSMul.mul_smul'` — associativity when D satisfies bimodule Leibniz rule
+  - `SemidirectSMul.smul_add`, `SemidirectSMul.add_smul` — distributivity lemmas
+  - `SemidirectInclusion`, `SemidirectProjection`, `SemidirectSection` — k-linear maps
+  - `Semidirect_exact` — ker(projection) = range(inclusion)
+  - Added import `Mathlib.LinearAlgebra.Prod` for `LinearMap.inl/inr/fst/snd`
+
+## Previous Session
+
 - **lemmafeld-yqib (Ex 1.4.3ii Hochschild H¹)**: Enhanced `Chapter1/ExtAsDerivations.lean`
   - `HochschildH1 R A M := (A →ₗ[R] M) ⧸ InnerDerivations R A M` — quotient module
   - `HochschildH1.mk` — quotient linear map
   - `HochschildH1.mk_eq_zero`, `mk_eq_mk` — equality characterization lemmas
   - `HochschildH1.eq_bot_iff` — H¹ vanishes iff all maps are inner
 
-## Previous Session
+## Earlier Session
 
 - **lemmafeld-2vyn (Ex 1.4.3ii Extension → Derivation)**: Created `Chapter1/ExtDerivationIso.lean`
   - `extensionDerivationAux s a y = a • s(y) - s(a • y)` — auxiliary function
