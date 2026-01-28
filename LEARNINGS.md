@@ -82,3 +82,35 @@ import Mathlib.Algebra.Category.CoalgebraCat.Basic
 | `Hom_C(X,Y)` | `X ⟶ Y` |
 
 **Conclusion:** No notation gaps - mathlib covers all §1.1 conventions. No code needed.
+
+## 2026-01-28: TC 1.1.3 - Locally Small and Essentially Small APIs
+
+**Task:** Establish locally small and essentially small category APIs.
+
+**Book §1.1 says:**
+> "A category is called *locally small* if for any objects X, Y, Hom_C(X, Y) is a set, and is called *essentially small* if in addition its isomorphism classes of objects form a set. In other words, an essentially small category is a category equivalent to a small category."
+
+**Mathlib has:**
+
+| Concept | Mathlib | Import |
+|---------|---------|--------|
+| Locally small | `CategoryTheory.LocallySmall` | `Mathlib.CategoryTheory.Category.Basic` |
+| Essentially small | `CategoryTheory.EssentiallySmall` | `Mathlib.CategoryTheory.EssentiallySmall` |
+
+**Mathlib definitions (verified):**
+
+```lean
+-- LocallySmall: for all X Y, the hom-set is w-small
+class LocallySmall (C : Type u) [Category.{v} C] : Prop where
+  hom_small : ∀ (X Y : C), Small.{w} (X ⟶ Y)
+
+-- EssentiallySmall: equivalent to a small category
+class EssentiallySmall (C : Type u) [Category.{v} C] : Prop where
+  equiv_smallCategory : ∃ S [SmallCategory S], Nonempty (C ≌ S)
+```
+
+**Book ↔ Mathlib mapping:**
+- Book "Hom_C(X,Y) is a set" = Mathlib `Small (X ⟶ Y)` (hom-set fits in universe w)
+- Book "equivalent to a small category" = Mathlib `∃ S, Nonempty (C ≌ S)`
+
+**Conclusion:** Mathlib APIs match book definitions exactly. No code needed.
