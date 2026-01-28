@@ -673,3 +673,40 @@ class SemisimpleCategory (C : Type*) [Category C] [HasZeroMorphisms C]
 **API notes:**
 - `ObjectProperty.is_of_prop P hX` converts `hX : P X` to `P.Is X` (typeclass)
 - `Finite.to_wellFoundedLT` / `Finite.to_wellFoundedGT` give chain conditions for finite types
+
+## 2026-01-28: TC 1.5.5 - Jordan-Hölder Series
+
+**Task:** Formalize Jordan-Hölder series from Definition 1.5.3.
+
+**Book Definition 1.5.3:** A Jordan-Hölder series is a filtration
+0 = X₀ ⊂ X₁ ⊂ ··· ⊂ Xₙ = X where each quotient Xᵢ₊₁/Xᵢ is simple.
+Multiplicity of a simple object Y is the number of quotients isomorphic to Y.
+
+**Book Theorem 1.5.4:** Jordan-Hölder theorem - any two Jordan-Hölder series
+of an object have the same length and multiplicities.
+
+**Book Definition 1.5.5:** The length of X is the length of its Jordan-Hölder series.
+
+**Created:** `Chapter1/JordanHolder.lean`
+
+**Mathlib has (in `Mathlib.Order.JordanHolder`):**
+
+| Concept | Mathlib | Notes |
+|---------|---------|-------|
+| Abstract framework | `JordanHolderLattice X` | Class for lattices |
+| Composition series | `CompositionSeries X` | Series type |
+| Series equivalence | `CompositionSeries.Equivalent` | Same length + iso factors |
+| Jordan-Hölder theorem | `CompositionSeries.jordan_holder` | Main theorem for lattices |
+| Length equality | `CompositionSeries.Equivalent.length_eq` | |
+
+**Mathlib has (in `Mathlib.RingTheory.SimpleModule.Basic`):**
+
+| Concept | Mathlib | Notes |
+|---------|---------|-------|
+| Module instance | `instJordanHolderLattice : JordanHolderLattice (Submodule R M)` | Full support for modules |
+
+**Gap confirmed:** No `JordanHolderLattice (Subobject X)` for abelian categories.
+Would require:
+1. Define `IsMaximal` for subobjects (Y ⊂ X maximal ↔ X/Y is simple)
+2. Define `Iso` for pairs (quotients isomorphic)
+3. Prove second isomorphism theorem for subobjects
