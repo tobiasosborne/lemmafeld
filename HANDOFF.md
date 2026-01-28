@@ -2,6 +2,18 @@
 
 ## Completed This Session (Current)
 
+- **Ex 1.4.3(ii) InnerDerivation**: Added `InnerDerivation R A M` structure to `Chapter1/ExtAsDerivations.lean`
+  - `toFun`: `a ↦ a • f - MulOpposite.op a • f`
+  - `toLinearMap`: R-linear map with proper scalar tower conditions
+  - CoeFun instance and simp lemmas
+
+- **Ex 1.4.3(ii) BimoduleStructure**: Enhanced bimodule structure section
+  - Left A-module structure on Hom_k(Y, X) using `[SMulCommClass k A X]`
+  - Right Aᵐᵒᵖ-action via `HomRightSMul` using `DistribMulAction.toLinearMap`
+  - Both actions verified with `rfl` proofs
+
+## Previous Session
+
 - **lemmafeld-sxnt (Ex 1.4.3i)**: Created `Chapter1/BaerSum.lean` with Baer sum / AddCommGroup (Ext X Y 1)
 - **lemmafeld-wut0 (Ex 1.4.3ii)**: Created `Chapter1/ExtAsDerivations.lean` with Ext¹ ≅ Der/InnerDer docs
 
@@ -61,7 +73,7 @@
 - **Chapter1/Abelian.lean** — §1.3 Abelian categories (kernel, cokernel, canonical decomposition, mono/epi)
 - **Chapter1/ExactSequences.lean** — §1.4 Exact sequences (ShortComplex, ShortExact, Ext¹ notes)
 - **Chapter1/BaerSum.lean** — Ex 1.4.3(i) Baer sum, AddCommGroup (Ext X Y n)
-- **Chapter1/ExtAsDerivations.lean** — Ex 1.4.3(ii) Ext¹ as derivations (documents gaps)
+- **Chapter1/ExtAsDerivations.lean** — Ex 1.4.3(ii) Ext¹ as derivations (InnerDerivation, HomRightSMul)
 - **Chapter1/Simple.lean** — §1.5 Simple objects (Simple X, Schur's Lemma, Indecomposable)
 - **Chapter1/Semisimple.lean** — §1.5 Semisimple objects (IsSemisimple X, SemisimpleCategory C)
 - **Chapter1/FiniteLength.lean** — §1.5 Finite length (IsFiniteLengthObject, FiniteLengthCategory)
@@ -93,6 +105,8 @@
 - No `biproduct.isoPEmpty` or `biproduct.isoUnit` — use `biproductUniqueIso` for single element
 - `IsArtinianObject X` is `ObjectProperty.Is isArtinianObject X` — use `ObjectProperty.is_of_prop` to construct from `WellFoundedLT (Subobject X)`
 - `Finite.to_wellFoundedLT` / `Finite.to_wellFoundedGT` require explicit type annotation: `(inferInstance : WellFoundedLT _)`
+- For left A-module on `(Y →ₗ[k] X)`: need `[SMulCommClass k A X]` (k, A commute on X)
+- For right A-module on `(Y →ₗ[k] X)`: need `[SMulCommClass A k Y]` (A, k commute on Y) for `DistribMulAction.toLinearMap`
 
 ## Files Modified
 

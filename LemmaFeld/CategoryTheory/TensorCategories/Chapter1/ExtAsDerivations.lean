@@ -145,16 +145,68 @@ So D_f(a)(y) = a · f(y) - f(a · y) = [a, f](y)
 
 section InnerDerivations
 
--- NOTE: Inner derivations are NOT formalized in mathlib
--- The book's B(Y, X) would be defined as:
---
--- structure InnerDerivation (R A M) [CommSemiring R] [CommSemiring A]
---     [AddCommMonoid M] [Algebra R A] [Module A M] [Module Aᵐᵒᵖ M] [Module R M] where
---   element : M
---
--- def InnerDerivation.toDerivation (D : InnerDerivation R A M) : Derivation R A M where
---   toLinearMap := { toFun := fun a => a • D.element - D.element • a, ... }
---   ...
+/-! ### Inner Derivations (Not in Mathlib)
+
+For a bimodule M (with left A-action and right A-action via Aᵐᵒᵖ), an inner derivation
+D_f is defined by an element f ∈ M as:
+  D_f(a) = a • f - f • a
+
+where the right action "f • a" is expressed as `MulOpposite.op a • f`.
+
+Inner derivations satisfy the bimodule Leibniz rule:
+  D_f(ab) = a · D_f(b) + D_f(a) · b
+
+This is a different form than mathlib's `Derivation` which uses D(ab) = a • D(b) + b • D(a).
+-/
+
+/-- An inner derivation in a bimodule, defined by an element f ∈ M.
+For a bimodule M (with left A-action and right Aᵐᵒᵖ-action), the inner derivation
+D_f sends a ↦ a • f - MulOpposite.op a • f (i.e., a • f - f • a in bimodule notation).
+
+This corresponds to the book's B(Y, X) = inner derivations for Hom_k(Y, X). -/
+structure InnerDerivation (R A M : Type*) [CommSemiring R] [CommSemiring A]
+    [AddCommGroup M] [Algebra R A] [Module A M] [Module Aᵐᵒᵖ M] [Module R M] where
+  /-- The element defining the inner derivation -/
+  element : M
+
+namespace InnerDerivation
+
+variable {R A M : Type*} [CommSemiring R] [CommSemiring A] [AddCommGroup M]
+variable [Algebra R A] [Module A M] [Module Aᵐᵒᵖ M] [Module R M]
+
+/-- The underlying function of an inner derivation: a ↦ a • f - MulOpposite.op a • f -/
+def toFun (D : InnerDerivation R A M) (a : A) : M :=
+  a • D.element - MulOpposite.op a • D.element
+
+section LinearMap
+
+variable [IsScalarTower R A M] [IsScalarTower R Aᵐᵒᵖ M] [SMulCommClass R Aᵐᵒᵖ M]
+
+/-- The inner derivation as an R-linear map.
+Requires scalar tower and commutativity conditions for R-linearity. -/
+def toLinearMap (D : InnerDerivation R A M) : A →ₗ[R] M where
+  toFun := D.toFun
+  map_add' a b := by simp only [toFun, add_smul, MulOpposite.op_add, add_sub_add_comm]
+  map_smul' r a := by
+    simp only [toFun, RingHom.id_apply, Algebra.smul_def]
+    rw [mul_smul, MulOpposite.op_mul, mul_smul, smul_sub]
+    congr 1
+    · rw [algebraMap_smul]
+    · rw [show MulOpposite.op (algebraMap R A r) = algebraMap R Aᵐᵒᵖ r by
+        simp [Algebra.algebraMap_eq_smul_one]]
+      rw [algebraMap_smul, smul_comm]
+
+end LinearMap
+
+-- Convenience: coerce to function
+instance : CoeFun (InnerDerivation R A M) (fun _ => A → M) where
+  coe := toFun
+
+@[simp]
+lemma toFun_apply (D : InnerDerivation R A M) (a : A) :
+    D a = a • D.element - MulOpposite.op a • D.element := rfl
+
+end InnerDerivation
 
 end InnerDerivations
 
@@ -172,14 +224,44 @@ variable [Module k X] [Module k Y] [Module A X] [Module A Y]
 -- Hom_k(Y, X) as a k-module
 example : Module k (Y →ₗ[k] X) := inferInstance
 
--- The A-module structure on Hom_k(Y, X) via composition:
--- For the LEFT action (a • f)(y) = a • f(y):
--- This requires [Module A X] and compatibility [IsScalarTower k A X] typically
+/-! ### Left A-module structure on Hom_k(Y, X)
 
--- For the RIGHT action (f • a)(y) = f(a • y):
--- This requires [Module A Y] and the action to commute appropriately
+The LEFT action (a • f)(y) = a • f(y) requires:
+- `[Module A X]` for A to act on the codomain
+- `[SMulCommClass k A X]` for k and A actions to commute on X
+-/
 
--- Full bimodule structure would need Aᵐᵒᵖ action as well
+-- With SMulCommClass, the standard Module instance gives us left action
+variable [SMulCommClass k A X]
+
+-- This is the left A-module structure: (a • f)(y) = a • f(y)
+example : Module A (Y →ₗ[k] X) := inferInstance
+
+-- Verify the action is what we expect
+example (a : A) (f : Y →ₗ[k] X) (y : Y) : (a • f) y = a • f y := rfl
+
+/-! ### Right A-module structure (Aᵐᵒᵖ action) on Hom_k(Y, X)
+
+The RIGHT action (f • a)(y) = f(a • y) is given by precomposition.
+This is modeled as a left Aᵐᵒᵖ-action: (op a • f)(y) = f(a • y).
+
+We define the SMul instance explicitly via precomposition with scalar mult.
+-/
+
+-- SMulCommClass A k Y means: ∀ a : A, ∀ c : k, ∀ y : Y, a • (c • y) = c • (a • y)
+-- This is typically derivable from IsScalarTower k A Y
+variable [SMulCommClass A k Y]
+
+-- Right action defined via precomposition: (op a • f) = f ∘ (a • ·)
+-- Use DistribMulAction.toLinearMap which gives a k-linear endomorphism from A-action
+/-- Right A-action on Hom_k(Y, X) via precomposition: `(f ⬝ a)(y) = f(a • y)`.
+    Modeled as Aᵐᵒᵖ left-action. -/
+def HomRightSMul (a : Aᵐᵒᵖ) (f : Y →ₗ[k] X) : Y →ₗ[k] X :=
+  f.comp (DistribMulAction.toLinearMap k Y (MulOpposite.unop a))
+
+-- Verify this gives the expected formula
+example (a : A) (f : Y →ₗ[k] X) (y : Y) :
+    HomRightSMul k A X Y (MulOpposite.op a) f y = f (a • y) := rfl
 
 end BimoduleStructure
 

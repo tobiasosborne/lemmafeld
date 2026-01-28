@@ -778,9 +778,39 @@ The bijection `f` between indices with `Iso`-respecting property means:
 - `Ext X Y n` for abelian categories
 
 **Mathlib gaps (not formalized):**
-1. Inner derivations - no `InnerDerivation` type
+1. ~~Inner derivations - no `InnerDerivation` type~~ **→ IMPLEMENTED in ExtAsDerivations.lean**
 2. Hochschild cohomology H^n(A, M)
 3. The isomorphism Ext¹_A(Y,X) ≅ H¹(A, Hom_k(Y,X))
 
-**Future work:** Full formalization would require ~200-300 LOC to define inner
-derivations, bimodule structure on Hom, and explicit isomorphism construction.
+**Progress (2026-01-28):**
+- `InnerDerivation R A M` structure defined (element `f : M`, `toFun`, `toLinearMap`)
+- Bimodule structure on Hom_k(Y,X): left via `SMulCommClass`, right via `HomRightSMul`
+
+**Remaining work:** ~100-150 LOC to prove inner derivations form submodule and construct explicit isomorphism.
+
+## 2026-01-28: A-bimodule Structure on Hom_k(Y, X)
+
+**Task:** Enhance `ExtAsDerivations.lean` with explicit A-module structures on Hom_k(Y, X).
+
+**Book says:** For A-modules X and Y, Hom_k(Y, X) has an A-bimodule structure:
+- Left action: (a · f)(y) = a · f(y)
+- Right action: (f · a)(y) = f(a · y)
+
+**Mathlib approach:**
+
+1. **LEFT A-module structure:** Comes automatically from mathlib's `Module S (M →ₛₗ[σ₁₂] M₂)` instance
+   - Requires `[SMulCommClass k A X]` for k and A actions to commute on X
+   - Then `Module A (Y →ₗ[k] X)` is inferred, with `(a • f) y = a • f y`
+
+2. **RIGHT A-module structure (Aᵐᵒᵖ action):** Defined via precomposition
+   - Requires `[SMulCommClass A k Y]` for A and k actions to commute on Y
+   - Use `DistribMulAction.toLinearMap k Y a : Y →ₗ[k] Y` for the k-linear map `y ↦ a • y`
+   - Then `(f ⬝ a)(y) = f(a • y)` = `f.comp (DistribMulAction.toLinearMap k Y a)`
+
+**Key mathlib APIs:**
+- `DistribMulAction.toLinearMap R M s : M →ₗ[R] M` — given `[SMulCommClass S R M]`
+- `Module S (M →ₛₗ[σ₁₂] M₂)` instance at `LinearMap/Defs.lean:938`
+
+**Implementation note:** The right action is typically modeled as a left Aᵐᵒᵖ-action.
+The function `HomRightSMul (op a) f = f.comp (DistribMulAction.toLinearMap k Y a)`
+gives the expected behavior `HomRightSMul (op a) f y = f (a • y)`.
