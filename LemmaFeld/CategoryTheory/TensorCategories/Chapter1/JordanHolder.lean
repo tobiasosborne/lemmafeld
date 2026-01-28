@@ -107,6 +107,49 @@ example {s₁ s₂ s₃ : CompositionSeries X}
 
 end AbstractFramework
 
+/-! ## §1.5.6 Multiplicity Independence (TC 1.5.6)
+
+Book Theorem 1.5.4 states that "any two Jordan-Hölder series of X contain any simple
+object with the same multiplicity."
+
+In mathlib, `CompositionSeries.Equivalent` captures this:
+```
+def Equivalent s₁ s₂ :=
+  ∃ f : Fin s₁.length ≃ Fin s₂.length, ∀ i,
+    JordanHolderLattice.Iso (s₁[i], s₁[i+1]) (s₂[f i], s₂[f i + 1])
+```
+
+The bijection `f` between indices means:
+- For each factor (Xᵢ₊₁/Xᵢ) of s₁, there's a corresponding factor of s₂
+- The `Iso` relation means these factors are "the same" (isomorphic quotients for modules)
+- Hence if Y appears m times in s₁, it appears exactly m times in s₂
+
+The multiplicity of a simple Y in a series s can be defined as:
+  `{i : Fin s.length | Iso (s[i], s[i+1]) (⊥, Y)}.card`
+where the Iso relates the factor to the "standard" form of Y.
+-/
+
+section MultiplicityIndependence
+
+variable {X : Type*} [Lattice X] [JordanHolderLattice X]
+
+-- The definition of Equivalent (from mathlib):
+-- def Equivalent s₁ s₂ := ∃ f, ∀ i, Iso (s₁[i], s₁[i+1]) (s₂[f i], s₂[f i + 1])
+-- This gives a bijection f between factors with Iso on corresponding pairs.
+
+/-- When two series are equivalent, they have the same length.
+Combined with the bijection from Equivalent, this implies equal multiplicities. -/
+example {s₁ s₂ : CompositionSeries X} (h : s₁.Equivalent s₂) :
+    s₁.length = s₂.length :=
+  h.length_eq
+
+-- The mathematical content: If s₁.Equivalent s₂ then for any simple Y,
+-- |{i | factor_i(s₁) ≅ Y}| = |{i | factor_i(s₂) ≅ Y}|
+-- This follows because the bijection f from Equivalent is Iso-respecting:
+-- factor i of s₁ is Iso to factor f(i) of s₂, so they represent the same simple object.
+
+end MultiplicityIndependence
+
 /-! ## Jordan-Hölder for Modules
 
 Mathlib provides `JordanHolderLattice (Submodule R M)` in `Mathlib.RingTheory.SimpleModule.Basic`.

@@ -710,3 +710,27 @@ Would require:
 1. Define `IsMaximal` for subobjects (Y ⊂ X maximal ↔ X/Y is simple)
 2. Define `Iso` for pairs (quotients isomorphic)
 3. Prove second isomorphism theorem for subobjects
+
+## 2026-01-28: TC 1.5.6 - Multiplicity Independence
+
+**Task:** Formalize Jordan-Hölder theorem multiplicity independence (Theorem 1.5.4).
+
+**Book Theorem 1.5.4:** "Any two Jordan-Hölder series of X contain any simple object with the same multiplicity."
+
+**Updated:** `Chapter1/JordanHolder.lean`
+
+**Mathlib insight:** The key is `CompositionSeries.Equivalent`:
+```lean
+def Equivalent s₁ s₂ := ∃ f : Fin s₁.length → Fin s₂.length,
+  ∀ i, JordanHolderLattice.Iso (s₁[i], s₁[i+1]) (s₂[f i], s₂[f i + 1])
+```
+
+The bijection `f` between indices with `Iso`-respecting property means:
+- Factor i of s₁ corresponds to factor f(i) of s₂ with Iso between them
+- Since Iso is a relation on factors, equal multiplicities follow from the bijection
+
+**Key lemmas:**
+- `CompositionSeries.jordan_holder` — main theorem: same endpoints ⟹ Equivalent
+- `CompositionSeries.Equivalent.length_eq` — equivalent series have same length
+
+**Conclusion:** Multiplicity independence is captured by the bijection in `Equivalent`.

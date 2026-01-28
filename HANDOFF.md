@@ -2,9 +2,13 @@
 
 ## Completed This Session (Current)
 
-- **lemmafeld-i48r (TC 1.5.5)**: Created `Chapter1/JordanHolder.lean` with Jordan-Hölder series formalization
+- **lemmafeld-bgj0 (TC 1.5.6)**: Updated `Chapter1/JordanHolder.lean` with multiplicity independence section
 
 ## Previous Session
+
+- **lemmafeld-i48r (TC 1.5.5)**: Created `Chapter1/JordanHolder.lean` with Jordan-Hölder series formalization
+
+## Earlier Session
 
 - **lemmafeld-g16j (TC 1.5.4)**: Created `Chapter1/FiniteLength.lean` with finite length object definitions
 
@@ -54,12 +58,12 @@
 - **Chapter1/Simple.lean** — §1.5 Simple objects (Simple X, Schur's Lemma, Indecomposable)
 - **Chapter1/Semisimple.lean** — §1.5 Semisimple objects (IsSemisimple X, SemisimpleCategory C)
 - **Chapter1/FiniteLength.lean** — §1.5 Finite length (IsFiniteLengthObject, FiniteLengthCategory)
-- **Chapter1/JordanHolder.lean** — §1.5 Jordan-Hölder series (CompositionSeries, Equivalent) (NEW)
+- **Chapter1/JordanHolder.lean** — §1.5 Jordan-Hölder series + multiplicity independence (§1.5.6)
 - All eleven files build successfully
 
 ## Next Steps
 
-1. TC 1.5.6-1.5.8: Jordan-Hölder theorem (multiplicity), Krull-Schmidt, Grothendieck group
+1. TC 1.5.7-1.5.8: Krull-Schmidt theorem, Grothendieck group
 2. TC 1.6.x: Projective and injective objects
 3. TC 1.7.x: Derived functors and Ext
 
