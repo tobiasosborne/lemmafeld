@@ -6,6 +6,7 @@ Authors: LemmaFeld Contributors
 import Mathlib.CategoryTheory.Abelian.Basic
 import Mathlib.CategoryTheory.Abelian.Images
 import Mathlib.CategoryTheory.Abelian.Exact
+import Mathlib.CategoryTheory.Abelian.FreydMitchell
 import Mathlib.CategoryTheory.Limits.Shapes.Kernels
 import Mathlib.CategoryTheory.Limits.Shapes.NormalMono.Basic
 
@@ -44,6 +45,7 @@ The book defines:
 | Epi (Coker = 0) | `Epi f` + `cokernel.π_of_epi` | `cokernel.π f = 0` |
 | Normal mono | `IsNormalMonoCategory C` | Every mono is a kernel |
 | Normal epi | `IsNormalEpiCategory C` | Every epi is a cokernel |
+| Freyd-Mitchell | `FreydMitchell.functor C` | Full faithful embedding into R-Mod |
 
 -/
 
@@ -269,15 +271,46 @@ dedicated `Indecomposable` class for categories, but the concept can be expresse
 using equivalences.
 -/
 
-/-! ## §1.3 Theorem 1.3.8: Mitchell Embedding
+/-! ## §1.3 Theorem 1.3.8: Freyd-Mitchell Embedding
 
 Book: "Every abelian category is equivalent, as an additive category, to a full
 subcategory of the category of left modules over an associative unital ring A."
 
-This is a deep theorem that mathlib does not yet have a complete formalization of.
-The embedding functor and its properties would require substantial development.
+Mathlib: `Mathlib.CategoryTheory.Abelian.FreydMitchell` has a complete formalization!
 
-**Status**: Not in mathlib as of 2024. This would be a significant formalization project.
+| Book Statement | Mathlib | Type |
+|----------------|---------|------|
+| Embedding ring A | `FreydMitchell.EmbeddingRing C` | Type |
+| Embedding functor F : C → A-Mod | `FreydMitchell.functor C` | Functor |
+| F is full | `FreydMitchell.instFullModuleCatEmbeddingRingFunctor` | Instance |
+| F is faithful | `FreydMitchell.instFaithfulModuleCatEmbeddingRingFunctor` | Instance |
+| F preserves finite limits | Part of `freyd_mitchell` theorem | Instance |
+| F preserves finite colimits | Part of `freyd_mitchell` theorem | Instance |
 -/
+
+section FreydMitchellEmbedding
+
+universe u v
+
+variable (C : Type u) [Category.{v} C] [Abelian C]
+
+-- The ring into whose module category we embed
+-- `FreydMitchell.EmbeddingRing C` is a ring (in Type (max u v))
+example : Ring (FreydMitchell.EmbeddingRing C) := inferInstance
+
+-- The embedding functor: C → ModuleCat (EmbeddingRing C)
+#check (FreydMitchell.functor C : C ⥤ ModuleCat (FreydMitchell.EmbeddingRing C))
+
+-- The functor is full: every morphism in the image lifts to C
+example : (FreydMitchell.functor C).Full := inferInstance
+
+-- The functor is faithful: reflects equality of morphisms
+example : (FreydMitchell.functor C).Faithful := inferInstance
+
+-- The main theorem: full and faithful, preserves finite (co)limits
+-- `freyd_mitchell` states the existence with all four properties
+#check @freyd_mitchell C _ _
+
+end FreydMitchellEmbedding
 
 end LemmaFeld.TensorCategories.Chapter1
