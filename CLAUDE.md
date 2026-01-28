@@ -25,14 +25,34 @@ LemmaFeld/
 
 ---
 
+## 🚨 CRITICAL: OUTPUT IS LEAN CODE 🚨
+
+**THE DELIVERABLE IS LEAN FILES, NOT DOCUMENTATION.**
+
+Every task issue MUST result in:
+1. **A `.lean` file created or modified** in `LemmaFeld/CategoryTheory/TensorCategories/`
+2. The Lean file must **compile without errors** (`lake build`)
+3. Even if mathlib already has something, create a Lean file that:
+   - Imports the relevant mathlib modules
+   - Adds book reference comments (e.g., `-- §1.3 Definition 1.3.1`)
+   - Provides aliases/abbrevs if book notation differs from mathlib
+   - Documents the book ↔ mathlib correspondence IN THE CODE
+
+**WRONG:** "Verified mathlib has X. Updated LEARNINGS.md. Closed issue."
+**RIGHT:** "Created `Chapter1/Abelian.lean` with imports and book mappings. Builds. Closed issue."
+
+If you close an issue without creating/modifying a Lean file, **YOU HAVE FAILED**.
+
+---
+
 ## GOLDEN RULES
 
+> **OUTPUT IS LEAN CODE.** Every issue = Lean file created/modified.
 > **THE BOOK IS THE SOURCE OF TRUTH.** Read the section before coding.
 > **ERRORS are NOT failures.** Document learnings. That is success.
 > **Incomplete work IS success.** STOP before "simplifying" or "optimizing."
 > **Small deltas only.** Target ≤50 LOC changed per session.
-> **Documentation is deliverable.** Write what you learned, especially failures.
-> **ALWAYS DOCUMENT MATHLIB MAPPINGS.** Even "nothing to do" saves future agents hours.
+> **ALWAYS DOCUMENT MATHLIB MAPPINGS.** In the Lean file AND LEARNINGS.md.
 
 ---
 
@@ -60,18 +80,25 @@ Do NOT proceed until you can state:
 **Lean workflow:**
 1. **Read the book section** for the current issue
 2. Search mathlib: use `lean_leanfinder` (best), `lean_loogle`, `lean_local_search`
-3. **Document findings** in LEARNINGS.md (even if mathlib has it!)
-4. Make smallest change toward goal
-5. Build: `lake build`
+3. **CREATE/MODIFY A LEAN FILE** in `LemmaFeld/CategoryTheory/TensorCategories/ChapterN/`
+   - If mathlib has it: import + comment documenting book↔mathlib mapping
+   - If mathlib lacks it: implement the definition/theorem
+   - Add book references: `-- §X.Y Definition X.Y.Z`
+4. Build: `lake build` — **MUST COMPILE**
+5. Update LEARNINGS.md with findings
 6. Green → continue. Red → diagnose or escalate.
+
+**⚠️ NO LEAN FILE = NO COMPLETION. Documentation alone is NOT sufficient.**
 
 ### Phase 3: Outcome
 
 #### 3a: Success Path
-1. Update HANDOFF.md with completed work
-2. Add any discoveries to LEARNINGS.md
-3. Close issue in tracker
-4. Proceed to Phase 4
+1. **VERIFY LEAN FILE EXISTS** — If no `.lean` file was created/modified, GO BACK
+2. **VERIFY BUILD PASSES** — `lake build` must succeed
+3. Update HANDOFF.md with completed work (include Lean file path!)
+4. Add any discoveries to LEARNINGS.md
+5. Close issue in tracker
+6. Proceed to Phase 4
 
 #### 3b: Problem Path — THE CRITICAL PART
 
@@ -128,16 +155,17 @@ bd create --title="Hygiene: <file> exceeds 200 LOC" --type=task --priority=0
 
 **Mandatory checklist:**
 
+- [ ] **LEAN FILES CREATED/MODIFIED** — This is the primary deliverable!
+- [ ] **BUILD PASSING** — `lake build` succeeds
 - [ ] LEARNINGS.md updated (even if "nothing learned" — note that!)
 - [ ] HANDOFF.md updated with:
   - Completed this session
-  - Current state  
+  - Current state
   - Next steps
   - Known issues / gotchas
-  - Files modified
+  - **Lean files modified** (REQUIRED)
 - [ ] Issues updated (`bd close`, `bd sync`)
 - [ ] Changes committed and pushed
-- [ ] Build passing
 
 **Handoff template:**
 ```markdown
@@ -231,30 +259,76 @@ Research rounds do NOT produce code. They produce knowledge.
 **Plan:** `docs/plans/tensor_categories_implementation.md`
 **Location:** `LemmaFeld/CategoryTheory/TensorCategories/`
 
-### CRITICAL: Book-First Workflow
+### CRITICAL: Book-First Workflow — LEAN FILES REQUIRED
 
 1. **Read the book section** before starting any TC issue
-2. **Formalize what the book says** - not less, not much more
-3. **If mathlib already has it:** Document the mapping in LEARNINGS.md AND add a comment in code
-4. **Reference book sections** in all code comments (e.g., "-- §1.3 Definition 1.3.1")
+2. **CREATE A LEAN FILE** — Every issue produces a `.lean` file
+3. **Formalize what the book says** in Lean code:
+   - If mathlib has it: `import` + comments mapping book to mathlib
+   - If mathlib lacks it: implement the definition/theorem/proof
+4. **Reference book sections** in all code comments (e.g., `-- §1.3 Definition 1.3.1`)
+5. **Build must pass**: `lake build`
 
-### Documenting Mathlib Mappings
-
-Even if mathlib covers a concept, **ALWAYS document it** so future agents don't waste time:
-
+**Example Lean file structure for mathlib-covered content:**
 ```lean
--- §1.1: Locally small categories
--- Book: "A category is called locally small if Hom_C(X,Y) is a set"
--- Mathlib: `CategoryTheory.LocallySmall` in Mathlib.CategoryTheory.Category.Basic
+/-
+  LemmaFeld/CategoryTheory/TensorCategories/Chapter1/Abelian.lean
+
+  §1.3: Abelian Categories (Etingof et al.)
+
+  This section is fully covered by mathlib. We document the correspondence.
+-/
+import Mathlib.CategoryTheory.Abelian.Basic
+import Mathlib.CategoryTheory.Limits.Shapes.Kernels
+
+namespace LemmaFeld.TensorCategories.Chapter1
+
+/-! ## §1.3 Definition 1.3.1: Abelian Category
+
+Book: "An abelian category is an additive category C in which for every
+morphism φ: X → Y there exists a canonical decomposition K → X → I → Y → C"
+
+Mathlib: `CategoryTheory.Abelian` class in `Mathlib.CategoryTheory.Abelian.Basic`
+-/
+
+-- Re-export for convenience
+abbrev Abelian := CategoryTheory.Abelian
+
+end LemmaFeld.TensorCategories.Chapter1
 ```
 
-Update LEARNINGS.md with:
+### Documenting Mathlib Mappings — IN LEAN FILES
+
+Even if mathlib covers a concept, **CREATE A LEAN FILE** that documents it:
+
+**Step 1: Create the Lean file** (PRIMARY OUTPUT)
+```lean
+-- LemmaFeld/CategoryTheory/TensorCategories/Chapter1/LocallySmall.lean
+
+/-! ## §1.1: Locally Small Categories
+
+Book: "A category is called locally small if Hom_C(X,Y) is a set"
+Mathlib: `CategoryTheory.LocallySmall` in `Mathlib.CategoryTheory.Category.Basic`
+-/
+import Mathlib.CategoryTheory.Category.Basic
+
+namespace LemmaFeld.TensorCategories.Chapter1
+
+-- Book §1.1 notation/definition mapped to mathlib
+abbrev LocallySmall := CategoryTheory.LocallySmall
+
+end LemmaFeld.TensorCategories.Chapter1
+```
+
+**Step 2: Also update LEARNINGS.md** (secondary)
 ```markdown
 ## §X.Y: <Topic>
+**Lean file:** `LemmaFeld/CategoryTheory/TensorCategories/ChapterN/File.lean`
 **Book says:** <definition/theorem statement>
 **Mathlib has:** `Namespace.Name` in `Mathlib.Path.To.File`
-**Mapping:** <any differences in naming/formulation>
 ```
+
+**⚠️ The Lean file is REQUIRED. LEARNINGS.md alone is NOT sufficient.**
 
 ### Chapter Breakdown
 | Ch | Topic | Issues | Label |

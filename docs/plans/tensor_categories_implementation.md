@@ -13,6 +13,39 @@ The implementation builds on Mathlib's existing category theory infrastructure.
 
 ---
 
+## 🚨 CRITICAL: OUTPUT REQUIREMENTS 🚨
+
+**Every step/task MUST produce a Lean file.** This is non-negotiable.
+
+### What "Formalize" Means
+
+For each step below, the agent must:
+
+1. **CREATE a `.lean` file** in `LemmaFeld/CategoryTheory/TensorCategories/ChapterN/`
+2. The file must contain:
+   - Imports of relevant Mathlib modules
+   - Comments referencing the book section (§X.Y Definition X.Y.Z)
+   - Either:
+     - **If mathlib has it:** abbrevs/aliases mapping book to mathlib
+     - **If mathlib lacks it:** actual implementation of definition/theorem
+3. **The file must compile:** `lake build` succeeds
+4. Only THEN can the step be marked complete
+
+### What "Review" or "Verify" Does NOT Mean
+
+- ❌ Just reading mathlib and writing to LEARNINGS.md
+- ❌ Closing issues without creating Lean files
+- ❌ Documentation-only output
+
+### What It DOES Mean
+
+- ✅ Create a Lean file that imports and documents the mathlib content
+- ✅ Add book references as comments in the Lean file
+- ✅ Build passes
+- ✅ Issue closed with Lean file path in the closing message
+
+---
+
 ## Chapter 1: Abelian Categories
 
 ### 1.1 Categorical Prerequisites and Notation
