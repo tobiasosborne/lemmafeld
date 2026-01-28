@@ -242,7 +242,7 @@ From LEARNINGS.md:
 
 **What should have happened:** Create an issue:
 ```bash
-bd create --title="Research: Mitchell embedding theorem (§1.3.8)" --type=research --priority=2
+bd create --title="Research: Mitchell embedding theorem (§1.3.8)" --type=task --priority=2 --labels=research
 ```
 
 ### The Rule
