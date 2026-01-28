@@ -60,3 +60,25 @@ import Mathlib.Algebra.Category.CoalgebraCat.Basic
 1. Verifying mathlib APIs match book definitions
 2. Adding any missing notation/convenience lemmas
 3. Implementing genuinely missing concepts (Jordan-Hölder, Deligne tensor product, etc.)
+
+## 2026-01-28: TC 1.1.2 - Notation Conventions
+
+**Task:** Define any missing notation conventions from §1.1.
+
+**Book §1.1 Notation:**
+- `id_C` - identity endofunctor
+- `C^∨` - opposite/dual category
+- Locally small / essentially small
+- `Hom_C(X,Y)` - morphism sets
+- Fields algebraically closed by default
+
+**Mathlib Equivalents:**
+| Book | Mathlib |
+|------|---------|
+| `id_C` | `𝟭 C` or `Functor.id C` |
+| `C^∨` | `Cᵒᵖ` |
+| locally small | `LocallySmall` |
+| essentially small | `EssentiallySmall` |
+| `Hom_C(X,Y)` | `X ⟶ Y` |
+
+**Conclusion:** No notation gaps - mathlib covers all §1.1 conventions. No code needed.

@@ -2,7 +2,7 @@
 
 ## Completed This Session
 - **TC 1.1.1** (`lemmafeld-c8w`): Reviewed mathlib's category theory foundations
-  - Documented what exists vs what needs implementation in LEARNINGS.md
+- **TC 1.1.2** (`lemmafeld-97w`): Verified notation conventions - no gaps, mathlib covers all §1.1
 
 ## Current State
 - Mathlib has comprehensive coverage of Ch 1-2 foundations (abelian, monoidal, braided, etc.)
@@ -10,8 +10,8 @@
 - Build passing
 
 ## Next Steps
-1. **TC 1.1.2** (`bd search "TC 1.1.2"`): Define any missing notation conventions
-2. **TC 1.1.3**: Establish locally small and essentially small category APIs
+1. **TC 1.1.3**: Establish locally small and essentially small category APIs
+2. **TC 1.2.1**: Verify mathlib's `Preadditive` and `Additive` category definitions
 3. Continue through Chapter 1 in order
 
 ## Known Issues / Gotchas
