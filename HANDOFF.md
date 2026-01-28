@@ -2,9 +2,14 @@
 
 ## Completed This Session (Current)
 
-- **lemmafeld-bgj0 (TC 1.5.6)**: Updated `Chapter1/JordanHolder.lean` with multiplicity independence section
+- **lemmafeld-sxnt (Ex 1.4.3i)**: Created `Chapter1/BaerSum.lean` with Baer sum / AddCommGroup (Ext X Y 1)
+- **lemmafeld-wut0 (Ex 1.4.3ii)**: Created `Chapter1/ExtAsDerivations.lean` with Ext¹ ≅ Der/InnerDer docs
 
 ## Previous Session
+
+- **lemmafeld-bgj0 (TC 1.5.6)**: Updated `Chapter1/JordanHolder.lean` with multiplicity independence section
+
+## Earlier Session
 
 - **lemmafeld-i48r (TC 1.5.5)**: Created `Chapter1/JordanHolder.lean` with Jordan-Hölder series formalization
 
@@ -55,11 +60,13 @@
 - **Chapter1/DirectSum.lean** — §1.2 direct sum bifunctor ⊕ : C × C → C
 - **Chapter1/Abelian.lean** — §1.3 Abelian categories (kernel, cokernel, canonical decomposition, mono/epi)
 - **Chapter1/ExactSequences.lean** — §1.4 Exact sequences (ShortComplex, ShortExact, Ext¹ notes)
+- **Chapter1/BaerSum.lean** — Ex 1.4.3(i) Baer sum, AddCommGroup (Ext X Y n)
+- **Chapter1/ExtAsDerivations.lean** — Ex 1.4.3(ii) Ext¹ as derivations (documents gaps)
 - **Chapter1/Simple.lean** — §1.5 Simple objects (Simple X, Schur's Lemma, Indecomposable)
 - **Chapter1/Semisimple.lean** — §1.5 Semisimple objects (IsSemisimple X, SemisimpleCategory C)
 - **Chapter1/FiniteLength.lean** — §1.5 Finite length (IsFiniteLengthObject, FiniteLengthCategory)
 - **Chapter1/JordanHolder.lean** — §1.5 Jordan-Hölder series + multiplicity independence (§1.5.6)
-- All eleven files build successfully
+- All thirteen files build successfully
 
 ## Next Steps
 
@@ -96,6 +103,8 @@
 - `LemmaFeld/CategoryTheory/TensorCategories/Chapter1/DirectSum.lean` — §1.2 direct sum bifunctor
 - `LemmaFeld/CategoryTheory/TensorCategories/Chapter1/Abelian.lean` — §1.3 abelian categories
 - `LemmaFeld/CategoryTheory/TensorCategories/Chapter1/ExactSequences.lean` — §1.4 exact sequences
+- `LemmaFeld/CategoryTheory/TensorCategories/Chapter1/BaerSum.lean` — Ex 1.4.3(i) (NEW)
+- `LemmaFeld/CategoryTheory/TensorCategories/Chapter1/ExtAsDerivations.lean` — Ex 1.4.3(ii) (NEW)
 - `LemmaFeld/CategoryTheory/TensorCategories/Chapter1/Simple.lean` — §1.5 simple objects
 - `LemmaFeld/CategoryTheory/TensorCategories/Chapter1/Semisimple.lean` — §1.5 semisimple objects
 - `LemmaFeld/CategoryTheory/TensorCategories/Chapter1/FiniteLength.lean` — §1.5 finite length objects

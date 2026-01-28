@@ -734,3 +734,53 @@ The bijection `f` between indices with `Iso`-respecting property means:
 - `CompositionSeries.Equivalent.length_eq` — equivalent series have same length
 
 **Conclusion:** Multiplicity independence is captured by the bijection in `Equivalent`.
+
+## 2026-01-28: Exercise 1.4.3(i) - Baer Sum and Abelian Group on Ext¹
+
+**Task:** Formalize Exercise 1.4.3(i) showing Baer sum defines abelian group on Ext¹(Y, X).
+
+**Created:** `Chapter1/BaerSum.lean`
+
+**Book construction (1.5):**
+- Given extensions S, S' of Y by X, form pullback Z̃'' = {(z,z') | π(z) = π'(z')}
+- Then Z'' = Z̃''/X_antidiag where X_antidiag = Im((i, -i'))
+- This gives S + S' : 0 → X → Z'' → Y → 0
+
+**Mathlib approach:**
+- `Ext X Y n` defined via derived category as `SmallShiftedHom`
+- `AddCommGroup (Ext X Y n)` instance at line 239 of Ext/Basic.lean
+- Abelian group structure comes from additive category structure
+
+**Key mathlib APIs:**
+| Book | Mathlib |
+|------|---------|
+| Ext¹(Y,X) | `Ext X Y 1` (args reversed) |
+| Addition | From `AddCommGroup` instance |
+| Extension class | `ShortExact.extClass` |
+
+**Note:** Mathlib doesn't explicitly formalize Baer sums - uses derived category approach.
+
+## 2026-01-28: Exercise 1.4.3(ii) - Ext¹ as Derivations
+
+**Task:** Show Ext¹(Y, X) = Der(A, Hom_k(Y, X)) / InnerDer for A-modules.
+
+**Created:** `Chapter1/ExtAsDerivations.lean`
+
+**Book statement:** For A-mod over algebraically closed k:
+- Der(A, M) = {D : A → M | D(ab) = aD(b) + D(a)b}
+- InnerDer = {D_f : a ↦ [f, a] | f ∈ M}
+- Ext¹(Y, X) ≅ Der(A, Hom_k(Y,X)) / InnerDer
+
+**Mathlib has:**
+- `Derivation R A M` - derivations with Leibniz rule
+- `AddCommMonoid (Derivation R A M)` - additive structure
+- `ModuleCat R`, `Abelian (ModuleCat R)`
+- `Ext X Y n` for abelian categories
+
+**Mathlib gaps (not formalized):**
+1. Inner derivations - no `InnerDerivation` type
+2. Hochschild cohomology H^n(A, M)
+3. The isomorphism Ext¹_A(Y,X) ≅ H¹(A, Hom_k(Y,X))
+
+**Future work:** Full formalization would require ~200-300 LOC to define inner
+derivations, bimodule structure on Hom, and explicit isomorphism construction.
