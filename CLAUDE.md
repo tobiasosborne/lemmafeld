@@ -222,6 +222,52 @@ Research rounds do NOT produce code. They produce knowledge.
 
 ---
 
+## 🚨 ESCALATION FAILURE MODE 🚨
+
+**This failure mode has occurred. Learn from it.**
+
+### The Anti-Pattern
+
+An agent identifies a significant gap, complex theorem, or major missing functionality. Instead of escalating to the issue tracker, they:
+- Write a note in LEARNINGS.md ("Mitchell embedding not in mathlib - significant project")
+- Move on
+- **Never create an issue**
+
+The information is now buried. Future agents won't see it in `bd ready`. The work is never tracked.
+
+### Real Example (2026-01-28)
+
+From LEARNINGS.md:
+> **Mitchell embedding (Theorem 1.3.8):** Not in mathlib as of 2024 - would be a significant formalization project.
+
+**What should have happened:** Create an issue:
+```bash
+bd create --title="Research: Mitchell embedding theorem (§1.3.8)" --type=research --priority=2
+```
+
+### The Rule
+
+**If you write something in LEARNINGS.md that implies future work is needed, CREATE AN ISSUE.**
+
+Triggers that require escalation:
+- "Not in mathlib" + non-trivial to implement
+- "Would be a significant project"
+- "Needs investigation"
+- "May need implementation"
+- "Gap in coverage"
+- "Partial - check coverage"
+- Any TODO/FIXME sentiment
+
+### Checklist Before Session End
+
+- [ ] Grep LEARNINGS.md for "not in mathlib", "gap", "missing", "needs", "TODO"
+- [ ] For each hit: Is there a corresponding issue? If not, create one.
+- [ ] Verify: `bd list` shows any gaps you identified
+
+**Documentation without escalation = lost work. Issues are the memory.**
+
+---
+
 ## Issue Tracking Integration
 
 ### Priority Levels
