@@ -987,3 +987,24 @@ Given extension 0 → X → E → Y → 0 with section s : Y →ₗ[k] E:
 
 **Note:** This proves k-linear equivalence. Full A-linear equivalence requires showing
 the maps respect the A-action, which needs the derivation D to satisfy Leibniz rule.
+
+## 2026-01-28: Ex 1.4.3(ii) A-Linearity Gap
+
+**Task:** Complete the isomorphism Ext¹(Y, X) ≅ H¹(A, Hom_k(Y, X)).
+
+**Status:** k-linear round-trips proved, but A-linearity gap remains.
+
+**Gap identified:** The k-linear equivalence `extensionSemidirectEquiv : E ≃ₗ[k] X × Y` needs
+to be shown A-linear (respecting semi-direct action) to get a true `ExtensionEquiv`.
+
+**Key insight:** For A-linearity, the equivalence `X ≃ ker π` must be A-linear (not just k-linear):
+- If `i : X →ₗ[A] E` is the A-linear inclusion with range = ker π
+- Then `equiv : X ≃ₗ[A] ker π` induced by `i` is A-linear
+- The decomposition `a • e - s(a • π(e)) = a • (e - s(π(e))) + (a • s(π(e)) - s(a • π(e)))`
+  shows the first component transforms correctly under A-action
+
+**API challenge:** Converting between A-linear and k-linear structures requires:
+- `LinearMap.restrictScalars k : (M →ₗ[A] N) → (M →ₗ[k] N)` for scalar restriction
+- `LinearMap.CompatibleSMul M N k A` for the instances to work together
+
+**Created issue:** lemmafeld-5rat for the A-linearity proof (~50 LOC remaining)

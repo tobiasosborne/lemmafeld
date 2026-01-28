@@ -2,6 +2,15 @@
 
 ## Completed This Session (Current)
 
+- **lemmafeld-izzr (Ex 1.4.3ii Isomorphism) - PARTIALLY BLOCKED**: Enhanced `Chapter1/ExtDerivationIso.lean`
+  - Added documentation section "A-Linear Equivalence for Extensions (Gap)"
+  - Identified key technical challenge: need A-linear (not just k-linear) equivalence
+  - Created sub-issue lemmafeld-5rat for A-linearity proof (~50 LOC)
+  - Issue blocked pending lemmafeld-5rat completion
+  - File is now 495 LOC (hygiene issue lemmafeld-ehs6 still open)
+
+## Previous Session
+
 - **lemmafeld-85xg (Ex 1.4.3ii Extension Round-Trip)**: Enhanced `Chapter1/ExtDerivationIso.lean`
   - `diff_mem_ker` — helper: e - s(π(e)) ∈ ker(π)
   - `extensionToSemidirect` — k-linear map E → X × Y via e ↦ (equiv⁻¹(e - s(π(e))), π(e))
@@ -147,12 +156,16 @@
 
 ## Next Steps
 
-1. TC 1.5.7-1.5.8: Krull-Schmidt theorem, Grothendieck group
-2. TC 1.6.x: Projective and injective objects
-3. TC 1.7.x: Derived functors and Ext
+1. **lemmafeld-5rat**: Complete A-linear extension equivalence proof (~50 LOC)
+2. **lemmafeld-ehs6**: Split ExtDerivationIso.lean (495 LOC > 200 guideline)
+3. TC 1.5.7-1.5.8: Krull-Schmidt theorem, Grothendieck group
+4. TC 1.6.x: Projective and injective objects
 
 ## Known Issues / Gotchas
 
+- **A-linearity gap in Ex 1.4.3(ii)**: k-linear equiv `E ≃ₗ[k] X × Y` proved, but A-linear version
+  needs `equiv : X ≃ₗ[A] ker π` (from A-linear inclusion). Use `LinearMap.restrictScalars`
+  and `CompatibleSMul` instances to connect A-linear and k-linear structures.
 - `bd ready` returns later chapter issues first - prioritize Chapter 1-2 foundations
 - Avoid `abbrev X := @SomeClass` with universe polymorphism - use comments instead
 - Universe variables need explicit `universe w` declaration in sections that use them

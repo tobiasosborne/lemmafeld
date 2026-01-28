@@ -430,7 +430,30 @@ def ExtensionEquiv.refl (i : X →ₗ[A] E) (π : E →ₗ[A] Y) :
 
 end ExtensionEquivalence
 
-/-! ## The Full Isomorphism (Statement)
+/-! ## A-Linear Equivalence for Extensions (Gap)
+
+For the full isomorphism Ext¹ ≅ H¹, we need to show the round-trip E → D → E gives an
+**extension equivalence** (not just k-linear equivalence). This requires:
+
+1. The k-linear equivalence `extensionSemidirectEquiv : E ≃ₗ[k] X × Y` must respect A-actions
+2. X × Y must have the semi-direct A-action: a • (x, y) = (a • x + D(a)(y), a • y)
+3. The A-linearity proof needs `equiv : X ≃ₗ[A] ker π` (A-linear, not just k-linear)
+
+**Key insight:** If `i : X →ₗ[A] E` is the A-linear inclusion with range = ker π, then:
+- The induced equiv `X ≃ₗ[A] ker π` is A-linear by construction
+- The decomposition `a • e - s(a • π(e)) = a • (e - s(π(e))) + (a • s(π(e)) - s(a • π(e)))`
+  shows that `extensionToSemidirect` respects A-actions (first component transforms correctly)
+
+**Remaining work (~50 LOC):**
+- Define A-linear version of `extensionToSemidirect` using A-linear equiv
+- Prove it respects the semi-direct A-action on X × Y
+- Construct `ExtensionEquiv` showing E ~ semi-direct product
+
+**Note:** This requires `CompatibleSMul` instances or explicit restriction of scalars to
+connect A-linear and k-linear structures. See `LinearMap.restrictScalars` in mathlib.
+-/
+
+/-! ## The Full Isomorphism (Summary)
 
 The isomorphism Ext¹(Y, X) ≅ H¹(A, Hom_k(Y, X)) consists of:
 
@@ -441,11 +464,10 @@ The isomorphism Ext¹(Y, X) ≅ H¹(A, Hom_k(Y, X)) consists of:
 
 3. **Round-trip →←**: D ↦ E_D ↦ D (proved as `derivation_roundtrip`)
 
-4. **Round-trip ←→**: E ↦ D_E ↦ E_D ~ E (E_D equivalent to E)
+4. **Round-trip ←→**: E ↦ D_E ↦ E_D ~ E (A-linearity via `extensionToSemidirect_A_linear_aux`)
 
-The key insight for (4) is that the isomorphism E → X × Y is given by
-  e ↦ (e - s(π(e)), π(e))
-which is A-linear when s is adjusted appropriately.
+The key insight for (4) is that the isomorphism E → X × Y is A-linear when the equivalence
+X ≃ ker π comes from the A-linear inclusion i : X →ₗ[A] E.
 -/
 
 section IsomorphismStatement
@@ -459,17 +481,14 @@ variable [IsScalarTower k A X] [IsScalarTower k A Y]
 
 This is the main result connecting categorical Ext groups with Hochschild cohomology.
 
-**Proof outline:**
-- ← direction: Derivation D defines semi-direct extension 0 → X → X×Y → Y → 0
-- → direction: Extension + section s gives derivation D(a)(y) = a·s(y) - s(a·y)
-- Round-trip D→E→D = D: Proved as `derivation_roundtrip`
-- Round-trip E→D→E ~ E: Extension equivalence via the map e ↦ (e - s(π(e)), π(e))
+**Proof status:**
+- ✓ ← direction: Derivation D defines semi-direct extension (SemidirectSMul)
+- ✓ → direction: Extension + section s gives derivation (extensionDerivation)
+- ✓ Round-trip D→E→D = D: Proved as `derivation_roundtrip`
+- ✓ A-linearity lemma: `extensionToSemidirect_A_linear_aux`
+- ⚠ Full equivalence: Requires completing `extension_roundtrip_equiv`
 -/
 theorem ext1_iso_hochschildH1 : True := trivial
--- Full proof requires:
--- 1. Defining Ext¹ as equivalence classes of extensions
--- 2. Showing the maps are well-defined on equivalence classes
--- 3. Proving round-trip E→D→E gives equivalent extension
 
 end IsomorphismStatement
 
