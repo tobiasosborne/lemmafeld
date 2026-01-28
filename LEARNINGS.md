@@ -170,3 +170,37 @@ class Functor.Additive (F : C ⥤ D) : Prop where
 ```
 
 **Conclusion:** Mathlib has complete coverage of §1.2. No code needed.
+
+## 2026-01-28: TC 1.2.2 - Direct Sum Bifunctor
+
+**Task:** Ensure direct sum bifunctor is properly exposed.
+
+**Book §1.2 says:**
+> "In (A3), the object Y is unique up to a unique isomorphism, is denoted by X₁ ⊕ X₂, and is called the *direct sum* of X₁ and X₂. Thus, every additive category is equipped with a bifunctor ⊕ : C × C → C."
+
+**Mathlib has:**
+
+| Component | Mathlib | Import |
+|-----------|---------|--------|
+| Direct sum object | `X ⊞ Y` (notation for `biprod X Y`) | `Mathlib.CategoryTheory.Limits.Shapes.BinaryBiproducts` |
+| Map on morphisms | `biprod.map f g : W ⊞ X ⟶ Y ⊞ Z` | same |
+| Projections | `biprod.fst : X ⊞ Y ⟶ X`, `biprod.snd : X ⊞ Y ⟶ Y` | same |
+| Injections | `biprod.inl : X ⟶ X ⊞ Y`, `biprod.inr : Y ⟶ X ⊞ Y` | same |
+| Iso to product | `biprod.isoProd X Y : X ⊞ Y ≅ X ⨯ Y` | same |
+| Iso to coproduct | `biprod.isoCoprod X Y : X ⊞ Y ≅ X ⨿ Y` | same |
+| Product functor | `prod.functor : C ⥤ C ⥤ C` | `Mathlib.CategoryTheory.Limits.Shapes.BinaryProducts` |
+
+**Functoriality (verified):**
+```lean
+-- Identity law
+example : biprod.map (𝟙 X) (𝟙 Y) = 𝟙 (X ⊞ Y) := by ext <;> simp
+
+-- Composition law
+example : biprod.map (f ≫ h) (g ≫ k) = biprod.map f g ≫ biprod.map h k := by ext <;> simp
+```
+
+**Key insight:** Mathlib doesn't have a dedicated `biprod.functor : C × C ⥤ C` object like it has `tensor : C × C ⥤ C` for monoidal categories. However:
+1. All necessary API exists via `biprod.map` with full functoriality
+2. Since `biprod ≅ prod` via `biprod.isoProd`, one can use `prod.functor` if a functor object is needed
+
+**Conclusion:** Mathlib has complete bifunctor API for direct sums. No code needed.
