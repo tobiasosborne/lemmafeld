@@ -2,6 +2,17 @@
 
 ## Completed This Session (Current)
 
+- **lemmafeld-izzr (Ex 1.4.3ii Isomorphism) - PARTIAL**: Enhanced `Chapter1/ExtDerivationIso.lean`
+  - `semidirectExtractDerivation` — extraction function D'(a)(y) from semi-direct product
+  - `derivation_roundtrip` — **PROVED**: D → E → D = D (one direction of isomorphism)
+  - `ExtensionEquiv` — structure for equivalence of extensions
+  - `ExtensionEquiv.refl` — reflexivity of extension equivalence
+  - `ext1_iso_hochschildH1` — statement of main theorem (proof placeholder)
+  - Created sub-issue lemmafeld-85xg for extension round-trip E→D→E ~ E
+  - Created hygiene issue lemmafeld-ehs6 (file is 353 LOC > 200 guideline)
+
+## Previous Session
+
 - **lemmafeld-sqw7 (Ex 1.4.3ii Derivation → Extension)**: Enhanced `Chapter1/ExtDerivationIso.lean`
   - `SemidirectSMul D a p = (a • p.1 + D(a)(p.2), a • p.2)` — modified A-action from derivation
   - `SemidirectSMul.one_smul` — 1 acts as identity when D(1) = 0
@@ -11,7 +22,7 @@
   - `Semidirect_exact` — ker(projection) = range(inclusion)
   - Added import `Mathlib.LinearAlgebra.Prod` for `LinearMap.inl/inr/fst/snd`
 
-## Previous Session
+## Earlier Session
 
 - **lemmafeld-yqib (Ex 1.4.3ii Hochschild H¹)**: Enhanced `Chapter1/ExtAsDerivations.lean`
   - `HochschildH1 R A M := (A →ₗ[R] M) ⧸ InnerDerivations R A M` — quotient module

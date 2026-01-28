@@ -919,3 +919,42 @@ Without these, the proof of `map_smul'` fails since `s(a • (r • y)) ≠ r �
 - `Prod.mk_add_mk` useful for simplifying `(a, b) + (c, d) = (a + c, b + d)`
 - After `simp ... [Prod.mk.injEq]`, goals may become `_ ∧ True` — use `trivial` not `rfl`
 - Use `mul_smul` (unqualified) for module associativity `(a * b) • x = a • (b • x)`
+
+## 2026-01-28: Ex 1.4.3(ii) Round-Trip Proof
+
+**Task:** Prove the round-trip derivation → extension → derivation = id.
+
+**Key insight:** Starting from derivation D : A → Hom_k(Y, X):
+1. Build semi-direct product E = X × Y with action a • (x,y) = (a•x + D(a)(y), a•y)
+2. Use canonical section s(y) = (0, y)
+3. Extract D'(a)(y) = fst(a • s(y) - s(a • y))
+
+Calculation shows D' = D exactly:
+- s(y) = (0, y)
+- a • s(y) = (a•0 + D(a)(y), a•y) = (D(a)(y), a•y)
+- s(a • y) = (0, a•y)
+- a • s(y) - s(a•y) = (D(a)(y), 0)
+- fst gives D(a)(y) ✓
+
+**Implementation:**
+- `semidirectExtractDerivation` — extraction function
+- `semidirectExtractDerivation_eq` — proves it equals D(a)(y)
+- `derivation_roundtrip` — proves the full round-trip
+
+**Remaining for full isomorphism:**
+- Prove extension → derivation → extension gives equivalent extension
+- The isomorphism E → X × Y is e ↦ (e - s(π(e)), π(e))
+- Sub-issue created: lemmafeld-85xg
+
+## 2026-01-28: ExtensionEquiv Structure
+
+**Purpose:** Define when two extensions 0 → X → E → Y → 0 and 0 → X → E' → Y → 0 represent
+the same element of Ext¹(Y, X).
+
+**Definition:** `ExtensionEquiv i π i' π'` consists of:
+- `iso : E ≃ₗ[A] E'` — A-linear isomorphism
+- `comm_incl : iso ∘ i = i'` — commutes with inclusions
+- `comm_proj : π' ∘ iso = π` — commutes with projections
+
+**Mathlib note:** Mathlib doesn't have a standard "extension equivalence" type. This is
+specific to the Yoneda Ext interpretation (extensions as representing Ext¹ elements).
