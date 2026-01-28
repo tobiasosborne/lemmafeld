@@ -2,6 +2,14 @@
 
 ## Completed This Session (Current)
 
+- **lemmafeld-oti7 (Ex 1.4.3ii InnerDerivations Submodule)**: Enhanced `Chapter1/ExtAsDerivations.lean`
+  - `innerDerivationMap R A M : M →ₗ[R] (A →ₗ[R] M)` — R-linear map f ↦ D_f
+  - `InnerDerivations R A M : Submodule R (A →ₗ[R] M)` — range of innerDerivationMap
+  - `mem_innerDerivations`, `mem_innerDerivations_iff` — membership lemmas
+  - Updated documentation to reflect completed implementation
+
+## Previous Session
+
 - **TC 1.5.7 Krull-Schmidt**: Created `Chapter1/KrullSchmidt.lean`
   - `IndecomposableDecomposition C X` structure for decomposition into indecomposables
   - `DecompositionsEquivalent` - equivalence up to permutation
@@ -18,7 +26,7 @@
   - Right Aᵐᵒᵖ-action via `HomRightSMul` using `DistribMulAction.toLinearMap`
   - Both actions verified with `rfl` proofs
 
-## Previous Session
+## Earlier Session
 
 - **lemmafeld-sxnt (Ex 1.4.3i)**: Created `Chapter1/BaerSum.lean` with Baer sum / AddCommGroup (Ext X Y 1)
 - **lemmafeld-wut0 (Ex 1.4.3ii)**: Created `Chapter1/ExtAsDerivations.lean` with Ext¹ ≅ Der/InnerDer docs

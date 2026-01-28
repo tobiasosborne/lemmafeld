@@ -63,24 +63,23 @@ This establishes the isomorphism Ext¹(Y, X) ≅ H¹(A, Homₖ(Y, X)).
 
 ### What Mathlib Lacks (Gaps)
 
-1. **Inner derivations**: No explicit `InnerDerivation` type or `innerDerivation f` constructor
+1. ~~**Inner derivations**: No explicit `InnerDerivation` type~~ → **IMPLEMENTED BELOW**
 2. **Hochschild cohomology**: No H^n(A, M) = Ext^n_{A^e}(A, M) formalization
 3. **The isomorphism**: No proof that Ext¹_A(Y, X) ≅ H¹(A, Homₖ(Y, X))
 
 ## Implementation Notes
 
-The full proof of Exercise 1.4.3(ii) would require:
+### Completed in this file:
 
-1. Define inner derivations for an A-bimodule M:
-   ```
-   def InnerDerivation (R A M) [Algebra R A] [Module A M] [Module Aᵐᵒᵖ M] := ...
-   ```
+1. ✅ `InnerDerivation R A M` — inner derivation defined by element f ∈ M
+2. ✅ `innerDerivationMap R A M : M →ₗ[R] (A →ₗ[R] M)` — R-linear map f ↦ D_f
+3. ✅ `InnerDerivations R A M : Submodule R (A →ₗ[R] M)` — submodule of inner derivations
 
-2. Show inner derivations form a submodule of derivations
+### Remaining for full proof:
 
-3. Define the quotient as first Hochschild cohomology:
+1. Define the quotient as first Hochschild cohomology:
    ```
-   def HochschildH1 (A M) := Derivation k A M ⧸ InnerDerivation k A M
+   def HochschildH1 (A M) := (A →ₗ[R] M) ⧸ InnerDerivations R A M
    ```
 
 4. For A-modules X, Y, make Homₖ(Y, X) into an A-bimodule
@@ -208,6 +207,55 @@ lemma toFun_apply (D : InnerDerivation R A M) (a : A) :
 
 end InnerDerivation
 
+/-! ### Inner Derivations as a Submodule
+
+The map f ↦ D_f is R-linear, so its range (the inner derivations) forms a submodule
+of the R-module of R-linear maps A →ₗ[R] M.
+-/
+
+section InnerDerivationsSubmodule
+
+variable (R A M : Type*) [CommSemiring R] [CommSemiring A] [AddCommGroup M]
+variable [Algebra R A] [Module A M] [Module Aᵐᵒᵖ M] [Module R M]
+variable [IsScalarTower R A M] [IsScalarTower R Aᵐᵒᵖ M] [SMulCommClass R Aᵐᵒᵖ M]
+
+/-- The map f ↦ D_f sending an element to its inner derivation.
+This is R-linear, so its range is a submodule. -/
+def innerDerivationMap : M →ₗ[R] (A →ₗ[R] M) where
+  toFun f := (InnerDerivation.mk f).toLinearMap
+  map_add' f g := by
+    ext a
+    simp only [InnerDerivation.toLinearMap, InnerDerivation.toFun, LinearMap.coe_mk,
+      AddHom.coe_mk, LinearMap.add_apply]
+    -- Goal: a • (f + g) - op a • (f + g) = (a • f - op a • f) + (a • g - op a • g)
+    rw [smul_add, smul_add]
+    abel
+  map_smul' r f := by
+    ext a
+    simp only [InnerDerivation.toLinearMap, InnerDerivation.toFun, LinearMap.coe_mk,
+      AddHom.coe_mk, LinearMap.smul_apply, RingHom.id_apply, smul_sub]
+    -- Goal: a • (r • f) - op a • (r • f) = r • (a • f - op a • f)
+    -- Need SMulCommClass R A M for a • (r • f) = r • (a • f)
+    rw [smul_comm r a f, smul_comm r (MulOpposite.op a) f]
+
+/-- The submodule of inner derivations in the space of R-linear maps A →ₗ[R] M.
+An inner derivation is D_f(a) = a • f - (op a) • f for some f ∈ M. -/
+def InnerDerivations : Submodule R (A →ₗ[R] M) :=
+  LinearMap.range (innerDerivationMap R A M)
+
+/-- An element of M maps to an inner derivation. -/
+lemma mem_innerDerivations (f : M) :
+    (InnerDerivation.mk f).toLinearMap ∈ InnerDerivations R A M :=
+  ⟨f, rfl⟩
+
+/-- Characterization: a linear map is an inner derivation iff it equals D_f for some f. -/
+lemma mem_innerDerivations_iff (D : A →ₗ[R] M) :
+    D ∈ InnerDerivations R A M ↔ ∃ f : M, D = (InnerDerivation.mk f).toLinearMap := by
+  simp only [InnerDerivations, LinearMap.mem_range]
+  constructor <;> rintro ⟨f, hf⟩ <;> exact ⟨f, hf.symm⟩
+
+end InnerDerivationsSubmodule
+
 end InnerDerivations
 
 /-! ## The A-bimodule Structure on Hom_k(Y, X)
@@ -297,12 +345,14 @@ The proof involves:
 1. From extension to derivation: use a k-linear splitting
 2. From derivation to extension: construct the semi-direct product module
 
-Mathlib has the building blocks (Derivation, Ext, ModuleCat) but not:
-- Inner derivations
-- The Hom bimodule structure
-- The explicit isomorphism
+### What this file provides:
+- ✅ `InnerDerivation R A M` — inner derivations defined by elements of M
+- ✅ `InnerDerivations R A M` — submodule of linear maps that are inner derivations
+- ✅ `HomRightSMul` — right A-action on Hom_k(Y, X) via precomposition
 
-This is noted as a gap for potential future formalization work.
+### Remaining gaps:
+- Hochschild H¹ as quotient Der/InnerDer (needs bimodule derivation type)
+- The explicit isomorphism Ext¹ ≅ H¹
 -/
 
 end LemmaFeld.TensorCategories.Chapter1

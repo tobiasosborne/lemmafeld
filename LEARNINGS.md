@@ -811,8 +811,10 @@ The bijection `f` between indices with `Iso`-respecting property means:
 **Progress (2026-01-28):**
 - `InnerDerivation R A M` structure defined (element `f : M`, `toFun`, `toLinearMap`)
 - Bimodule structure on Hom_k(Y,X): left via `SMulCommClass`, right via `HomRightSMul`
+- ✅ `innerDerivationMap R A M : M →ₗ[R] (A →ₗ[R] M)` — R-linear map f ↦ D_f
+- ✅ `InnerDerivations R A M : Submodule R (A →ₗ[R] M)` — range of innerDerivationMap
 
-**Remaining work:** ~100-150 LOC to prove inner derivations form submodule and construct explicit isomorphism.
+**Remaining work:** ~50-80 LOC to define quotient and construct explicit isomorphism.
 
 ## 2026-01-28: A-bimodule Structure on Hom_k(Y, X)
 
