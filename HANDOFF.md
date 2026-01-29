@@ -2,6 +2,18 @@
 
 ## Completed This Session (Current)
 
+- **lemmafeld-iie4 (TC 1.13.1: Grouplike elements) - COMPLETE**:
+  - Created `Chapter1/Coalgebras.lean` (144 LOC)
+  - `IsGrouplike R x`: element with Δ(x) = x ⊗ x and ε(x) = 1 (Definition 1.9.7)
+  - `IsSkewPrimitive R g h x`: element with Δ(x) = g ⊗ x + x ⊗ h (Definition 1.9.10)
+  - `IsTrivialSkewPrimitive R g h x`: x = r • (g - h) (Remark 1.9.11)
+  - `not_isGrouplike_zero`: zero is not grouplike
+  - `IsGrouplike.counit_eq_one`, `IsGrouplike.comul_eq_tmul`: accessor lemmas
+  - Uses mathlib's `Coalgebra R A` from `Mathlib.RingTheory.Coalgebra.Basic`
+  - File builds successfully
+
+## Previous Session
+
 - **lemmafeld-zy7n (Prove Fitting decomposition: inf = ⊥) - BLOCKED**:
   - Investigated proof of `kernelSubobject_inf_imageSubobject_eq_bot`
   - **Key finding:** Classical module argument requires "finding preimages" under surjective maps
@@ -236,7 +248,8 @@
 - **Chapter1/FiniteLength.lean** — §1.5 Finite length (IsFiniteLengthObject, FiniteLengthCategory)
 - **Chapter1/JordanHolder.lean** — §1.5 Jordan-Hölder series + multiplicity independence (§1.5.6)
 - **Chapter1/KrullSchmidt.lean** — §1.5 Krull-Schmidt theorem (statements, gaps noted)
-- All fourteen files build successfully
+- **Chapter1/Coalgebras.lean** — §1.9 Grouplike and skew-primitive elements (NEW)
+- All twenty files build successfully
 
 ## Next Steps
 
@@ -284,3 +297,4 @@
 - `LemmaFeld/CategoryTheory/TensorCategories/Chapter1/Semisimple.lean` — §1.5 semisimple objects
 - `LemmaFeld/CategoryTheory/TensorCategories/Chapter1/FiniteLength.lean` — §1.5 finite length objects
 - `LemmaFeld/CategoryTheory/TensorCategories/Chapter1/JordanHolder.lean` — §1.5 Jordan-Hölder series (NEW)
+- `LemmaFeld/CategoryTheory/TensorCategories/Chapter1/Coalgebras.lean` — §1.9 Coalgebras (NEW)

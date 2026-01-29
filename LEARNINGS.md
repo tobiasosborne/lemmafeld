@@ -1206,3 +1206,38 @@ manipulation is non-trivial (~20 more LOC for a clean proof).
 
 **Recommendation:** Create a sub-issue for proving "epi endo on Noetherian → iso" categorically,
 or add `[IsNoetherianObject (Subobject.underlying.obj (imageSubobject (f^n)))]` to the hypotheses
+
+## 2026-01-29: TC 1.9/1.13 - Coalgebras and Grouplike Elements
+
+**Task:** Formalize grouplike and skew-primitive elements from §1.9 (used in §1.13 coradical filtration).
+
+**Created:** `Chapter1/Coalgebras.lean`
+
+**Mathlib has (in `Mathlib.RingTheory.Coalgebra.Basic`):**
+
+| Concept | Mathlib | Notes |
+|---------|---------|-------|
+| Coalgebra | `Coalgebra R A` | Class for R-coalgebras |
+| Comultiplication | `Coalgebra.comul : A →ₗ[R] TensorProduct R A A` | The Δ map |
+| Counit | `Coalgebra.counit : A →ₗ[R] R` | The ε map |
+| Cocommutativity | `Coalgebra.IsCocomm R A` | Comul is symmetric |
+
+**Mathlib gaps (defined in our file):**
+
+| Book Concept | Our Definition | Notes |
+|--------------|---------------|-------|
+| Grouplike (Def 1.9.7) | `IsGrouplike R x` | Δ(x) = x ⊗ x, ε(x) = 1 |
+| Skew-primitive (Def 1.9.10) | `IsSkewPrimitive R g h x` | Δ(x) = g ⊗ x + x ⊗ h |
+| Trivial skew-primitive (Rem 1.9.11) | `IsTrivialSkewPrimitive R g h x` | x = r • (g - h) |
+
+**Key API notes:**
+- `Coalgebra.comul x` gives the comultiplication
+- `x ⊗ₜ[R] y` is the tensor product notation (use `open scoped TensorProduct`)
+- Grouplike requires both comul and counit conditions for completeness
+- Trivial skew-primitive needs `AddCommGroup` for subtraction
+
+**Remaining for §1.9/1.13:**
+- Proposition 1.9.12: Prim_{g,h}(C)/k(g-h) ≅ Ext¹(h,g) (requires comodule categories)
+- Bijection grouplike ↔ 1-dim subcoalgebras (requires subcoalgebra theory)
+- Coradical filtration (Definition 1.13.1-1.13.2)
+- Linear independence of grouplike elements (Exercise 1.13.3(iii))
