@@ -2,7 +2,7 @@
 
 ## Project Review (2026-01-29)
 
-**Stats:** 428 issues (377 open, 50 closed), 370 ready to work, 8 blocked, 27 Lean files in Chapter 1
+**Stats:** 428 issues (376 open, 51 closed), 369 ready to work, 8 blocked, 30 Lean files in Chapter 1
 
 ### Issues Created This Review
 **Gap issues (5, 1 resolved):**
@@ -12,18 +12,18 @@
 - lemmafeld-h43p: Yoneda Ext
 - lemmafeld-0tar: Categorical semisimplicity class
 
-**Hygiene issues (13):**
-- lemmafeld-2e9a: Split ExtAsDerivations.lean (507 LOC) **[P1 - CRITICAL]**
+**Hygiene issues (13, 1 resolved):**
+- ~~lemmafeld-2e9a~~: Split ExtAsDerivations.lean (507 LOC) **[P1 - RESOLVED]**
 - lemmafeld-xeb7: Split Abelian.lean (316 LOC) **[P1]**
 - lemmafeld-r16p, el7c, 9cfk, ns9g, r06j, sset: Split 6 files (234-264 LOC) **[P2]**
 - lemmafeld-08gi, ebwa, eg49, kq15, l91p: Trim 5 files (201-222 LOC) **[P3]**
 
 ### Recommended Next Steps (Priority Order)
 
-1. **lemmafeld-2e9a** (P1): Split ExtAsDerivations.lean — worst hygiene violation at 507 LOC
-2. **lemmafeld-c5gz** (P2): Prove K ⊔ I = ⊤ — unblocks Fitting Lemma chain (actionable, clear approach)
-3. **lemmafeld-45ut** (P2): Finite codim intersection — quick win (~30 LOC), unblocks FiniteDual
-4. **lemmafeld-xeb7** (P1): Split Abelian.lean — second-worst hygiene violation
+1. ~~lemmafeld-2e9a~~ **DONE** — Split ExtAsDerivations.lean
+2. **lemmafeld-xeb7** (P1): Split Abelian.lean — worst remaining hygiene violation (316 LOC)
+3. **lemmafeld-c5gz** (P2): Prove K ⊔ I = ⊤ — unblocks Fitting Lemma chain (actionable, clear approach)
+4. **lemmafeld-45ut** (P2): Finite codim intersection — quick win (~30 LOC), unblocks FiniteDual
 5. ~~lemmafeld-awey~~ **DONE** — Division algebra classification
 
 ### Key Blockers
@@ -38,6 +38,16 @@
 ---
 
 ## Completed This Session (Current)
+
+- **lemmafeld-2e9a (Hygiene: Split ExtAsDerivations.lean) - COMPLETE**:
+  - Split 507 LOC file into 4 files, all under 200 LOC:
+    - `InnerDerivations.lean` (145 LOC): `InnerDerivation`, `InnerDerivations` submodule
+    - `HochschildH1.lean` (91 LOC): `HochschildH1` quotient module
+    - `BimoduleDerivations.lean` (115 LOC): `BimoduleDerivations`, inclusion theorem
+    - `ExtAsDerivations.lean` (198 LOC): Overview, bimodule structure, Ext context
+  - All files build successfully
+
+## Previous Session
 
 - **lemmafeld-awey (Division algebra classification for Schur's lemma) - COMPLETE**:
   - Updated `Chapter1/LocallyFinite.lean` to prove `end_simple_eq_one_dim`

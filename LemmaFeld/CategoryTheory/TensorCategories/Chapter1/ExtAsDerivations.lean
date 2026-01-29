@@ -3,10 +3,11 @@ Copyright (c) 2026 LemmaFeld Contributors. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: LemmaFeld Contributors
 -/
-import Mathlib.RingTheory.Derivation.Basic
+import LemmaFeld.CategoryTheory.TensorCategories.Chapter1.InnerDerivations
+import LemmaFeld.CategoryTheory.TensorCategories.Chapter1.HochschildH1
+import LemmaFeld.CategoryTheory.TensorCategories.Chapter1.BimoduleDerivations
 import Mathlib.Algebra.Category.ModuleCat.Abelian
 import Mathlib.Algebra.Homology.DerivedCategory.Ext.Basic
-import Mathlib.LinearAlgebra.Quotient.Basic
 
 /-!
 # Chapter 1, Exercise 1.4.3(ii): Ext¹ as Derivations
@@ -50,6 +51,15 @@ Conversely, given a derivation D : A → Homₖ(Y, X), construct the extension w
 
 This establishes the isomorphism Ext¹(Y, X) ≅ H¹(A, Homₖ(Y, X)).
 
+## File Organization
+
+The implementation is split across multiple files:
+
+* `InnerDerivations.lean` — `InnerDerivation` structure, `InnerDerivations` submodule
+* `HochschildH1.lean` — `HochschildH1` quotient module
+* `BimoduleDerivations.lean` — `BimoduleDerivations` submodule and inclusion theorem
+* `ExtAsDerivations.lean` (this file) — overview, bimodule structure, Ext context
+
 ## Mathlib Status
 
 ### What Mathlib Has
@@ -64,35 +74,13 @@ This establishes the isomorphism Ext¹(Y, X) ≅ H¹(A, Homₖ(Y, X)).
 
 ### What Mathlib Lacks (Gaps)
 
-1. ~~**Inner derivations**: No explicit `InnerDerivation` type~~ → **IMPLEMENTED BELOW**
-2. **Hochschild cohomology**: No H^n(A, M) = Ext^n_{A^e}(A, M) formalization
-3. **The isomorphism**: No proof that Ext¹_A(Y, X) ≅ H¹(A, Homₖ(Y, X))
-
-## Implementation Notes
-
-### Completed in this file:
-
-1. ✅ `InnerDerivation R A M` — inner derivation defined by element f ∈ M
-2. ✅ `innerDerivationMap R A M : M →ₗ[R] (A →ₗ[R] M)` — R-linear map f ↦ D_f
-3. ✅ `InnerDerivations R A M : Submodule R (A →ₗ[R] M)` — submodule of inner derivations
-4. ✅ `HochschildH1 R A M := (A →ₗ[R] M) ⧸ InnerDerivations R A M` — quotient module
-5. ✅ `HochschildH1.mk` — quotient map with `mk_eq_zero`, `mk_eq_mk` lemmas
-6. ✅ `HomRightSMul` — right A-action on Hom_k(Y, X) via precomposition
-7. ✅ `BimoduleDerivations R A M` — submodule of maps satisfying bimodule Leibniz rule
-8. ✅ `InnerDerivations_le_BimoduleDerivations` — inner derivations are bimodule derivations
-
-### Remaining for full proof:
-
-1. Construct explicit maps between extensions and derivations
-2. Show the maps are inverses up to the appropriate equivalences
-
-This is a significant formalization project beyond the scope of a single session.
+1. **Hochschild cohomology**: No H^n(A, M) = Ext^n_{A^e}(A, M) formalization
+2. **The isomorphism**: No proof that Ext¹_A(Y, X) ≅ H¹(A, Homₖ(Y, X))
 
 ## References
 
 - Etingof et al. "Tensor Categories" (AMS 2015), §1.4, Exercise 1.4.3(ii)
 - Weibel "An Introduction to Homological Algebra" (CUP 1994), §9.1-9.2 (Hochschild cohomology)
-- Loday "Cyclic Homology" (Springer 1992), Ch. 1
 
 -/
 
@@ -117,7 +105,6 @@ variable [Algebra R A] [Module A M] [Module R M]
 example : Type _ := Derivation R A M
 
 -- Derivations form an R-module (under appropriate conditions)
--- Note: Module A (Derivation R A M) requires additional SMulCommClass conditions
 example : AddCommMonoid (Derivation R A M) := inferInstance
 
 -- The Leibniz rule
@@ -128,281 +115,6 @@ example (D : Derivation R A M) (a b : A) : D (a * b) = a • D b + b • D a :=
 example (D : Derivation R A M) : D 1 = 0 := D.map_one_eq_zero
 
 end DerivationsInMathlib
-
-/-! ## Inner Derivations (Not in Mathlib)
-
-For an A-bimodule M, an inner derivation is D_f(a) = a • f - f • a for some f ∈ M.
-
-In the case M = Hom_k(Y, X) with Y, X being A-modules:
-- Left action: (a • φ)(y) = a · φ(y)
-- Right action: (φ • a)(y) = φ(a · y)
-
-So D_f(a)(y) = a · f(y) - f(a · y) = [a, f](y)
--/
-
-section InnerDerivations
-
-/-! ### Inner Derivations (Not in Mathlib)
-
-For a bimodule M (with left A-action and right A-action via Aᵐᵒᵖ), an inner derivation
-D_f is defined by an element f ∈ M as:
-  D_f(a) = a • f - f • a
-
-where the right action "f • a" is expressed as `MulOpposite.op a • f`.
-
-Inner derivations satisfy the bimodule Leibniz rule:
-  D_f(ab) = a · D_f(b) + D_f(a) · b
-
-This is a different form than mathlib's `Derivation` which uses D(ab) = a • D(b) + b • D(a).
--/
-
-/-- An inner derivation in a bimodule, defined by an element f ∈ M.
-For a bimodule M (with left A-action and right Aᵐᵒᵖ-action), the inner derivation
-D_f sends a ↦ a • f - MulOpposite.op a • f (i.e., a • f - f • a in bimodule notation).
-
-This corresponds to the book's B(Y, X) = inner derivations for Hom_k(Y, X). -/
-structure InnerDerivation (R A M : Type*) [CommSemiring R] [CommSemiring A]
-    [AddCommGroup M] [Algebra R A] [Module A M] [Module Aᵐᵒᵖ M] [Module R M] where
-  /-- The element defining the inner derivation -/
-  element : M
-
-namespace InnerDerivation
-
-variable {R A M : Type*} [CommSemiring R] [CommSemiring A] [AddCommGroup M]
-variable [Algebra R A] [Module A M] [Module Aᵐᵒᵖ M] [Module R M]
-
-/-- The underlying function of an inner derivation: a ↦ a • f - MulOpposite.op a • f -/
-def toFun (D : InnerDerivation R A M) (a : A) : M :=
-  a • D.element - MulOpposite.op a • D.element
-
-section LinearMap
-
-variable [IsScalarTower R A M] [IsScalarTower R Aᵐᵒᵖ M] [SMulCommClass R Aᵐᵒᵖ M]
-
-/-- The inner derivation as an R-linear map.
-Requires scalar tower and commutativity conditions for R-linearity. -/
-def toLinearMap (D : InnerDerivation R A M) : A →ₗ[R] M where
-  toFun := D.toFun
-  map_add' a b := by simp only [toFun, add_smul, MulOpposite.op_add, add_sub_add_comm]
-  map_smul' r a := by
-    simp only [toFun, RingHom.id_apply, Algebra.smul_def]
-    rw [mul_smul, MulOpposite.op_mul, mul_smul, smul_sub]
-    congr 1
-    · rw [algebraMap_smul]
-    · rw [show MulOpposite.op (algebraMap R A r) = algebraMap R Aᵐᵒᵖ r by
-        simp [Algebra.algebraMap_eq_smul_one]]
-      rw [algebraMap_smul, smul_comm]
-
-end LinearMap
-
--- Convenience: coerce to function
-instance : CoeFun (InnerDerivation R A M) (fun _ => A → M) where
-  coe := toFun
-
-@[simp]
-lemma toFun_apply (D : InnerDerivation R A M) (a : A) :
-    D a = a • D.element - MulOpposite.op a • D.element := rfl
-
-end InnerDerivation
-
-/-! ### Inner Derivations as a Submodule
-
-The map f ↦ D_f is R-linear, so its range (the inner derivations) forms a submodule
-of the R-module of R-linear maps A →ₗ[R] M.
--/
-
-section InnerDerivationsSubmodule
-
-variable (R A M : Type*) [CommSemiring R] [CommSemiring A] [AddCommGroup M]
-variable [Algebra R A] [Module A M] [Module Aᵐᵒᵖ M] [Module R M]
-variable [IsScalarTower R A M] [IsScalarTower R Aᵐᵒᵖ M] [SMulCommClass R Aᵐᵒᵖ M]
-
-/-- The map f ↦ D_f sending an element to its inner derivation.
-This is R-linear, so its range is a submodule. -/
-def innerDerivationMap : M →ₗ[R] (A →ₗ[R] M) where
-  toFun f := (InnerDerivation.mk f).toLinearMap
-  map_add' f g := by
-    ext a
-    simp only [InnerDerivation.toLinearMap, InnerDerivation.toFun, LinearMap.coe_mk,
-      AddHom.coe_mk, LinearMap.add_apply]
-    -- Goal: a • (f + g) - op a • (f + g) = (a • f - op a • f) + (a • g - op a • g)
-    rw [smul_add, smul_add]
-    abel
-  map_smul' r f := by
-    ext a
-    simp only [InnerDerivation.toLinearMap, InnerDerivation.toFun, LinearMap.coe_mk,
-      AddHom.coe_mk, LinearMap.smul_apply, RingHom.id_apply, smul_sub]
-    -- Goal: a • (r • f) - op a • (r • f) = r • (a • f - op a • f)
-    -- Need SMulCommClass R A M for a • (r • f) = r • (a • f)
-    rw [smul_comm r a f, smul_comm r (MulOpposite.op a) f]
-
-/-- The submodule of inner derivations in the space of R-linear maps A →ₗ[R] M.
-An inner derivation is D_f(a) = a • f - (op a) • f for some f ∈ M. -/
-def InnerDerivations : Submodule R (A →ₗ[R] M) :=
-  LinearMap.range (innerDerivationMap R A M)
-
-/-- An element of M maps to an inner derivation. -/
-lemma mem_innerDerivations (f : M) :
-    (InnerDerivation.mk f).toLinearMap ∈ InnerDerivations R A M :=
-  ⟨f, rfl⟩
-
-/-- Characterization: a linear map is an inner derivation iff it equals D_f for some f. -/
-lemma mem_innerDerivations_iff (D : A →ₗ[R] M) :
-    D ∈ InnerDerivations R A M ↔ ∃ f : M, D = (InnerDerivation.mk f).toLinearMap := by
-  simp only [InnerDerivations, LinearMap.mem_range]
-  constructor <;> rintro ⟨f, hf⟩ <;> exact ⟨f, hf.symm⟩
-
-end InnerDerivationsSubmodule
-
-/-! ### First Hochschild Cohomology
-
-The first Hochschild cohomology H¹(A, M) is defined as:
-  H¹(A, M) = Der(A, M) / InnerDer(A, M)
-
-For the full definition, we should quotient the bimodule derivations Der(A, M).
-Here we define a preliminary version as the quotient of all linear maps
-by inner derivations. For M an A-bimodule, this captures the "outer part"
-of linear maps.
--/
-
-section HochschildH1
-
-variable (R A M : Type*) [CommRing R] [CommRing A] [AddCommGroup M]
-variable [Algebra R A] [Module A M] [Module Aᵐᵒᵖ M] [Module R M]
-variable [IsScalarTower R A M] [IsScalarTower R Aᵐᵒᵖ M] [SMulCommClass R Aᵐᵒᵖ M]
-
-/-- The first Hochschild cohomology H¹(A, M) as a quotient module.
-
-Formally, H¹(A, M) should be Der(A, M) / InnerDer(A, M) where Der(A, M) consists
-of maps satisfying the bimodule Leibniz rule. This definition gives the quotient
-of all R-linear maps by inner derivations, which equals H¹ when restricted to
-maps satisfying the Leibniz rule.
-
-For A-modules X, Y and M = Hom_k(Y, X), Exercise 1.4.3(ii) shows:
-  Ext¹(Y, X) ≅ H¹(A, Hom_k(Y, X))
--/
-abbrev HochschildH1 := (A →ₗ[R] M) ⧸ InnerDerivations R A M
-
-/-- The quotient map from linear maps to H¹. -/
-def HochschildH1.mk : (A →ₗ[R] M) →ₗ[R] HochschildH1 R A M :=
-  (InnerDerivations R A M).mkQ
-
-/-- An element represents the zero class in H¹ iff it is an inner derivation. -/
-theorem HochschildH1.mk_eq_zero (D : A →ₗ[R] M) :
-    HochschildH1.mk R A M D = 0 ↔ D ∈ InnerDerivations R A M :=
-  Submodule.Quotient.mk_eq_zero (InnerDerivations R A M)
-
-/-- Two linear maps represent the same class in H¹ iff they differ by inner derivation. -/
-theorem HochschildH1.mk_eq_mk (D₁ D₂ : A →ₗ[R] M) :
-    HochschildH1.mk R A M D₁ = HochschildH1.mk R A M D₂ ↔
-    D₁ - D₂ ∈ InnerDerivations R A M := by
-  rw [← sub_eq_zero, ← LinearMap.map_sub, HochschildH1.mk_eq_zero]
-
-/-- H¹ is zero iff every linear map is inner. -/
-theorem HochschildH1.eq_bot_iff :
-    (⊤ : Submodule R (HochschildH1 R A M)) = ⊥ ↔
-    InnerDerivations R A M = ⊤ := by
-  rw [Submodule.eq_bot_iff, Submodule.eq_top_iff']
-  constructor
-  · intro h D
-    have hmem : HochschildH1.mk R A M D ∈ (⊤ : Submodule R (HochschildH1 R A M)) :=
-      Submodule.mem_top
-    have heq : HochschildH1.mk R A M D = 0 := h _ hmem
-    rwa [HochschildH1.mk_eq_zero] at heq
-  · intro h x _
-    obtain ⟨D, rfl⟩ := (InnerDerivations R A M).mkQ_surjective x
-    simp only [Submodule.mkQ_apply, Submodule.Quotient.mk_eq_zero]
-    exact h D
-
-end HochschildH1
-
-/-! ### Bimodule Derivations
-
-For a bimodule M (with left A-action and right Aᵐᵒᵖ-action), a **bimodule derivation**
-is a linear map D : A →ₗ[R] M satisfying the bimodule Leibniz rule:
-
-  D(ab) = a • D(b) + D(a) • b
-
-where:
-- `a • D(b)` is the left A-action on M
-- `D(a) • b` is the right A-action, expressed as `MulOpposite.op b • D(a)`
-
-This differs from mathlib's `Derivation` which uses `D(ab) = a • D(b) + b • D(a)`
-(symmetric form appropriate for commutative A with M = A).
--/
-
-section BimoduleDerivations
-
-variable (R A M : Type*) [CommRing R] [CommRing A] [AddCommGroup M]
-variable [Algebra R A] [Module A M] [Module Aᵐᵒᵖ M] [Module R M]
-variable [IsScalarTower R A M] [IsScalarTower R Aᵐᵒᵖ M] [SMulCommClass R Aᵐᵒᵖ M]
-
-/-- The bimodule Leibniz rule: D(ab) = a • D(b) + D(a) • b.
-The right action `D(a) • b` is expressed as `MulOpposite.op b • D(a)`. -/
-def IsBimoduleDerivation (D : A →ₗ[R] M) : Prop :=
-  ∀ a b : A, D (a * b) = a • D b + MulOpposite.op b • D a
-
-/-- The submodule of bimodule derivations in A →ₗ[R] M.
-These are R-linear maps satisfying D(ab) = a • D(b) + D(a) • b. -/
-def BimoduleDerivations : Submodule R (A →ₗ[R] M) where
-  carrier := {D | IsBimoduleDerivation R A M D}
-  zero_mem' := by
-    intro a b
-    simp only [LinearMap.zero_apply, smul_zero, add_zero]
-  add_mem' := by
-    intro D₁ D₂ hD₁ hD₂ a b
-    simp only [LinearMap.add_apply, smul_add]
-    rw [hD₁ a b, hD₂ a b]
-    abel
-  smul_mem' := by
-    intro r D hD a b
-    simp only [LinearMap.smul_apply]
-    rw [hD a b]
-    rw [smul_add, smul_comm r a, smul_comm r (MulOpposite.op b)]
-
-/-- Membership characterization for BimoduleDerivations. -/
-lemma mem_bimoduleDerivations_iff (D : A →ₗ[R] M) :
-    D ∈ BimoduleDerivations R A M ↔ IsBimoduleDerivation R A M D := Iff.rfl
-
-/-- A bimodule derivation satisfies D(1) = 0. -/
-lemma BimoduleDerivation.map_one (D : A →ₗ[R] M) (hD : IsBimoduleDerivation R A M D) :
-    D 1 = 0 := by
-  have h := hD 1 1
-  simp only [mul_one, MulOpposite.op_one, one_smul] at h
-  -- h : D 1 = D 1 + D 1
-  have : (0 : M) = D 1 := by
-    calc (0 : M) = D 1 - D 1 := (sub_self (D 1)).symm
-         _ = (D 1 + D 1) - D 1 := by rw [← h]
-         _ = D 1 := add_sub_cancel_right (D 1) (D 1)
-  exact this.symm
-
-/-- Inner derivations are bimodule derivations, provided the left and right actions commute. -/
-theorem InnerDerivations_le_BimoduleDerivations [SMulCommClass A Aᵐᵒᵖ M] :
-    InnerDerivations R A M ≤ BimoduleDerivations R A M := by
-  intro D hD
-  rw [mem_innerDerivations_iff] at hD
-  obtain ⟨f, rfl⟩ := hD
-  rw [mem_bimoduleDerivations_iff]
-  intro a b
-  -- Goal: D_f(ab) = a • D_f(b) + (op b) • D_f(a)
-  -- where D_f(x) = x • f - (op x) • f
-  simp only [InnerDerivation.toLinearMap, InnerDerivation.toFun,
-    LinearMap.coe_mk, AddHom.coe_mk]
-  -- LHS: (ab) • f - op(ab) • f
-  -- RHS: a • (b • f - op b • f) + op b • (a • f - op a • f)
-  rw [MulOpposite.op_mul]
-  -- LHS: (ab) • f - (op b * op a) • f
-  -- RHS: a • b • f - a • op b • f + op b • a • f - op b • op a • f
-  rw [mul_smul, mul_smul]
-  -- LHS: a • (b • f) - op b • (op a • f)
-  rw [smul_sub, smul_sub]
-  -- RHS expanded, need to use commutativity of A and Aᵐᵒᵖ actions
-  rw [smul_comm a (MulOpposite.op b) f]
-  abel
-
-end BimoduleDerivations
-
-end InnerDerivations
 
 /-! ## The A-bimodule Structure on Hom_k(Y, X)
 
@@ -442,12 +154,8 @@ This is modeled as a left Aᵐᵒᵖ-action: (op a • f)(y) = f(a • y).
 We define the SMul instance explicitly via precomposition with scalar mult.
 -/
 
--- SMulCommClass A k Y means: ∀ a : A, ∀ c : k, ∀ y : Y, a • (c • y) = c • (a • y)
--- This is typically derivable from IsScalarTower k A Y
 variable [SMulCommClass A k Y]
 
--- Right action defined via precomposition: (op a • f) = f ∘ (a • ·)
--- Use DistribMulAction.toLinearMap which gives a k-linear endomorphism from A-action
 /-- Right A-action on Hom_k(Y, X) via precomposition: `(f ⬝ a)(y) = f(a • y)`.
     Modeled as Aᵐᵒᵖ left-action. -/
 def HomRightSMul (a : Aᵐᵒᵖ) (f : Y →ₗ[k] X) : Y →ₗ[k] X :=
@@ -479,29 +187,12 @@ end ExtInModuleCat
 
 /-! ## Summary
 
-Exercise 1.4.3(ii) asserts the isomorphism:
+Exercise 1.4.3(ii) asserts: Ext¹_A(Y, X) ≅ Der(A, Hom_k(Y, X)) / InnerDer(A, Hom_k(Y, X)).
 
-  Ext¹_A(Y, X) ≅ Der(A, Hom_k(Y, X)) / InnerDer(A, Hom_k(Y, X))
+This module (across split files) provides: `InnerDerivation`, `InnerDerivations`,
+`HochschildH1`, `HomRightSMul`, `BimoduleDerivations`, `InnerDerivations_le_BimoduleDerivations`.
 
-This is a classical result connecting:
-- Categorical cohomology (Ext groups)
-- Hochschild cohomology (derivations modulo inner derivations)
-
-The proof involves:
-1. From extension to derivation: use a k-linear splitting
-2. From derivation to extension: construct the semi-direct product module
-
-### What this file provides:
-- ✅ `InnerDerivation R A M` — inner derivations defined by elements of M
-- ✅ `InnerDerivations R A M` — submodule of linear maps that are inner derivations
-- ✅ `HochschildH1 R A M` — quotient (A →ₗ[R] M) / InnerDerivations as H¹
-- ✅ `HochschildH1.mk` — quotient map with equality characterization
-- ✅ `HomRightSMul` — right A-action on Hom_k(Y, X) via precomposition
-- ✅ `BimoduleDerivations R A M` — submodule of linear maps satisfying bimodule Leibniz rule
-- ✅ `InnerDerivations_le_BimoduleDerivations` — inner derivations are bimodule derivations
-
-### Remaining gaps:
-- The explicit isomorphism Ext¹ ≅ H¹
+**Gap:** The explicit isomorphism Ext¹ ≅ H¹ is not yet formalized.
 -/
 
 end LemmaFeld.TensorCategories.Chapter1
