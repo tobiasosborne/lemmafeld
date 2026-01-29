@@ -2,6 +2,21 @@
 
 ## Completed This Session (Current)
 
+- **lemmafeld-4b1j (TC 1.7.1: Derived functors setup) - COMPLETE**:
+  - Created `Chapter1/DerivedFunctors.lean` (~180 LOC)
+  - Documents `ProjectiveResolution X`, `InjectiveResolution X`
+  - Documents `F.leftDerived n`, `F.rightDerived n`
+  - Documents `Ext R C n` (left-derived Hom functor)
+  - Documents `groupCohomology` and `groupCohomologyIsoExt`
+  - **KEY FINDING:** Mathlib requires `[F.Additive]` for derived functors, NOT exactness
+  - Created `docs/learnings/chapter1/derived_functors.md`
+  - File builds successfully
+
+- **lemmafeld-3f7b, lemmafeld-k0q4, lemmafeld-wl1m (TC 1.6.2-1.6.4) - CLOSED**:
+  - Already covered by existing `Chapter1/Projective.lean`
+
+## Previous Session
+
 - **lemmafeld-z4mn (TC 1.12.1: Finite dual definition) - COMPLETE**:
   - Created `Chapter1/FiniteDual.lean` (~140 LOC)
   - `IsFiniteDualElem f`: predicate for f ∈ A* being in the finite dual
@@ -321,19 +336,23 @@
 - **Chapter1/KrullSchmidt.lean** — §1.5 Krull-Schmidt theorem (statements, gaps noted)
 - **Chapter1/Coalgebras.lean** — §1.9 Grouplike and skew-primitive elements
 - **Chapter1/Projective.lean** — §1.6 Projective/injective objects, exact functors
+- **Chapter1/DerivedFunctors.lean** — §1.7 Derived functors setup (resolutions, Ext, group cohomology) (NEW)
 - **Chapter1/ExternalTensorProduct.lean** — §1.11.1 External tensor product (LocallyFiniteAbelian, IsRightExactBifunctor, DeligneTensorProductData)
-- **Chapter1/FiniteDual.lean** — §1.12.1 Finite dual (IsFiniteDualElem, dualCounit) (NEW)
-- All twenty-three files build successfully
+- **Chapter1/FiniteDual.lean** — §1.12.1 Finite dual (IsFiniteDualElem, dualCounit)
+- All twenty-four files build successfully
 
 ## Next Steps
 
-1. TC 1.12.2-1.12.4: Complete finite dual implementation (intersection, coalgebra, submodule)
-2. TC 1.5.7-1.5.8: Krull-Schmidt theorem, Grothendieck group (blocked by Fitting lemma)
-3. TC 1.6.2-1.6.4: Remaining projective/injective issues
-4. Chapter 2: Monoidal categories foundations
+1. TC 1.7.2-1.7.4: Ext^n definition, long exact sequence, group cohomology connection
+2. TC 1.8.1-1.8.4: Locally finite abelian categories
+3. TC 1.9.1-1.9.4: Coalgebras (definition, comodules, abelian, fundamental theorem)
+4. TC 1.5.7-1.5.8: Krull-Schmidt theorem, Grothendieck group (blocked by Fitting lemma)
 
 ## Known Issues / Gotchas
 
+- **Derived functors require `F.Additive`**: Mathlib's `F.leftDerived`/`F.rightDerived` require
+  `[F.Additive]` (functor preserves addition), NOT exactness conditions. Exactness is only needed
+  for specific theorems like `leftDerivedZeroIsoSelf`.
 - **A-linearity gap in Ex 1.4.3(ii)**: RESOLVED in lemmafeld-5rat. Key insight: use `IsScalarTower k A X`
   and require `equiv : X ≃ₗ[A] ker π` (A-linear). Then scalar tower manipulation with
   `smul_one_smul` handles k-scalar through A-linear equiv.
