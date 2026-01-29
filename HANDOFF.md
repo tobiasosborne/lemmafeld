@@ -2,6 +2,19 @@
 
 ## Completed This Session (Current)
 
+- **lemmafeld-txf9 (Fitting's Lemma Decomposition) - RESEARCH COMPLETE**:
+  - Developed proof strategy for `kernelSubobject_inf_imageSubobject_eq_bot` and `_sup_..._eq_top`
+  - Discovered key helper lemma: `subobject_eq_bot_of_arrow_eq_zero`
+  - File at 198 LOC (at limit, cannot add proofs without exceeding)
+  - **Created sub-issues:**
+    - lemmafeld-zy7n: Prove inf = ⊥ (~30 LOC) — with detailed proof strategy
+    - lemmafeld-c5gz: Prove sup = ⊤ (~30 LOC) — with detailed proof strategy
+    - Both now block lemmafeld-txf9
+  - **Key insight:** Proof requires showing f^n restricted to Im(f^n) is iso at stabilization
+  - See LEARNINGS.md "Fitting Decomposition Proof Strategy" for full details
+
+## Previous Session
+
 - **lemmafeld-txf9 (Fitting's Lemma Decomposition) - PARTIAL**: Enhanced `Chapter1/FittingLemma.lean`
   - `kernelSubobject_stabilizes` — PROVED: kernel chain stabilizes (Noetherian)
   - `imageSubobject_stabilizes` — PROVED: image chain stabilizes (Artinian)
@@ -9,7 +22,6 @@
   - `kernelSubobject_inf_imageSubobject_eq_bot` — outlined with proof sketch (sorry)
   - `kernelSubobject_sup_imageSubobject_eq_top` — outlined with proof sketch (sorry)
   - File is 198 LOC (under 200 guideline)
-  - **Remaining:** Prove intersection=⊥ and sum=⊤ lemmas (~40 LOC), then complete fitting_lemma
 
 ## Previous Session
 

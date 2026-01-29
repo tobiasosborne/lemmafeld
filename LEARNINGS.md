@@ -1092,3 +1092,49 @@ the original order. The `simp` lemma handles the unwrapping.
 - `IsNoetherianObject X` gives `WellFoundedGT (Subobject X)` (ACC)
 - `IsArtinianObject X` gives `WellFoundedLT (Subobject X)` (DCC)
 - `IsFiniteLengthObject X = IsArtinianObject X ∧ IsNoetherianObject X`
+
+## 2026-01-29: Fitting Decomposition Proof Strategy
+
+**Task:** Prove Ker(f^n) ⊓ Im(f^n) = ⊥ and Ker(f^n) ⊔ Im(f^n) = ⊤ at chain stabilization.
+
+**Key helper lemma discovered:**
+```lean
+/-- If a subobject's arrow is zero, the subobject equals ⊥. -/
+lemma subobject_eq_bot_of_arrow_eq_zero (A : Subobject X) (h : A.arrow = 0) : A = ⊥ := by
+  apply Subobject.eq_of_comm (isoZeroOfMonoEqZero h ≪≫ Subobject.botCoeIsoZero.symm)
+  calc _ ≫ (⊥ : Subobject X).arrow = _ ≫ 0 := by rw [Subobject.bot_arrow]
+    _ = 0 := by simp
+    _ = A.arrow := h.symm
+```
+
+**Proof strategy for inf = ⊥:**
+1. Show `(K ⊓ I).arrow ≫ f^n = 0` (factors through kernel, kernel condition gives zero)
+2. `(K ⊓ I).arrow` factors through `imageSubobject (f^n)` (from `inf_le_right`)
+3. At stabilization, `f^n|_{Im(f^n)}` is an isomorphism (Im(f^n) = Im(f^(2n)) means surjective endo)
+4. Composition with zero through an iso means the pre-composition is zero
+5. Hence `(K ⊓ I).arrow = 0`, so `K ⊓ I = ⊥`
+
+**Key API:**
+- `inf_le_left : K ⊓ I ≤ K` → factorization through K
+- `inf_le_right : K ⊓ I ≤ I` → factorization through I
+- `Subobject.ofLE_arrow : (A ⊓ B).arrow = ofLE _ _ h ≫ A.arrow`
+- `kernelSubobject_arrow_comp : K.arrow ≫ f^n = 0`
+- `isoZeroOfMonoEqZero` — mono arrow = 0 implies source ≅ 0
+
+**Gap:** Need to formalize "f^n restricted to Im(f^n) is an isomorphism at stabilization". This requires:
+- Showing the restriction is surjective (from Im(f^n) = Im(f^(2n)))
+- Showing surjective endo of finite length object is iso (or use direct argument)
+
+**Proof strategy for sup = ⊤:**
+1. Need to show `K ⊔ I = ⊤`, i.e., every element is sum of kernel and image parts
+2. For any x, f^n(x) ∈ Im(f^n) = Im(f^(2n))
+3. So f^n(x) = f^(2n)(y) for some y (from stabilization surjectivity)
+4. Then x - f^n(y) ∈ Ker(f^n) (since f^n(x - f^n(y)) = f^n(x) - f^(2n)(y) = 0)
+5. Thus x = (x - f^n(y)) + f^n(y) ∈ K + I
+
+**Gap:** Need categorical formulation of "for y' in Im(f^n), exists z with f^n(z) = y'".
+
+**Created issues:**
+- lemmafeld-zy7n: Prove inf = ⊥ (~30 LOC)
+- lemmafeld-c5gz: Prove sup = ⊤ (~30 LOC)
+- Both block lemmafeld-txf9 (Fitting's Lemma completion)
