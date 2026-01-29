@@ -1241,3 +1241,43 @@ or add `[IsNoetherianObject (Subobject.underlying.obj (imageSubobject (f^n)))]` 
 - Bijection grouplike ↔ 1-dim subcoalgebras (requires subcoalgebra theory)
 - Coradical filtration (Definition 1.13.1-1.13.2)
 - Linear independence of grouplike elements (Exercise 1.13.3(iii))
+
+## 2026-01-29: TC 1.6.1 - Left and Right Exact Functors
+
+**Task:** Formalize left/right exact functors and projective/injective objects from §1.6.
+
+**Created:** `Chapter1/Projective.lean`
+
+**Book §1.6 defines:**
+- **Definition 1.6.1**: Left/right exact functors (preserves left/right portion of short exact)
+- **Example 1.6.2**: Hom functors are left exact
+- **Exercise 1.6.4**: Adjoints preserve limits/colimits
+- **Definition 1.6.5**: Projective/injective objects (Hom functor is exact)
+- **Definition 1.6.6/1.6.7**: Projective covers and injective hulls
+
+**Mathlib correspondence:**
+
+| Book Concept | Mathlib | Import |
+|--------------|---------|--------|
+| Left exact | `PreservesFiniteLimits F` | `Mathlib.CategoryTheory.Limits.ExactFunctor` |
+| Right exact | `PreservesFiniteColimits F` | same |
+| Exact | Both properties | same |
+| Bundled types | `LeftExactFunctor`, `RightExactFunctor`, `ExactFunctor` | same |
+| Hom(X,-) preserves limits | `PreservesLimits (coyoneda.obj X)` | `Mathlib.CategoryTheory.Limits.Yoneda` |
+| Hom(-,Y) preserves limits | `PreservesLimits (yoneda.obj Y)` | same |
+| Right adjoint preserves limits | `Adjunction.rightAdjoint_preservesLimits` | `Mathlib.CategoryTheory.Adjunction.Limits` |
+| Projective object | `Projective P` | `Mathlib.CategoryTheory.Preadditive.Projective.Basic` |
+| Injective object | `Injective I` | `Mathlib.CategoryTheory.Preadditive.Injective.Basic` |
+| Enough projectives | `EnoughProjectives C` | same |
+| Enough injectives | `EnoughInjectives C` | same |
+
+**Key insight:** Mathlib uses `PreservesFiniteLimits`/`PreservesFiniteColimits` rather than
+the sequential definition from the book. The equivalence is in `Functor.exact_tfae` in
+`Mathlib.Algebra.Homology.ShortComplex.ExactFunctor`.
+
+**API notes:**
+- `LeftExactFunctor.of F` constructs bundled functor from `[PreservesFiniteLimits F]`
+- `coyoneda.obj X` is Hom(X, -), `yoneda.obj Y` is Hom(-, Y)
+- `ProjectivePresentation X` has fields `p`, `f : p ⟶ X`, `projective`, `epi`
+- `InjectivePresentation X` has fields `J`, `f : X ⟶ J`, `injective`, `mono`
+- `(0 : C)` notation requires `open scoped ZeroObject`

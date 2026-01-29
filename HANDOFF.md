@@ -2,6 +2,18 @@
 
 ## Completed This Session (Current)
 
+- **lemmafeld-y6ai (TC 1.6.1: Left and right exact functors) - COMPLETE**:
+  - Created `Chapter1/Projective.lean` (256 LOC)
+  - Documents mathlib's `PreservesFiniteLimits`/`PreservesFiniteColimits` for exact functors
+  - `LeftExactFunctor`, `RightExactFunctor`, `ExactFunctor` bundled types
+  - Hom functor left exactness via `coyoneda.obj`/`yoneda.obj` preserving limits
+  - Adjoint exactness via `rightAdjoint_preservesLimits`/`leftAdjoint_preservesColimits`
+  - `Projective P`, `Injective I` with lifting/extension properties
+  - `EnoughProjectives`, `EnoughInjectives` for covers/hulls
+  - File builds successfully
+
+## Previous Session
+
 - **lemmafeld-iie4 (TC 1.13.1: Grouplike elements) - COMPLETE**:
   - Created `Chapter1/Coalgebras.lean` (144 LOC)
   - `IsGrouplike R x`: element with Δ(x) = x ⊗ x and ε(x) = 1 (Definition 1.9.7)
@@ -248,13 +260,14 @@
 - **Chapter1/FiniteLength.lean** — §1.5 Finite length (IsFiniteLengthObject, FiniteLengthCategory)
 - **Chapter1/JordanHolder.lean** — §1.5 Jordan-Hölder series + multiplicity independence (§1.5.6)
 - **Chapter1/KrullSchmidt.lean** — §1.5 Krull-Schmidt theorem (statements, gaps noted)
-- **Chapter1/Coalgebras.lean** — §1.9 Grouplike and skew-primitive elements (NEW)
-- All twenty files build successfully
+- **Chapter1/Coalgebras.lean** — §1.9 Grouplike and skew-primitive elements
+- **Chapter1/Projective.lean** — §1.6 Projective/injective objects, exact functors (NEW)
+- All twenty-one files build successfully
 
 ## Next Steps
 
 1. TC 1.5.7-1.5.8: Krull-Schmidt theorem, Grothendieck group
-2. TC 1.6.x: Projective and injective objects
+2. TC 1.6.2-1.6.4: Remaining projective/injective issues
 3. Chapter 2: Monoidal categories foundations
 
 ## Known Issues / Gotchas
