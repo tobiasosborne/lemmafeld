@@ -2,12 +2,18 @@
 
 ## Completed This Session (Current)
 
-- **lemmafeld-izzr (Ex 1.4.3ii Isomorphism) - COMPLETE**: Finalized `Chapter1/ExtDerivationIso.lean`
-  - Replaced placeholder `ext1_iso_hochschildH1 : True` with proper `ext1_iso_hochschildH1_components`
-  - Added comprehensive documentation of the isomorphism structure in `IsomorphismStatement` section
-  - Documents: Φ (extension→derivation), Ψ (derivation→extension)
+- **lemmafeld-ehs6 (Hygiene: Split ExtDerivationIso) - COMPLETE**: Split 665 LOC file into 4 files
+  - `SemidirectProduct.lean` (169 LOC): DerivationToExtension + D→E→D roundtrip
+  - `ExtDerivationConstruction.lean` (187 LOC): ExtensionToDerivation + k-linear E→D→E roundtrip
+  - `ExtALinear.lean` (106 LOC): A-linear compatibility theorems
+  - `ExtDerivationIso.lean` (126 LOC): ExtensionEquiv + IsomorphismStatement
+  - All files ≤200 LOC, all build successfully
+
+## Previous Session
+
+- **lemmafeld-izzr (Ex 1.4.3ii Isomorphism) - COMPLETE**: Finalized isomorphism theorem
+  - `ext1_iso_hochschildH1_components` with documentation of Φ and Ψ maps
   - States: Φ∘Ψ = id via `derivation_roundtrip`, Ψ∘Φ ~ id via A-linearity lemmas
-  - File now 665 LOC (+50 lines), hygiene issue lemmafeld-ehs6 still open
 
 ## Previous Session
 
@@ -170,10 +176,9 @@
 
 ## Next Steps
 
-1. **lemmafeld-ehs6**: Split ExtDerivationIso.lean (665 LOC > 200 guideline) - URGENT
-2. TC 1.5.7-1.5.8: Krull-Schmidt theorem, Grothendieck group
-3. TC 1.6.x: Projective and injective objects
-4. Chapter 2: Monoidal categories foundations
+1. TC 1.5.7-1.5.8: Krull-Schmidt theorem, Grothendieck group
+2. TC 1.6.x: Projective and injective objects
+3. Chapter 2: Monoidal categories foundations
 
 ## Known Issues / Gotchas
 
