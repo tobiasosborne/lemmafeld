@@ -22,14 +22,17 @@
 
 1. ~~lemmafeld-2e9a~~ **DONE** — Split ExtAsDerivations.lean
 2. ~~lemmafeld-xeb7~~ **DONE** — Split Abelian.lean (316 LOC → 2 files)
-3. ~~lemmafeld-c5gz~~ **BLOCKED** — Prove K ⊔ I = ⊤ — now blocked by lemmafeld-hyvg
+3. ~~lemmafeld-c5gz~~ **BLOCKED** — Prove K ⊔ I = ⊤ — blocked by categorical Orzech chain
 4. ~~lemmafeld-45ut~~ **DONE** — Finite codim intersection (added to FiniteDual.lean)
 5. ~~lemmafeld-awey~~ **DONE** — Division algebra classification
-6. **lemmafeld-hyvg** (P2): Research — epi endo on Noetherian → mono (unblocks Fitting chain)
+6. ~~lemmafeld-hyvg~~ **RESOLVED** — Research complete, decomposed into implementation sub-issues
+7. **lemmafeld-8yab** (P2): Define Subobject.iterateComap (~40 LOC) — READY TO WORK
+8. **lemmafeld-ovvv** (P2): Prove chain stabilization (~40 LOC) — blocked by 8yab
+9. **lemmafeld-8sen** (P2): Prove categorical Orzech theorem (~50 LOC) — blocked by ovvv
 
 ### Key Blockers
-- **Fitting Lemma chain** (6 deep now): Root is lemmafeld-hyvg (epi endo → mono research)
-  - Both ⊓ = ⊥ (zy7n) and ⊔ = ⊤ (c5gz) need this same research
+- **Fitting Lemma chain** (now 5 deep): Root is lemmafeld-8yab (iterateComap definition)
+  - Chain: 8yab → ovvv → 8sen → {zy7n, c5gz} → txf9 (Fitting)
 - **Grothendieck Group chain** (3 deep): Root is lemmafeld-mfs8 (JordanHolderLattice for Subobject)
 
 ### Book Coverage Summary
@@ -40,6 +43,23 @@
 ---
 
 ## Completed This Session (Current)
+
+- **lemmafeld-hyvg (Research: epi endo on Noetherian → mono) - RESOLVED**:
+  - Researched how to unblock Fitting's Lemma decomposition proofs
+  - **Key finding:** Module proof uses `LinearMap.iterateMapComap` (Djoković's argument)
+    - Chain `(f⁻¹ ∘ i)^n(K)` stabilizes under Noetherian
+    - Stabilization + surjectivity ⟹ kernel is trivial
+  - **Categorical gap:** epi ≠ surjective, so "choosing preimages" doesn't work directly
+  - **Solution:** Create categorical `Subobject.iterateComap` chain
+  - **Issues created:**
+    - lemmafeld-8yab: Define `Subobject.iterateComap` (~40 LOC)
+    - lemmafeld-ovvv: Prove chain stabilizes under Noetherian (~40 LOC)
+    - lemmafeld-8sen: Prove `mono_of_epi_endomorphism_noetherianObject` (~50 LOC)
+  - Dependency chain: 8yab → ovvv → 8sen → {zy7n, c5gz}
+  - Updated `docs/learnings/chapter1/length_objects.md` with full analysis
+  - Closed lemmafeld-hyvg as resolved
+
+## Previous Session
 
 - **lemmafeld-xeb7 (Hygiene: Split Abelian.lean) - COMPLETE**:
   - Split 316 LOC file into 2 files, both under 200 LOC:
@@ -64,8 +84,6 @@
     - `fintypeQuotientInf`: instance deriving Fintype from injection
   - Key proof: [a]_{I ⊓ J} = [b]_{I ⊓ J} ↔ [a]_I = [b]_I ∧ [a]_J = [b]_J
   - File now 204 LOC (created P3 hygiene issue lemmafeld-sd54)
-
-## Previous Session
 
 - **lemmafeld-2e9a (Hygiene: Split ExtAsDerivations.lean) - COMPLETE**:
   - Split 507 LOC file into 4 files, all under 200 LOC:
