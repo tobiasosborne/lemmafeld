@@ -23,7 +23,7 @@
 1. ~~lemmafeld-2e9a~~ **DONE** — Split ExtAsDerivations.lean
 2. ~~lemmafeld-xeb7~~ **DONE** — Split Abelian.lean (316 LOC → 2 files)
 3. ~~lemmafeld-c5gz~~ **BLOCKED** — Prove K ⊔ I = ⊤ — now blocked by lemmafeld-hyvg
-4. **lemmafeld-45ut** (P2): Finite codim intersection — quick win (~30 LOC), unblocks FiniteDual
+4. ~~lemmafeld-45ut~~ **DONE** — Finite codim intersection (added to FiniteDual.lean)
 5. ~~lemmafeld-awey~~ **DONE** — Division algebra classification
 6. **lemmafeld-hyvg** (P2): Research — epi endo on Noetherian → mono (unblocks Fitting chain)
 
@@ -56,6 +56,14 @@
   - No categorical version for `IsNoetherianObject`
   - Added dependency: lemmafeld-c5gz blocked by lemmafeld-hyvg
   - Updated `docs/learnings/chapter1/length_objects.md` with full analysis
+
+- **lemmafeld-45ut (Finite codimension intersection) - COMPLETE**:
+  - Added to `Chapter1/FiniteDual.lean` (~40 LOC):
+    - `quotientInfToProd`: embedding A/(I ⊓ J) → A/I × A/J
+    - `quotientInfToProd_injective`: the embedding is injective
+    - `fintypeQuotientInf`: instance deriving Fintype from injection
+  - Key proof: [a]_{I ⊓ J} = [b]_{I ⊓ J} ↔ [a]_I = [b]_I ∧ [a]_J = [b]_J
+  - File now 204 LOC (created P3 hygiene issue lemmafeld-sd54)
 
 ## Previous Session
 

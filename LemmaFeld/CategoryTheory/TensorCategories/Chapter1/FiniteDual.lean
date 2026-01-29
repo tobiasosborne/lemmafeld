@@ -7,6 +7,8 @@ import Mathlib.RingTheory.TwoSidedIdeal.Lattice
 import Mathlib.LinearAlgebra.Dual.Defs
 import Mathlib.RingTheory.Coalgebra.Basic
 import Mathlib.RingTheory.Congruence.Basic
+import Mathlib.Algebra.Ring.Prod
+import Mathlib.Data.Fintype.Prod
 
 /-!
 # Chapter 1, Section 1.12: The Finite Dual of an Algebra
@@ -111,6 +113,47 @@ def dualCounit : Module.Dual k A →ₗ[k] k where
   map_add' f g := by simp
   map_smul' c f := by simp
 
+/-! ## §1.12 Note: Finite Codimension Intersection
+
+If I, J are two-sided ideals with finite codimension, then I ⊓ J has finite codimension.
+This follows because A/(I ⊓ J) embeds into A/I × A/J.
+-/
+
+section FiniteCodimIntersection
+
+variable (I J : TwoSidedIdeal A)
+
+/-- Map from quotient by intersection to product of quotients.
+This sends [a]_{I ⊓ J} to ([a]_I, [a]_J). -/
+def quotientInfToProd : (I ⊓ J).ringCon.Quotient → I.ringCon.Quotient × J.ringCon.Quotient :=
+  Quotient.lift (fun r => (I.ringCon.mk' r, J.ringCon.mk' r)) <| by
+    intro a b h
+    have hIJ : (I.ringCon ⊓ J.ringCon) a b := by rw [← TwoSidedIdeal.inf_ringCon]; exact h
+    have hI : I.ringCon a b := (inf_le_left : I.ringCon ⊓ J.ringCon ≤ I.ringCon) hIJ
+    have hJ : J.ringCon a b := (inf_le_right : I.ringCon ⊓ J.ringCon ≤ J.ringCon) hIJ
+    simp only [Prod.mk.injEq]
+    exact ⟨I.ringCon.eq.mpr hI, J.ringCon.eq.mpr hJ⟩
+
+/-- The quotient map to product is injective. Key: [a]_I = [b]_I and [a]_J = [b]_J
+implies a - b ∈ I ∧ a - b ∈ J, so a - b ∈ I ⊓ J. -/
+lemma quotientInfToProd_injective : Function.Injective (quotientInfToProd I J) := by
+  intro x y hxy
+  obtain ⟨a, rfl⟩ := Quotient.exists_rep x
+  obtain ⟨b, rfl⟩ := Quotient.exists_rep y
+  simp only [quotientInfToProd, Quotient.lift_mk, Prod.mk.injEq] at hxy
+  apply Quotient.sound
+  rw [TwoSidedIdeal.inf_ringCon]
+  exact ⟨I.ringCon.eq.mp hxy.1, J.ringCon.eq.mp hxy.2⟩
+
+/-- If I and J have finite codimension, then I ⊓ J has finite codimension.
+Proof: A/(I ⊓ J) injects into A/I × A/J, and the product of finite types is finite. -/
+noncomputable instance fintypeQuotientInf
+    [Fintype I.ringCon.Quotient] [Fintype J.ringCon.Quotient] :
+    Fintype (I ⊓ J).ringCon.Quotient :=
+  Fintype.ofInjective (quotientInfToProd I J) (quotientInfToProd_injective I J)
+
+end FiniteCodimIntersection
+
 /-! ## §1.12 Remark 1.12.3: When is A°_fin nontrivial?
 
 Book: "Note that if A does not have finite dimensional modules, then A*_fin = 0."
@@ -135,11 +178,10 @@ descends to the quotient ring.
 
 **Follow-up:** Create issue for k-module structure on TwoSidedIdeal quotients.
 
-### Gap 2: Finite Codimension Intersection
+### Gap 2: Finite Codimension Intersection — RESOLVED
 The subspace property requires showing that if I, J have finite codimension,
-so does I ⊓ J. This follows from the embedding A/(I ⊓ J) ↪ A/I × A/J.
-
-**Follow-up:** Create issue for finite codimension intersection lemma.
+so does I ⊓ J. **PROVED** via `fintypeQuotientInf` above using the embedding
+A/(I ⊓ J) ↪ A/I × A/J (`quotientInfToProd`).
 
 ### Gap 3: Comultiplication Δ = m*
 The comultiplication Δ : A*_fin → A*_fin ⊗ A*_fin requires:
