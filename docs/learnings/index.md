@@ -19,6 +19,7 @@ This directory contains organized learnings from the Tensor Categories formaliza
 | §1.5 | [chapter1/length_objects.md](chapter1/length_objects.md) | Simple, semisimple, finite length, Krull-Schmidt, Fitting |
 | §1.6 | [chapter1/projective.md](chapter1/projective.md) | Projective/injective, exact functors |
 | §1.7 | [chapter1/derived_functors.md](chapter1/derived_functors.md) | Derived functors, Ext, group cohomology |
+| §1.8 | [chapter1/locally_finite.md](chapter1/locally_finite.md) | Locally finite, finite abelian categories |
 | §1.9/1.13 | [chapter1/coalgebras.md](chapter1/coalgebras.md) | Coalgebras, grouplike, skew-primitive |
 | §1.11-1.12 | [chapter1/deligne.md](chapter1/deligne.md) | External tensor product, Deligne tensor |
 

@@ -2,6 +2,20 @@
 
 ## Completed This Session (Current)
 
+- **lemmafeld-2gce (TC 1.8.1: Locally finite abelian category definition) - COMPLETE**:
+  - Created `Chapter1/LocallyFinite.lean` (~170 LOC)
+  - `IsLocallyFinite k C` — finite dim Hom + finite length objects (Def 1.8.1)
+  - `IsArtinianCategory k C` — alias for locally finite (Remark 1.8.2)
+  - `Functor.IsInjective F` — fully faithful (Def 1.8.3)
+  - `Functor.IsSurjective F` — simples covered by F (Def 1.8.3)
+  - `hom_simple_eq_zero_of_not_iso` — Schur's lemma for non-iso simples (Prop 1.8.4)
+  - `SimpleClasses C` — iso classes of simples (O(C) notation)
+  - `IsFiniteAbelian k C` — finite abelian category (Def 1.8.5/1.8.6)
+  - Created `docs/learnings/chapter1/locally_finite.md`
+  - File builds successfully (one sorry for division algebra classification)
+
+## Previous Session
+
 - **lemmafeld-6n39 (TC 1.7.2: Ext^n(X, Y) definition) - COMPLETE**:
   - Created `Chapter1/ExtGroups.lean` (~212 LOC)
   - Documents functor-based `Ext R C n : Cᵒᵖ ⥤ C ⥤ ModuleCat R`
@@ -366,18 +380,19 @@
 - **Chapter1/Coalgebras.lean** — §1.9 Grouplike and skew-primitive elements
 - **Chapter1/Projective.lean** — §1.6 Projective/injective objects, exact functors
 - **Chapter1/DerivedFunctors.lean** — §1.7.1 Derived functors setup (resolutions, Ext, group cohomology)
-- **Chapter1/ExtGroups.lean** — §1.7.2 Ext^n(X, Y) definition (Ext functor, Abelian.Ext, Ext^0≅Hom, long exact) (NEW)
-- **Chapter1/ExternalTensorProduct.lean** — §1.11.1 External tensor product (LocallyFiniteAbelian, IsRightExactBifunctor, DeligneTensorProductData)
+- **Chapter1/ExtGroups.lean** — §1.7.2 Ext^n(X, Y) definition (Ext functor, Abelian.Ext, Ext^0≅Hom, long exact)
+- **Chapter1/LocallyFinite.lean** — §1.8.1 Locally finite categories (IsLocallyFinite, IsFiniteAbelian, SimpleClasses) (NEW)
+- **Chapter1/ExternalTensorProduct.lean** — §1.11.1 External tensor product (IsRightExactBifunctor, DeligneTensorProductData)
 - **Chapter1/FiniteDual.lean** — §1.12.1 Finite dual (IsFiniteDualElem, dualCounit)
 - **Chapter1/GrothendieckGroup.lean** — §1.5.8 Grothendieck group (IsoClassSimple, GrothendieckGroup, HasMultiplicity)
-- All twenty-six files build successfully
+- All twenty-seven files build successfully
 
 ## Next Steps
 
-1. **TC 1.7.3-1.7.4**: Long exact sequence for Ext, group cohomology connection — NEXT IN SEQUENCE
-3. TC 1.8.1-1.8.4: Locally finite abelian categories
-4. TC 1.9.1-1.9.4: Coalgebras (definition, comodules, abelian, fundamental theorem)
-5. TC 1.5.7: Krull-Schmidt theorem (blocked by Fitting lemma)
+1. **TC 1.8.2-1.8.4**: Artinian categories, finite abelian, finite dim Hom — NEXT IN SEQUENCE
+2. TC 1.9.1-1.9.4: Coalgebras (definition, comodules, abelian, fundamental theorem)
+3. TC 1.10.1-1.10.3: Coend construction
+4. TC 1.5.7: Krull-Schmidt theorem (blocked by Fitting lemma)
 
 ## Known Issues / Gotchas
 
