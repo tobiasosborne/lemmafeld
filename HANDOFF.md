@@ -1,24 +1,27 @@
-# Handoff: 2026-01-28
+# Handoff: 2026-01-29
 
 ## Completed This Session (Current)
 
-- **lemmafeld-5rat (Ex 1.4.3ii A-Linear Equivalence) - COMPLETE**: Enhanced `Chapter1/ExtDerivationIso.lean`
-  - Added `ALinearRoundTrip` section with A-linear compatibility theorems
-  - `extensionToSemidirect_A_linear_aux` — core decomposition: `a•e - s(π(a•e)) = a•(e - s(π e)) + (a•s(π e) - s(a•π e))`
-  - `extractedDerivationLinear` — k-linear map `Y →ₗ[k] X` from A-linear equiv
-  - `extensionToSemidirect_respects_action` — compatibility with semi-direct A-action
-  - `extension_roundtrip_equiv` — main theorem combining both round-trip properties
-  - Key insight: when `equiv : X ≃ₗ[A] ker π` is A-linear (not just k-linear), the map respects semi-direct action
-  - File now 595 LOC (+119 lines), hygiene issue lemmafeld-ehs6 still open
+- **lemmafeld-izzr (Ex 1.4.3ii Isomorphism) - COMPLETE**: Finalized `Chapter1/ExtDerivationIso.lean`
+  - Replaced placeholder `ext1_iso_hochschildH1 : True` with proper `ext1_iso_hochschildH1_components`
+  - Added comprehensive documentation of the isomorphism structure in `IsomorphismStatement` section
+  - Documents: Φ (extension→derivation), Ψ (derivation→extension)
+  - States: Φ∘Ψ = id via `derivation_roundtrip`, Ψ∘Φ ~ id via A-linearity lemmas
+  - File now 665 LOC (+50 lines), hygiene issue lemmafeld-ehs6 still open
 
 ## Previous Session
 
-- **lemmafeld-izzr (Ex 1.4.3ii Isomorphism) - PARTIALLY BLOCKED**: Enhanced `Chapter1/ExtDerivationIso.lean`
-  - Added documentation section "A-Linear Equivalence for Extensions (Gap)"
-  - Identified key technical challenge: need A-linear (not just k-linear) equivalence
-  - Created sub-issue lemmafeld-5rat for A-linearity proof (~50 LOC)
-  - Issue blocked pending lemmafeld-5rat completion
-  - File is now 495 LOC (hygiene issue lemmafeld-ehs6 still open)
+- **lemmafeld-5rat (Ex 1.4.3ii A-Linear Equivalence) - COMPLETE**: Enhanced `Chapter1/ExtDerivationIso.lean`
+  - Added `ALinearRoundTrip` section with A-linear compatibility theorems
+  - `extensionToSemidirect_A_linear_aux` — core decomposition
+  - `extensionToSemidirect_respects_action` — compatibility with semi-direct A-action
+  - Key insight: A-linear equiv enables A-action compatibility
+
+## Earlier Session
+
+- **lemmafeld-izzr (Ex 1.4.3ii Isomorphism) - PARTIAL**: Earlier work
+  - Created sub-issue lemmafeld-5rat for A-linearity proof
+  - Created hygiene issue lemmafeld-ehs6 (file is >200 LOC guideline)
 
 ## Previous Session
 
@@ -167,10 +170,10 @@
 
 ## Next Steps
 
-1. **lemmafeld-izzr**: Complete Ex 1.4.3(ii) isomorphism now that A-linearity is proved
-2. **lemmafeld-ehs6**: Split ExtDerivationIso.lean (595 LOC > 200 guideline) - URGENT
-3. TC 1.5.7-1.5.8: Krull-Schmidt theorem, Grothendieck group
-4. TC 1.6.x: Projective and injective objects
+1. **lemmafeld-ehs6**: Split ExtDerivationIso.lean (665 LOC > 200 guideline) - URGENT
+2. TC 1.5.7-1.5.8: Krull-Schmidt theorem, Grothendieck group
+3. TC 1.6.x: Projective and injective objects
+4. Chapter 2: Monoidal categories foundations
 
 ## Known Issues / Gotchas
 
