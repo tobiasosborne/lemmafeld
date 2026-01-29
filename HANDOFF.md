@@ -2,6 +2,26 @@
 
 ## Completed This Session (Current)
 
+- **lemmafeld-pq7w (Hygiene: Refactor LEARNINGS.md) - COMPLETE**:
+  - Refactored monolithic LEARNINGS.md (~1368 LOC) into indexed hierarchy
+  - Created `docs/learnings/` structure:
+    - `index.md` — Summary index with links to subdocs
+    - `mathlib_mappings.md` — Book ↔ mathlib correspondence tables
+    - `api_gotchas.md` — Common API issues and solutions
+    - `proof_patterns.md` — Reusable proof techniques
+    - `chapter1/abelian.md` — §1.1-1.3 learnings
+    - `chapter1/exact_sequences.md` — §1.4 learnings
+    - `chapter1/length_objects.md` — §1.5 learnings (Fitting, Krull-Schmidt)
+    - `chapter1/projective.md` — §1.6 learnings
+    - `chapter1/coalgebras.md` — §1.9, §1.13 learnings
+    - `chapter1/deligne.md` — §1.11-1.12 learnings
+  - Updated CLAUDE.md references to new structure
+  - Deleted old LEARNINGS.md
+  - All subdocs under 200 LOC (largest: 133 LOC)
+  - Total: 811 LOC across 10 files (was 1368 in one file)
+
+## Previous Session
+
 - **lemmafeld-379n (TC 1.11.1: External tensor product definition) - COMPLETE**:
   - Created `Chapter1/ExternalTensorProduct.lean` (~200 LOC)
   - `LocallyFiniteAbelian k C`: class for locally finite abelian categories

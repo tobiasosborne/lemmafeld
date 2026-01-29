@@ -1,0 +1,133 @@
+# Chapter 1: Length Objects (§1.5)
+
+## §1.5.1: Simple Objects
+
+**Book Definition 1.5.1:** Nonzero X is simple if 0 and X are its only subobjects.
+
+**Mathlib (`Mathlib.CategoryTheory.Simple`):**
+
+```lean
+class Simple (X : C) : Prop where
+  mono_isIso_iff_nonzero : ∀ {Y : C} (f : Y ⟶ X) [Mono f], IsIso f ↔ f ≠ 0
+```
+
+**Lean file:** `Chapter1/Simple.lean`
+
+---
+
+## §1.5.2-1.5.3: Schur's Lemma
+
+**Book Lemma 1.5.2:**
+- Nonzero f : X → Y (X, Y simple) is iso
+- X ≇ Y ⟹ Hom(X, Y) = 0
+- Hom(X, X) is a division algebra
+
+**Mathlib (`Mathlib.CategoryTheory.Preadditive.Schur`):**
+- `isIso_of_hom_simple` — core Schur
+- `finrank_hom_simple_simple_eq_zero_of_not_iso`
+- `finrank_endomorphism_simple_eq_one`
+
+**Lean file:** `Chapter1/Simple.lean`
+
+---
+
+## §1.5.2: Semisimple Objects
+
+**Book Definition 1.5.1:** X is semisimple if direct sum of simples.
+
+**Mathlib gap:** No categorical `Semisimple X`. Module version `IsSemisimpleModule` exists.
+
+**Our implementation:**
+
+```lean
+def IsSemisimple (X : C) : Prop :=
+  ∃ (ι : Type) (_ : Fintype ι) (S : ι → C), (∀ i, Simple (S i)) ∧ Nonempty (X ≅ ⨁ S)
+
+class SemisimpleCategory (C : Type*) [Category C] [HasZeroMorphisms C]
+    [HasFiniteBiproducts C] : Prop where
+  isSemisimple : ∀ X : C, IsSemisimple X
+```
+
+**Lean file:** `Chapter1/Semisimple.lean`
+
+---
+
+## §1.5.3-1.5.5: Finite Length and Jordan-Hölder
+
+**Book Definition 1.5.3:** X has finite length if admits Jordan-Hölder series.
+
+**Our definition:**
+```lean
+def IsFiniteLengthObject (X : C) : Prop := IsArtinianObject X ∧ IsNoetherianObject X
+```
+
+**Mathlib has:**
+- `IsArtinianObject X` → `WellFoundedLT (Subobject X)` (DCC)
+- `IsNoetherianObject X` → `WellFoundedGT (Subobject X)` (ACC)
+- `JordanHolderLattice` for abstract lattices
+- `instJordanHolderLattice : JordanHolderLattice (Submodule R M)` for modules
+
+**Gap:** No `JordanHolderLattice (Subobject X)` for abelian categories.
+
+**Lean files:** `Chapter1/FiniteLength.lean`, `Chapter1/JordanHolder.lean`
+
+---
+
+## §1.5.7: Krull-Schmidt Theorem
+
+**Book Theorem 1.5.7:** Finite length object admits unique decomposition into indecomposables.
+
+**Mathlib status:** `Indecomposable X` exists. NO Krull-Schmidt theorem.
+
+**Our structures:**
+
+```lean
+structure IndecomposableDecomposition (C : Type*) [Category C] (X : C) where
+  n : ℕ
+  components : Fin n → C
+  indecomposable : ∀ i, Indecomposable (components i)
+  iso : X ≅ ⨁ components
+```
+
+**Gap:** Full proof requires Fitting's Lemma (~50-100 LOC), local End ring (~30-50 LOC), existence by induction (~50-100 LOC), uniqueness via exchange (~100-150 LOC).
+
+**Lean file:** `Chapter1/KrullSchmidt.lean`
+
+---
+
+## Fitting's Lemma
+
+**Statement:** For f : X → X on finite length X, ∃ n such that X = Ker(f^n) ⊕ Im(f^n).
+
+### Chain Stabilization
+
+```lean
+lemma kernelSubobject_stabilizes [IsNoetherianObject X] :
+    ∃ n : ℕ, ∀ m : ℕ, n ≤ m → kernelSubobject (f ^ n) = kernelSubobject (f ^ m)
+
+lemma imageSubobject_stabilizes [IsArtinianObject X] :
+    ∃ n : ℕ, ∀ m : ℕ, n ≤ m → imageSubobject (f ^ n) = imageSubobject (f ^ m)
+```
+
+### Critical: End X Multiplication is Reversed
+
+In `End X`, multiplication is `x * y = y ≫ x`. So `f^m * f^k = f^k ≫ f^m`.
+
+Use:
+- `pow_add_eq_comp` — `f^(m+k) = f^m ≫ f^k` (for kernel chain)
+- `pow_add_eq_comp'` — `f^(m+k) = f^k ≫ f^m` (for image chain)
+
+### Decomposition Gap
+
+**Proved:**
+- `inf_arrow_comp_pow_eq_zero` — (K ⊓ I).arrow ≫ f^n = 0
+
+**Gap:** Need to show (K ⊓ I).arrow = 0 from composition = 0.
+
+Classical argument requires "finding preimages" under surjective maps. Categorically, epi ≠ surjective. Need either:
+1. Finite length on imageSubobject (epi endo on Noetherian → mono)
+2. Direct argument using image factorization
+
+**Research issue:** lemmafeld-hyvg (epi endo on Noetherian → mono)
+
+**Lean file:** `Chapter1/FittingLemma.lean`

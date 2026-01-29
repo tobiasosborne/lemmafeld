@@ -21,6 +21,7 @@ LemmaFeld/
 ### Key Files
 - `lakefile.toml` — Lean 4 v4.26.0, mathlib v4.26.0
 - `docs/plans/tensor_categories_implementation.md` — 397-step formalization plan
+- `docs/learnings/` — Organized learnings (see `index.md` for navigation)
 - `.beads/beads.db` — Issue tracking (397 tensor category issues)
 
 ---
@@ -38,7 +39,7 @@ Every task issue MUST result in:
    - Provides aliases/abbrevs if book notation differs from mathlib
    - Documents the book ↔ mathlib correspondence IN THE CODE
 
-**WRONG:** "Verified mathlib has X. Updated LEARNINGS.md. Closed issue."
+**WRONG:** "Verified mathlib has X. Updated docs/learnings/. Closed issue."
 **RIGHT:** "Created `Chapter1/Abelian.lean` with imports and book mappings. Builds. Closed issue."
 
 If you close an issue without creating/modifying a Lean file, **YOU HAVE FAILED**.
@@ -52,7 +53,7 @@ If you close an issue without creating/modifying a Lean file, **YOU HAVE FAILED*
 > **ERRORS are NOT failures.** Document learnings. That is success.
 > **Incomplete work IS success.** STOP before "simplifying" or "optimizing."
 > **Small deltas only.** Target ≤50 LOC changed per session.
-> **ALWAYS DOCUMENT MATHLIB MAPPINGS.** In the Lean file AND LEARNINGS.md.
+> **ALWAYS DOCUMENT MATHLIB MAPPINGS.** In the Lean file AND docs/learnings/.
 
 ---
 
@@ -61,7 +62,7 @@ If you close an issue without creating/modifying a Lean file, **YOU HAVE FAILED*
 ### Phase 1: Orient (Clean Context Start)
 
 1. **Read HANDOFF.md** — Understand current state
-2. **Read LEARNINGS.md** — Don't repeat known failures
+2. **Read `docs/learnings/index.md`** — Navigate to relevant subdoc for your task
 3. **Check issue tracker** — `bd ready` or equivalent
 4. **Select ONE issue** — Smallest unblocked P0/P1/P2
 
@@ -85,7 +86,7 @@ Do NOT proceed until you can state:
    - If mathlib lacks it: implement the definition/theorem
    - Add book references: `-- §X.Y Definition X.Y.Z`
 4. Build: `lake build` — **MUST COMPILE**
-5. Update LEARNINGS.md with findings
+5. Update relevant `docs/learnings/` subdoc with findings
 6. Green → continue. Red → diagnose or escalate.
 
 **⚠️ NO LEAN FILE = NO COMPLETION. Documentation alone is NOT sufficient.**
@@ -96,7 +97,7 @@ Do NOT proceed until you can state:
 1. **VERIFY LEAN FILE EXISTS** — If no `.lean` file was created/modified, GO BACK
 2. **VERIFY BUILD PASSES** — `lake build` must succeed
 3. Update HANDOFF.md with completed work (include Lean file path!)
-4. Add any discoveries to LEARNINGS.md
+4. Add any discoveries to relevant `docs/learnings/` subdoc
 5. Close issue in tracker
 6. Proceed to Phase 4
 
@@ -108,7 +109,7 @@ Do NOT proceed until you can state:
 - Delete code that doesn't work without recording what you tried
 
 **DO:**
-1. **Document the failure** in LEARNINGS.md:
+1. **Document the failure** in relevant `docs/learnings/` subdoc:
 ```markdown
    ## [Date] Attempted: <what>
    **Approach:** <what you tried>
@@ -157,7 +158,7 @@ bd create --title="Hygiene: <file> exceeds 200 LOC" --type=task --priority=0
 
 - [ ] **LEAN FILES CREATED/MODIFIED** — This is the primary deliverable!
 - [ ] **BUILD PASSING** — `lake build` succeeds
-- [ ] LEARNINGS.md updated (even if "nothing learned" — note that!)
+- [ ] `docs/learnings/` updated (even if "nothing learned" — note that!)
 - [ ] HANDOFF.md updated with:
   - Completed this session
   - Current state
@@ -197,7 +198,7 @@ When a RESEARCH issue is selected:
 1. **Define the question** precisely (write it down)
 2. **Time-box:** 20 minutes max
 3. **Sources:** docs, papers, existing code, web search
-4. **Output:** Update LEARNINGS.md with:
+4. **Output:** Update relevant `docs/learnings/` subdoc with:
    - Question asked
    - Sources consulted
    - Answer found (or "inconclusive")
@@ -231,16 +232,16 @@ Research rounds do NOT produce code. They produce knowledge.
 ║                                                                               ║
 ║   IF YOU IDENTIFY A GAP → CREATE AN ISSUE                                     ║
 ║                                                                               ║
-║   NO EXCEPTIONS. NO "I'LL REMEMBER". NO "IT'S IN LEARNINGS.MD".               ║
+║   NO EXCEPTIONS. NO "I'LL REMEMBER". NO "IT'S IN docs/learnings/".            ║
 ║                                                                               ║
-║   LEARNINGS.MD IS NOT THE ISSUE TRACKER. `bd` IS THE ISSUE TRACKER.           ║
+║   docs/learnings/ IS NOT THE ISSUE TRACKER. `bd` IS THE ISSUE TRACKER.        ║
 ║                                                                               ║
 ╚═══════════════════════════════════════════════════════════════════════════════╝
 ```
 
 ### 🔴 THE FAILURE MODE (THIS HAS HAPPENED MULTIPLE TIMES)
 
-Agent writes in LEARNINGS.md:
+Agent writes in docs/learnings/:
 > "Krull-Schmidt theorem not in mathlib - would require ~300 LOC"
 
 Agent closes issue, moves on. **NEVER CREATES AN ISSUE.**
@@ -249,7 +250,7 @@ Result: The gap is BURIED. Future agents don't see it. Work is LOST.
 
 ### 🟢 THE CORRECT BEHAVIOR
 
-Agent writes in LEARNINGS.md:
+Agent writes in docs/learnings/:
 > "Krull-Schmidt theorem not in mathlib - would require ~300 LOC"
 
 Agent IMMEDIATELY runs:
@@ -262,7 +263,7 @@ bd create --title="Prove KS uniqueness (~80 LOC)" --type=task --priority=2
 
 ### 🎯 TRIGGER WORDS THAT REQUIRE `bd create`
 
-If you write ANY of these in LEARNINGS.md, you MUST create an issue:
+If you write ANY of these in docs/learnings/, you MUST create an issue:
 
 | Trigger | Action |
 |---------|--------|
@@ -278,7 +279,7 @@ If you write ANY of these in LEARNINGS.md, you MUST create an issue:
 ### 📋 MANDATORY CHECKLIST BEFORE SAYING "DONE"
 
 ```
-[ ] Grep LEARNINGS.md for trigger words
+[ ] Grep docs/learnings/ for trigger words
 [ ] For EACH gap found: created issue? If no → CREATE IT NOW
 [ ] Run `bd list --status=open | grep -i gap` to verify
 ```
@@ -394,7 +395,7 @@ abbrev LocallySmall := CategoryTheory.LocallySmall
 end LemmaFeld.TensorCategories.Chapter1
 ```
 
-**Step 2: Also update LEARNINGS.md** (secondary)
+**Step 2: Also update relevant `docs/learnings/` subdoc** (secondary)
 ```markdown
 ## §X.Y: <Topic>
 **Lean file:** `LemmaFeld/CategoryTheory/TensorCategories/ChapterN/File.lean`
@@ -402,7 +403,7 @@ end LemmaFeld.TensorCategories.Chapter1
 **Mathlib has:** `Namespace.Name` in `Mathlib.Path.To.File`
 ```
 
-**⚠️ The Lean file is REQUIRED. LEARNINGS.md alone is NOT sufficient.**
+**⚠️ The Lean file is REQUIRED. docs/learnings/ alone is NOT sufficient.**
 
 ### Chapter Breakdown
 | Ch | Topic | Issues | Label |
