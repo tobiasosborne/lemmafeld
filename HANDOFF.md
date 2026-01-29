@@ -291,9 +291,10 @@
 
 ## Next Steps
 
-1. TC 1.5.7-1.5.8: Krull-Schmidt theorem, Grothendieck group
-2. TC 1.6.2-1.6.4: Remaining projective/injective issues
-3. Chapter 2: Monoidal categories foundations
+1. **lemmafeld-pq7w (P1)**: Refactor LEARNINGS.md into indexed hierarchy of subdocs (context optimization)
+2. TC 1.5.7-1.5.8: Krull-Schmidt theorem, Grothendieck group (blocked by Fitting lemma)
+3. TC 1.6.2-1.6.4: Remaining projective/injective issues
+4. Chapter 2: Monoidal categories foundations
 
 ## Known Issues / Gotchas
 
