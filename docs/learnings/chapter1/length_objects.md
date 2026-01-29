@@ -117,16 +117,32 @@ Use:
 - `pow_add_eq_comp` — `f^(m+k) = f^m ≫ f^k` (for kernel chain)
 - `pow_add_eq_comp'` — `f^(m+k) = f^k ≫ f^m` (for image chain)
 
-### Decomposition Gap
+### Decomposition Gap — BOTH Proofs Need Research
 
 **Proved:**
 - `inf_arrow_comp_pow_eq_zero` — (K ⊓ I).arrow ≫ f^n = 0
 
-**Gap:** Need to show (K ⊓ I).arrow = 0 from composition = 0.
+**Gaps (both blocked by same research issue):**
 
-Classical argument requires "finding preimages" under surjective maps. Categorically, epi ≠ surjective. Need either:
-1. Finite length on imageSubobject (epi endo on Noetherian → mono)
-2. Direct argument using image factorization
+1. **⊓ = ⊥ (lemmafeld-zy7n):** Need (K ⊓ I).arrow = 0 from composition = 0
+2. **⊔ = ⊤ (lemmafeld-c5gz):** Need to construct decomposition x = k + i
+
+**Root cause:** Both require that `f^n|_I : Im(f^n) → Im(f^n)` is an isomorphism.
+- Image stabilization gives: f^n|_I is **epi**
+- Missing lemma: epi endo on Noetherian → **mono** (hence iso)
+- Mathlib has `IsNoetherian.injective_of_surjective_endomorphism` for **modules only**
+- No categorical version for `IsNoetherianObject`
+
+**Module proof of ⊔ = ⊤ (from `LinearMap.eventually_codisjoint_ker_pow_range_pow`):**
+1. For any x, want x ∈ K + I
+2. Find y such that f^m(f^n(y)) = f^m(x) (uses Im(f^m) = Im(f^n))
+3. Then x - f^n(y) ∈ Ker(f^m) = Ker(f^n), and f^n(y) ∈ Im(f^n)
+4. So x = (x - f^n(y)) + f^n(y) ∈ K + I
+
+**Categorical translation failure:**
+- Step 2 requires "choosing preimage" from surjective map
+- Categorically: epi ≠ surjective (no element selection)
+- Fix: if f^n|_I is **iso** (not just epi), we can construct y via inverse
 
 **Research issue:** lemmafeld-hyvg (epi endo on Noetherian → mono)
 

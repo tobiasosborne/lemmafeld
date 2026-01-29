@@ -22,12 +22,14 @@
 
 1. ~~lemmafeld-2e9a~~ **DONE** — Split ExtAsDerivations.lean
 2. ~~lemmafeld-xeb7~~ **DONE** — Split Abelian.lean (316 LOC → 2 files)
-3. **lemmafeld-c5gz** (P2): Prove K ⊔ I = ⊤ — unblocks Fitting Lemma chain (actionable, clear approach)
+3. ~~lemmafeld-c5gz~~ **BLOCKED** — Prove K ⊔ I = ⊤ — now blocked by lemmafeld-hyvg
 4. **lemmafeld-45ut** (P2): Finite codim intersection — quick win (~30 LOC), unblocks FiniteDual
 5. ~~lemmafeld-awey~~ **DONE** — Division algebra classification
+6. **lemmafeld-hyvg** (P2): Research — epi endo on Noetherian → mono (unblocks Fitting chain)
 
 ### Key Blockers
-- **Fitting Lemma chain** (5 deep): Root is lemmafeld-hyvg (epi endo → mono research)
+- **Fitting Lemma chain** (6 deep now): Root is lemmafeld-hyvg (epi endo → mono research)
+  - Both ⊓ = ⊥ (zy7n) and ⊔ = ⊤ (c5gz) need this same research
 - **Grothendieck Group chain** (3 deep): Root is lemmafeld-mfs8 (JordanHolderLattice for Subobject)
 
 ### Book Coverage Summary
@@ -44,6 +46,16 @@
     - `Abelian.lean` (173 LOC): §1.3.1-1.3.3 — kernels, cokernels, canonical decomposition, examples
     - `AbelianProperties.lean` (172 LOC): §1.3.4-1.3.8 — mono/epi, subobjects, Freyd-Mitchell
   - All files build successfully
+
+- **lemmafeld-c5gz (Prove K ⊔ I = ⊤) - BLOCKED**:
+  - Research revealed same gap as ⊓ = ⊥ proof (lemmafeld-zy7n)
+  - Both proofs need: `f^n|_{Im(f^n)} : Im(f^n) → Im(f^n)` to be an isomorphism
+  - Image stabilization gives epi, but need mono (hence iso)
+  - Missing categorical lemma: epi endo on Noetherian → mono
+  - Mathlib has this for modules (`IsNoetherian.injective_of_surjective_endomorphism`)
+  - No categorical version for `IsNoetherianObject`
+  - Added dependency: lemmafeld-c5gz blocked by lemmafeld-hyvg
+  - Updated `docs/learnings/chapter1/length_objects.md` with full analysis
 
 ## Previous Session
 
