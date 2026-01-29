@@ -1,5 +1,42 @@
 # Handoff: 2026-01-29
 
+## Project Review (2026-01-29)
+
+**Stats:** 428 issues (377 open, 50 closed), 370 ready to work, 8 blocked, 27 Lean files in Chapter 1
+
+### Issues Created This Review
+**Gap issues (5):**
+- lemmafeld-awey: Division algebra over alg closed field (blocks Schur's lemma sorry)
+- lemmafeld-qr9k: Subquotient formalization
+- lemmafeld-z5db: Finite abelian category duality
+- lemmafeld-h43p: Yoneda Ext
+- lemmafeld-0tar: Categorical semisimplicity class
+
+**Hygiene issues (13):**
+- lemmafeld-2e9a: Split ExtAsDerivations.lean (507 LOC) **[P1 - CRITICAL]**
+- lemmafeld-xeb7: Split Abelian.lean (316 LOC) **[P1]**
+- lemmafeld-r16p, el7c, 9cfk, ns9g, r06j, sset: Split 6 files (234-264 LOC) **[P2]**
+- lemmafeld-08gi, ebwa, eg49, kq15, l91p: Trim 5 files (201-222 LOC) **[P3]**
+
+### Recommended Next Steps (Priority Order)
+
+1. **lemmafeld-2e9a** (P1): Split ExtAsDerivations.lean — worst hygiene violation at 507 LOC
+2. **lemmafeld-c5gz** (P2): Prove K ⊔ I = ⊤ — unblocks Fitting Lemma chain (actionable, clear approach)
+3. **lemmafeld-45ut** (P2): Finite codim intersection — quick win (~30 LOC), unblocks FiniteDual
+4. **lemmafeld-awey** (P2): Division algebra classification — clears sorry in LocallyFinite.lean
+5. **lemmafeld-xeb7** (P1): Split Abelian.lean — second-worst hygiene violation
+
+### Key Blockers
+- **Fitting Lemma chain** (5 deep): Root is lemmafeld-hyvg (epi endo → mono research)
+- **Grothendieck Group chain** (3 deep): Root is lemmafeld-mfs8 (JordanHolderLattice for Subobject)
+
+### Book Coverage Summary
+- **Covered:** §1.1-§1.9, §1.12 (10 sections)
+- **Partial:** §1.11 Deligne tensor (research stage)
+- **Gaps:** §1.10 Coend, §1.13 Pointed Coalgebras (issues exist but no files yet)
+
+---
+
 ## Completed This Session (Current)
 
 - **lemmafeld-2gce (TC 1.8.1: Locally finite abelian category definition) - COMPLETE**:
