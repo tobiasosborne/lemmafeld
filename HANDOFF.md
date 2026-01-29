@@ -28,11 +28,12 @@
 6. ~~lemmafeld-hyvg~~ **RESOLVED** — Research complete, decomposed into implementation sub-issues
 7. ~~lemmafeld-8yab~~ **DONE** — Define Subobject.iterateComap (157 LOC)
 8. ~~lemmafeld-ovvv~~ **DONE** — Prove chain stabilization (added to IterateComap.lean)
-9. **lemmafeld-8sen** (P2): Prove categorical Orzech theorem — PARTIAL (structure complete, 2 sorries remain)
+9. **lemmafeld-8sen** (P2): Prove categorical Orzech theorem — PARTIAL (1 sorry remains)
+10. **lemmafeld-bl7f** (P2): Prove n ≥ 1 case (Djoković argument) — NEW
 
 ### Key Blockers
-- **Fitting Lemma chain** (now 3 deep): Root is lemmafeld-8sen (categorical Orzech)
-  - Chain: 8sen → {zy7n, c5gz} → txf9 (Fitting)
+- **Fitting Lemma chain** (now 4 deep): Root is lemmafeld-bl7f (n ≥ 1 case)
+  - Chain: bl7f → 8sen → {zy7n, c5gz} → txf9 (Fitting)
 - **Grothendieck Group chain** (3 deep): Root is lemmafeld-mfs8 (JordanHolderLattice for Subobject)
 
 ### Book Coverage Summary
@@ -44,20 +45,16 @@
 
 ## Completed This Session (Current)
 
-- **lemmafeld-8sen (Prove categorical Orzech theorem) - PARTIAL**:
-  - Created `Chapter1/CategoricalOrzech.lean` (143 LOC)
-  - **Proved:**
-    - `kernel_ι_eq_zero_of_isIso` — kernel.ι of iso is zero
-    - `kernelSubobject_of_isIso` — kernelSubobject of iso is ⊥
-    - `iterateComap_bot_eq_kernelSubobject_pow` — connects iterateComap to kernel powers (uses sorry)
-    - n = 0 stabilization case in `kernelSubobject_eq_bot_of_epi_noetherian`
-    - `mono_of_epi_endomorphism_noetherianObject` — main theorem (modulo key lemma sorry)
-    - `isIso_of_epi_endomorphism_noetherianObject` — corollary
-  - **Two sorries remain:**
-    1. `pullback_kernelSubobject_eq` — pullback of ker(g) = ker(f ≫ g), technical but straightforward
-    2. n ≥ 1 case of main argument — requires constructing induced map on ker(f^n)
-  - **Key insight:** The n = 0 case handles when chain stabilizes immediately (kernel is already ⊥)
-  - **Remaining work:** The n ≥ 1 case needs showing ker(f^n) = ⊥ when f is epi
+- **lemmafeld-8sen (Prove categorical Orzech theorem) - PARTIAL → PROGRESSED**:
+  - Updated `Chapter1/CategoricalOrzech.lean` (now ~170 LOC)
+  - **NEW: Proved `pullback_kernelSubobject_eq`** — pullback of ker(g) = ker(f ≫ g)
+    - Key proof: constructed IsPullback showing kernel(f ≫ g) is pullback of kernel(g) along f
+    - Used `PullbackCone.isLimitAux'` to show universal property
+  - **Sorries reduced from 2 to 1:**
+    - ~~`pullback_kernelSubobject_eq`~~ — **PROVED** (was sorry)
+    - n ≥ 1 case — **STILL SORRY** (extracted to lemmafeld-bl7f)
+  - **Created sub-issue:** lemmafeld-bl7f for n ≥ 1 case (Djoković argument)
+  - File builds successfully, under 200 LOC guideline
     - Requires: induced map g : ker(f^n) → ker(f^n) from f-saturation
     - Need to prove g is epi (inherited from f)
     - Then g^n = 0 (nilpotent) + epi ⟹ ker(f^n) = 0

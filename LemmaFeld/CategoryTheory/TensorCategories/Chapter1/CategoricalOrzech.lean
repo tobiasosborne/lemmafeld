@@ -43,9 +43,33 @@ variable {X : C} (f : End X)
 This is the categorical version of f⁻¹(ker g) = ker(g ∘ f). -/
 theorem pullback_kernelSubobject_eq (g : End X) :
     (Subobject.pullback f).obj (kernelSubobject g) = kernelSubobject (f ≫ g) := by
-  -- Both sides represent the subobject {x : f(x) ∈ ker(g)} = {x : g(f(x)) = 0} = ker(g ∘ f)
-  -- The proof requires showing the pullback square and kernel square are compatible
-  sorry
+  -- Construct the induced map kernel(f ≫ g) → kernel(g)
+  let k : kernel (f ≫ g) ⟶ kernel g :=
+    kernel.lift g (kernel.ι (f ≫ g) ≫ f) (by simp [kernel.condition])
+  -- Show the square commutes: k ≫ kernel.ι g = kernel.ι (f ≫ g) ≫ f
+  have hsq : k ≫ kernel.ι g = kernel.ι (f ≫ g) ≫ f := kernel.lift_ι _ _ _
+  -- Build the IsPullback
+  have hp : IsPullback k (kernel.ι (f ≫ g)) (kernel.ι g) f := by
+    refine IsPullback.of_isLimit (c := PullbackCone.mk k (kernel.ι (f ≫ g)) hsq) ?_
+    refine PullbackCone.isLimitAux' _ ?_
+    intro s
+    -- s.fst : W ⟶ kernel g, s.snd : W ⟶ X
+    -- s.condition : s.fst ≫ kernel.ι g = s.snd ≫ f
+    -- Need to show s.snd factors through kernel (f ≫ g)
+    have hcond : s.snd ≫ (f ≫ g) = 0 := by
+      rw [← Category.assoc, ← s.condition, Category.assoc, kernel.condition, comp_zero]
+    let ℓ : s.pt ⟶ kernel (f ≫ g) := kernel.lift (f ≫ g) s.snd hcond
+    refine ⟨ℓ, ?_, kernel.lift_ι _ _ _, ?_⟩
+    -- First: ℓ ≫ k = s.fst (show by composing with kernel.ι g)
+    · apply equalizer.hom_ext
+      rw [PullbackCone.mk_fst, Category.assoc, hsq, ← Category.assoc, kernel.lift_ι, s.condition]
+    -- Second: uniqueness
+    · intro m _ hm2
+      apply equalizer.hom_ext
+      rw [kernel.lift_ι]
+      exact hm2
+  rw [kernelSubobject, kernelSubobject]
+  exact pullback_obj_mk hp
 
 /-- iterateComap f ⊥ n = kernelSubobject (f ^ n) for n ≥ 1.
 This connects the pullback-based iterateComap with kernelSubobject of powers. -/
