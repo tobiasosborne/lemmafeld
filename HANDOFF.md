@@ -2,6 +2,18 @@
 
 ## Completed This Session (Current)
 
+- **lemmafeld-379n (TC 1.11.1: External tensor product definition) - COMPLETE**:
+  - Created `Chapter1/ExternalTensorProduct.lean` (~200 LOC)
+  - `LocallyFiniteAbelian k C`: class for locally finite abelian categories
+  - `IsRightExactFirst F`, `IsRightExactSecond F`, `IsRightExactBifunctor F`: right exactness predicates
+  - `IsExactBifunctor F`: exactness predicate for bifunctors
+  - `DeligneTensorProductData C D E`: structure for external tensor product ⊠ : C × D ⥤ E
+  - `HomTensorIso`: statement of Hom tensor isomorphism property
+  - **SIGNIFICANT GAP:** Mathlib has `ExternalProduct` for diagrams, NOT Deligne tensor product of categories
+  - File builds successfully
+
+## Previous Session
+
 - **lemmafeld-i9od (BimoduleDerivations submodule) - COMPLETE**:
   - Updated `Chapter1/ExtAsDerivations.lean` (~80 LOC added)
   - `IsBimoduleDerivation R A M D`: predicate for bimodule Leibniz rule D(ab) = a • D(b) + (op b) • D(a)
@@ -273,8 +285,9 @@
 - **Chapter1/JordanHolder.lean** — §1.5 Jordan-Hölder series + multiplicity independence (§1.5.6)
 - **Chapter1/KrullSchmidt.lean** — §1.5 Krull-Schmidt theorem (statements, gaps noted)
 - **Chapter1/Coalgebras.lean** — §1.9 Grouplike and skew-primitive elements
-- **Chapter1/Projective.lean** — §1.6 Projective/injective objects, exact functors (NEW)
-- All twenty-one files build successfully
+- **Chapter1/Projective.lean** — §1.6 Projective/injective objects, exact functors
+- **Chapter1/ExternalTensorProduct.lean** — §1.11.1 External tensor product (LocallyFiniteAbelian, IsRightExactBifunctor, DeligneTensorProductData) (NEW)
+- All twenty-two files build successfully
 
 ## Next Steps
 

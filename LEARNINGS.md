@@ -1324,3 +1324,44 @@ Requires `SMulCommClass A Aᵐᵒᵖ M` to commute middle terms: `a • (op b) �
 - `linarith` doesn't work on module elements (use explicit calculation)
 - `sub_self x` gives `x - x = 0`
 - `add_sub_cancel_right x y` gives `x + y - y = x`
+
+## 2026-01-29: TC 1.11.1 - External Tensor Product / Deligne Tensor Product
+
+**Task:** Formalize external tensor product definition from §1.11.1.
+
+**Book Definition 1.11.1:** Deligne's tensor product C ⊠ D is an abelian k-linear
+category universal for right exact bifunctors C × D → A.
+
+**Created:** `Chapter1/ExternalTensorProduct.lean`
+
+**Mathlib Status - SIGNIFICANT GAP:**
+
+| Concept | Mathlib Has | Notes |
+|---------|-------------|-------|
+| External product of diagrams | `CategoryTheory.MonoidalCategory.ExternalProduct` | For F₁ : J₁ ⥤ C, F₂ : J₂ ⥤ C, gives F₁ ⊠ F₂ : J₁ × J₂ ⥤ C |
+| Deligne tensor product | **NOT IN MATHLIB** | Universal category for bifunctors |
+| Locally finite abelian | **NOT IN MATHLIB** | Finite length + finite dim Hom |
+
+**Key distinction:**
+- Mathlib's `ExternalProduct` is for diagrams INTO a monoidal category C
+- Book's C ⊠ D is the tensor product OF two categories C and D
+
+**Definitions implemented:**
+- `LocallyFiniteAbelian k C` — class for locally finite abelian categories
+- `IsRightExactFirst F` — bifunctor right exact in first variable
+- `IsRightExactSecond F` — bifunctor right exact in second variable
+- `IsRightExactBifunctor F` — right exact in both variables
+- `IsExactBifunctor F` — exact in both variables
+- `DeligneTensorProductData C D E` — structure for ⊠ : C × D ⥤ E
+- `HomTensorIso` — Hom tensor isomorphism statement
+
+**Gaps for full implementation:**
+1. Constructing C ⊠ D category (via coalgebra comodules, Theorem 1.9.15)
+2. Universal property (existence + uniqueness of extension)
+3. Functoriality (F ⊠ G for right exact functors)
+4. Hom tensor isomorphism proof
+
+**Recommendation:** Before full implementation, need:
+- TC 1.9 Coalgebras (partial in Coalgebras.lean)
+- TC 1.9.15 Comodule category reconstruction theorem
+- Module.Finite k (X ⟶ Y) for finite dimensional Hom condition
