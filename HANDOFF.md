@@ -30,12 +30,14 @@
 8. ~~lemmafeld-ovvv~~ **DONE** — Prove chain stabilization (added to IterateComap.lean)
 9. ~~lemmafeld-8sen~~ **DONE** — Prove categorical Orzech theorem (no sorries!)
 10. ~~lemmafeld-bl7f~~ **DONE** — Prove n ≥ 1 case (Djoković argument)
-11. **lemmafeld-zy7n** (P2): Prove Fitting decomposition inf = ⊥ — UNBLOCKED
-12. **lemmafeld-c5gz** (P2): Prove Fitting decomposition sup = ⊤ — UNBLOCKED
+11. ~~lemmafeld-zy7n~~ **DONE** — Prove Fitting decomposition inf = ⊥
+12. ~~lemmafeld-c5gz~~ **DONE** — Prove Fitting decomposition sup = ⊤
+13. **lemmafeld-txf9** (P2): Complete fitting_lemma theorem — UNBLOCKED
+14. **lemmafeld-rqy9** (P1): Split FittingLemma.lean (538 LOC) — NEW HYGIENE
 
 ### Key Blockers
-- **Fitting Lemma chain** (now 2 deep): Orzech complete, next is zy7n and c5gz
-  - Chain: ~~bl7f~~ → ~~8sen~~ → {zy7n, c5gz} → txf9 (Fitting)
+- **Fitting Lemma chain** (now 1 deep): zy7n + c5gz complete, next is txf9
+  - Chain: ~~bl7f~~ → ~~8sen~~ → ~~{zy7n, c5gz}~~ → txf9 (Fitting)
 - **Grothendieck Group chain** (3 deep): Root is lemmafeld-mfs8 (JordanHolderLattice for Subobject)
 
 ### Book Coverage Summary
@@ -47,15 +49,21 @@
 
 ## Completed This Session (Current)
 
-- **lemmafeld-zy7n (Prove Fitting decomposition: inf = ⊥) - PARTIAL PROGRESS**:
-  - **RESOLVED** the `h_epi` sorry in `kernelSubobject_inf_imageSubobject_eq_bot`
-    - Key: `h = factorThruImageSubobject(I.arrow ≫ f^n) ≫ isoOfEq.hom` (both epi)
-    - Used `Subobject.ofLE_arrow himArrow.le` to connect φ.hom with the image arrow
-  - **Remaining sorries:**
-    - `kernelSubobject_sup_imageSubobject_eq_top` (line 384) — documented proof approach
-    - `fitting_lemma` (line 392) — depends on sup = ⊤
-  - File builds successfully with 2 sorries (was 3)
-  - Added detailed docstrings explaining proof strategies for remaining work
+- **lemmafeld-c5gz (Prove Fitting decomposition: sup = ⊤) - COMPLETE**:
+  - **PROVED** `kernelSubobject_sup_imageSubobject_eq_top` in FittingLemma.lean
+  - **Key construction:**
+    1. s_I = factorThruImageSubobject(f^n) ≫ inv(h) : X → underlying(I) is section of I.arrow
+    2. p_I = s_I ≫ I.arrow is idempotent projection onto I
+    3. (𝟙 X - p_I) ≫ f^n = 0, so (𝟙 X - p_I) factors through K via kernelSubobject_factors_iff
+    4. 𝟙 X = q_K ≫ K.arrow + s_I ≫ I.arrow (splitting via sub_add_cancel)
+    5. factor_id ≫ (K ⊔ I).arrow = 𝟙 X shows (K ⊔ I).arrow is epi
+    6. By isIso_of_mono_of_epi, K ⊔ I = ⊤ via Subobject.eq_top_of_isIso_arrow
+  - File FittingLemma.lean now builds with only 1 sorry (fitting_lemma itself)
+  - File is 538 LOC — created hygiene issue lemmafeld-rqy9
+
+- **lemmafeld-zy7n (Prove Fitting decomposition: inf = ⊥) - COMPLETE** (from previous session):
+  - `kernelSubobject_inf_imageSubobject_eq_bot` is fully proved
+  - Uses categorical Orzech to show h : End(underlying(I)) is iso
 
 - **lemmafeld-bl7f (Prove n ≥ 1 case of Orzech theorem) - COMPLETE**:
   - Completed `Chapter1/CategoricalOrzech.lean` (now 282 LOC)

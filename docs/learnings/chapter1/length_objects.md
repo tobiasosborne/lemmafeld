@@ -204,7 +204,29 @@ def iterateComap {X : C} (f : X ⟶ X) (K : Subobject X) (n : ℕ) : Subobject X
 - The induced map construction uses `isoOfMkEqMk` + kernel.lift
 - Nilpotent + epi argument: g^n = 0, g epi ⟹ g^(n-1) = 0 by cancel_epi, inductively g = 0
 
-**Dependency chain:** ~~8yab~~ → ~~ovvv~~ → ~~8sen~~ → ~~bl7f~~ → {zy7n, c5gz}
+**Dependency chain:** ~~8yab~~ → ~~ovvv~~ → ~~8sen~~ → ~~bl7f~~ → ~~{zy7n, c5gz}~~ → txf9 (Fitting)
+
+### Fitting Decomposition Proofs (2026-01-29 - zy7n, c5gz COMPLETE)
+
+**Proved lemmas:**
+- `kernelSubobject_inf_imageSubobject_eq_bot` — K ⊓ I = ⊥ at stabilization
+- `kernelSubobject_sup_imageSubobject_eq_top` — K ⊔ I = ⊤ at stabilization
+
+**Key construction (for both proofs):**
+1. h = I.factorThru (I.arrow ≫ f^n) : End(underlying(I))
+2. h ≫ I.arrow = I.arrow ≫ f^n
+3. h is epi (image stabilization)
+4. h is iso (categorical Orzech + Noetherian)
+
+**Proof of inf = ⊥:**
+- Construct (K ⊓ I).arrow → 0 by showing ofLE ≫ h = 0 and h is iso
+
+**Proof of sup = ⊤:**
+1. s_I = factorThru(f^n) ≫ inv(h) is a section of I.arrow
+2. p_I = s_I ≫ I.arrow is idempotent projection onto I
+3. (𝟙 X - p_I) ≫ f^n = 0, so (𝟙 X - p_I) factors through K
+4. 𝟙 X = q_K ≫ K.arrow + s_I ≫ I.arrow (splitting)
+5. This shows (K ⊔ I).arrow is epi, hence K ⊔ I = ⊤
 
 **Mathlib references:**
 - `Mathlib.Algebra.Module.Submodule.IterateMapComap` — module version

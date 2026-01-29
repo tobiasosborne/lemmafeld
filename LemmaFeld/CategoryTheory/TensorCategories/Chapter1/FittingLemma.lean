@@ -381,13 +381,128 @@ lemma kernelSubobject_inf_imageSubobject_eq_bot [IsNoetherianObject X] {n : ℕ}
 5. The map [kernel_lift, s] : X → K ⊕ I is a section of [K.arrow, I.arrow].
 6. This shows biprod.desc K.arrow I.arrow is epi, hence K ⊔ I = ⊤.
 -/
-lemma kernelSubobject_sup_imageSubobject_eq_top {n : ℕ}
+lemma kernelSubobject_sup_imageSubobject_eq_top [IsNoetherianObject X] {n : ℕ}
     (hker : ∀ m : ℕ, n ≤ m → kernelSubobject (f ^ n) = kernelSubobject (f ^ m))
     (him : ∀ m : ℕ, n ≤ m → imageSubobject (f ^ n) = imageSubobject (f ^ m)) :
     kernelSubobject (f ^ n) ⊔ imageSubobject (f ^ n) = ⊤ := by
-  -- TODO: Implement the splitting construction using the iso h from inf_eq_bot proof.
-  -- Mathematical argument is clear (see docstring), categorical API needs work.
-  sorry
+  -- Setup: Let K = ker(f^n), I = im(f^n)
+  let K := kernelSubobject (f ^ n)
+  let I := imageSubobject (f ^ n)
+  -- Construct h : End(underlying(I)) with h ≫ I.arrow = I.arrow ≫ f^n
+  have himArrow : imageSubobject (I.arrow ≫ f ^ n) = I := imageSubobject_arrow_comp_eq_self f him
+  have hfac : I.Factors (I.arrow ≫ f ^ n) := by
+    have h1 := imageSubobject_factors_comp_self (f ^ n) I.arrow
+    convert h1
+  let h : End (Subobject.underlying.obj I) := I.factorThru (I.arrow ≫ f ^ n) hfac
+  have hh : h ≫ I.arrow = I.arrow ≫ f ^ n := Subobject.factorThru_arrow _ _ _
+  -- h is epi (factorization through image with same image)
+  have h_epi : Epi h := by
+    let φ := Subobject.isoOfEq _ _ himArrow
+    have heq : h = factorThruImageSubobject (I.arrow ≫ f ^ n) ≫ φ.hom := by
+      rw [← cancel_mono I.arrow, Category.assoc]
+      have hφ : φ.hom ≫ I.arrow = (imageSubobject (I.arrow ≫ f ^ n)).arrow :=
+        Subobject.ofLE_arrow himArrow.le
+      rw [hφ, imageSubobject_arrow_comp, hh]
+    rw [heq]
+    exact epi_comp _ _
+  -- underlying(I) is Noetherian (subobject of Noetherian X)
+  have hNoeth : IsNoetherianObject (Subobject.underlying.obj I) :=
+    isNoetherianObject_of_mono I.arrow
+  -- By categorical Orzech, h is iso
+  have h_mono : Mono h := @mono_of_epi_endomorphism_noetherianObject' C _ _ _ h h_epi hNoeth
+  have h_iso : IsIso h := isIso_of_mono_of_epi h
+  -- Construct section s_I : X → underlying(I)
+  let s_I := factorThruImageSubobject (f ^ n) ≫ inv h
+  -- Key: s_I is a section of I.arrow (I.arrow ≫ s_I = id)
+  have s_section : I.arrow ≫ s_I = 𝟙 _ := by
+    -- I.arrow ≫ factorThru(f^n) = h (by mono property)
+    have harrow_factor : I.arrow ≫ factorThruImageSubobject (f ^ n) = h := by
+      rw [← cancel_mono I.arrow, Category.assoc, imageSubobject_arrow_comp, hh]
+    calc I.arrow ≫ s_I
+        = I.arrow ≫ factorThruImageSubobject (f ^ n) ≫ inv h := rfl
+      _ = (I.arrow ≫ factorThruImageSubobject (f ^ n)) ≫ inv h := by rw [← Category.assoc]
+      _ = h ≫ inv h := by rw [harrow_factor]
+      _ = 𝟙 _ := @IsIso.hom_inv_id _ _ _ _ h h_iso
+  -- Construct projection p_I : X → X
+  let p_I := s_I ≫ I.arrow
+  -- Key calculation: p_I ≫ f^n = f^n
+  have p_comp_fn : p_I ≫ f ^ n = f ^ n := by
+    have key : inv h ≫ I.arrow ≫ f ^ n = I.arrow := by
+      calc inv h ≫ I.arrow ≫ f ^ n
+          = inv h ≫ (h ≫ I.arrow) := by rw [← hh]
+        _ = (inv h ≫ h) ≫ I.arrow := by rw [Category.assoc]
+        _ = 𝟙 _ ≫ I.arrow := by rw [@IsIso.inv_hom_id _ _ _ _ h h_iso]
+        _ = I.arrow := Category.id_comp _
+    show (s_I ≫ I.arrow) ≫ f ^ n = f ^ n
+    rw [Category.assoc]
+    show s_I ≫ I.arrow ≫ f ^ n = f ^ n
+    show (factorThruImageSubobject (f ^ n) ≫ inv h) ≫ I.arrow ≫ f ^ n = f ^ n
+    rw [Category.assoc]
+    show factorThruImageSubobject (f ^ n) ≫ inv h ≫ I.arrow ≫ f ^ n = f ^ n
+    rw [key]
+    exact imageSubobject_arrow_comp _
+  -- (𝟙 X - p_I) ≫ f^n = 0, so it factors through K
+  have one_minus_p_comp_fn : (𝟙 X - p_I) ≫ f ^ n = 0 := by
+    rw [Preadditive.sub_comp, Category.id_comp, p_comp_fn, sub_self]
+  -- Factor (𝟙 X - p_I) through K
+  have hfac_K : K.Factors (𝟙 X - p_I) := by
+    rw [kernelSubobject_factors_iff]
+    exact one_minus_p_comp_fn
+  let q_K := K.factorThru (𝟙 X - p_I) hfac_K
+  have hqK : q_K ≫ K.arrow = 𝟙 X - p_I := Subobject.factorThru_arrow _ _ _
+  -- Show that K.arrow + I.arrow is epi (equivalently, show 𝟙 X factors through K + I)
+  -- We have: 𝟙 X = (𝟙 X - p_I) + p_I = q_K ≫ K.arrow + s_I ≫ I.arrow
+  have id_decomp : 𝟙 X = q_K ≫ K.arrow + s_I ≫ I.arrow := by
+    -- hqK: q_K ≫ K.arrow = 𝟙 X - p_I
+    -- So: 𝟙 X = q_K ≫ K.arrow + p_I = q_K ≫ K.arrow + s_I ≫ I.arrow
+    calc 𝟙 X = (𝟙 X - p_I) + p_I := by rw [sub_add_cancel]
+      _ = q_K ≫ K.arrow + p_I := by rw [← hqK]
+      _ = q_K ≫ K.arrow + s_I ≫ I.arrow := rfl
+  -- This means K ⊔ I = ⊤ in the subobject lattice
+  -- Goal: K ⊔ I = ⊤, i.e., the identity factors through K ⊔ I
+  -- The sup K ⊔ I is the image of the coprod map
+  -- Since 𝟙 X = q_K ≫ K.arrow + s_I ≫ I.arrow, and both K.arrow, I.arrow factor through K ⊔ I,
+  -- we have 𝟙 X factors through K ⊔ I
+  have hKle : K ≤ K ⊔ I := le_sup_left
+  have hIle : I ≤ K ⊔ I := le_sup_right
+  have hK_fac : (K ⊔ I).Factors K.arrow := Subobject.factors_of_le K.arrow hKle (Subobject.factors_self K)
+  have hI_fac : (K ⊔ I).Factors I.arrow := Subobject.factors_of_le I.arrow hIle (Subobject.factors_self I)
+  -- factorThru gives us the factorizations
+  have hK_eq : (K ⊔ I).factorThru K.arrow hK_fac ≫ (K ⊔ I).arrow = K.arrow :=
+    Subobject.factorThru_arrow _ _ _
+  have hI_eq : (K ⊔ I).factorThru I.arrow hI_fac ≫ (K ⊔ I).arrow = I.arrow :=
+    Subobject.factorThru_arrow _ _ _
+  -- Construct factorization of 𝟙 X through K ⊔ I
+  let factor_id := q_K ≫ (K ⊔ I).factorThru K.arrow hK_fac +
+                   s_I ≫ (K ⊔ I).factorThru I.arrow hI_fac
+  have hfactor : factor_id ≫ (K ⊔ I).arrow = 𝟙 X := by
+    -- factor_id = q_K ≫ factorThru(K.arrow) + s_I ≫ factorThru(I.arrow)
+    -- factor_id ≫ (K ⊔ I).arrow = (q_K ≫ factorThru(K.arrow) + s_I ≫ factorThru(I.arrow)) ≫ (K ⊔ I).arrow
+    --                          = q_K ≫ factorThru(K.arrow) ≫ (K ⊔ I).arrow + s_I ≫ factorThru(I.arrow) ≫ (K ⊔ I).arrow
+    --                          = q_K ≫ K.arrow + s_I ≫ I.arrow  (by hK_eq, hI_eq)
+    --                          = 𝟙 X  (by id_decomp)
+    calc factor_id ≫ (K ⊔ I).arrow
+        = (q_K ≫ (K ⊔ I).factorThru K.arrow hK_fac + s_I ≫ (K ⊔ I).factorThru I.arrow hI_fac) ≫
+            (K ⊔ I).arrow := rfl
+      _ = q_K ≫ (K ⊔ I).factorThru K.arrow hK_fac ≫ (K ⊔ I).arrow +
+          s_I ≫ (K ⊔ I).factorThru I.arrow hI_fac ≫ (K ⊔ I).arrow := by
+          rw [Preadditive.add_comp, Category.assoc, Category.assoc]
+      _ = q_K ≫ K.arrow + s_I ≫ I.arrow := by rw [hK_eq, hI_eq]
+      _ = 𝟙 X := id_decomp.symm
+  -- Since factor_id ≫ (K ⊔ I).arrow = 𝟙, (K ⊔ I).arrow is epi
+  have arrow_epi : Epi (K ⊔ I).arrow := by
+    constructor
+    intro Z g h hgh
+    calc g = 𝟙 X ≫ g := (Category.id_comp g).symm
+      _ = (factor_id ≫ (K ⊔ I).arrow) ≫ g := by rw [hfactor]
+      _ = factor_id ≫ (K ⊔ I).arrow ≫ g := by rw [Category.assoc]
+      _ = factor_id ≫ (K ⊔ I).arrow ≫ h := by rw [hgh]
+      _ = (factor_id ≫ (K ⊔ I).arrow) ≫ h := by rw [← Category.assoc]
+      _ = 𝟙 X ≫ h := by rw [hfactor]
+      _ = h := Category.id_comp h
+  -- In a balanced category (abelian), mono + epi = iso
+  have arrow_iso : IsIso (K ⊔ I).arrow := isIso_of_mono_of_epi _
+  exact Subobject.eq_top_of_isIso_arrow _
 
 end FittingDecomposition
 
