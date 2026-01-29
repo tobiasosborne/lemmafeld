@@ -9,9 +9,12 @@
   - `GrothendieckGroup C` — free abelian group on IsoClassSimple
   - `HasMultiplicity C` — class axiomatizing Jordan-Hölder multiplicities
   - `simpleClass_eq_of_iso` — isomorphic simples give same Gr(C) class
-  - **GAP:** Full class map [X] requires `JordanHolderLattice (Subobject X)`
   - Updated `docs/learnings/chapter1/length_objects.md`
   - File builds successfully
+  - **GAPS IDENTIFIED (issues created):**
+    - lemmafeld-mfs8: JordanHolderLattice (Subobject X) [existed]
+    - lemmafeld-awcn: HasMultiplicity instance (~30-50 LOC) [blocked by mfs8]
+    - lemmafeld-2hzv: objectClass map [X] (~40-60 LOC) [blocked by awcn]
 
 ## Previous Session
 
@@ -357,10 +360,11 @@
 
 ## Next Steps
 
-1. TC 1.7.2-1.7.4: Ext^n definition, long exact sequence, group cohomology connection
-2. TC 1.8.1-1.8.4: Locally finite abelian categories
-3. TC 1.9.1-1.9.4: Coalgebras (definition, comodules, abelian, fundamental theorem)
-4. TC 1.5.7: Krull-Schmidt theorem (blocked by Fitting lemma)
+1. **TC 1.7.2** (lemmafeld-6n39): Ext^n(X, Y) definition — NEXT IN SEQUENCE
+2. TC 1.7.3-1.7.4: Long exact sequence for Ext, group cohomology connection
+3. TC 1.8.1-1.8.4: Locally finite abelian categories
+4. TC 1.9.1-1.9.4: Coalgebras (definition, comodules, abelian, fundamental theorem)
+5. TC 1.5.7: Krull-Schmidt theorem (blocked by Fitting lemma)
 
 ## Known Issues / Gotchas
 
