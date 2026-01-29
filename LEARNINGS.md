@@ -1031,3 +1031,31 @@ have h : equiv (r • equiv.symm ⟨...⟩) = r • ⟨...⟩ := by
 - `LinearEquiv.map_smul_of_tower` doesn't exist — use `smul_one_smul` rewriting instead
 - Subtype equality proofs: use `ext` after `apply_fun` to access underlying element
 - `abel` tactic works well after `simp only` on Submodule.coe operations
+
+## 2026-01-29: Fitting's Lemma Chain Stabilization
+
+**Task:** Prove Fitting's Lemma for abelian categories.
+
+**Key discoveries:**
+
+1. **End X multiplication is reversed**: In `End X`, multiplication is `x * y = y ≫ x`.
+   So `f^m * f^k = f^k ≫ f^m` (not `f^m ≫ f^k`).
+
+2. **Powers commute via `pow_mul_comm`**: `f^m * f^k = f^k * f^m` always holds for
+   powers of the same element, so both orderings work.
+
+3. **Chain monotonicity proofs:**
+   - Kernel chain: Use `pow_add_eq_comp` form `f^(m+k) = f^m ≫ f^k` so kernel condition applies
+   - Image chain: Use `pow_add_eq_comp'` form `f^(m+k) = f^k ≫ f^m` so imageSubobject_comp_le applies
+
+**Implemented in `Chapter1/KrullSchmidt.lean`:**
+- `pow_comp_comm` — powers of an endomorphism compose in either order
+- `pow_add_eq_comp` — `f^(m+k) = f^m ≫ f^k`
+- `pow_add_eq_comp'` — `f^(m+k) = f^k ≫ f^m`
+- `kernelSubobject_le_of_le` — kernel chain is monotone
+- `imageSubobject_le_of_ge` — image chain is antitone
+- `fitting_lemma` — statement with sorry (full proof needs decomposition step)
+
+**Gap remaining:** The decomposition `X = Ker(f^n) ⊕ Im(f^n)` at stabilization requires
+showing that `f^n` restricts to an isomorphism on `Im(f^n)` when both chains stabilize.
+This needs ~100 additional LOC to formalize properly.

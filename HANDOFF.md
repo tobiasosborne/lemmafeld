@@ -2,6 +2,20 @@
 
 ## Completed This Session (Current)
 
+- **lemmafeld-32vi (Fitting's Lemma) - PARTIAL**: Enhanced `Chapter1/KrullSchmidt.lean`
+  - `pow_comp_comm` — powers of an endomorphism compose in either order
+  - `pow_add_eq_comp` — f^(m+k) = f^m ≫ f^k (for kernel chain)
+  - `pow_add_eq_comp'` — f^(m+k) = f^k ≫ f^m (for image chain)
+  - `kernelSubobject_le_of_le` — Ker(f^m) ≤ Ker(f^n) when m ≤ n (PROVED)
+  - `kernelSubobject_mono` — kernel chain is monotone (PROVED)
+  - `imageSubobject_le_of_ge` — Im(f^n) ≤ Im(f^m) when m ≤ n (PROVED)
+  - `imageSubobject_antitone` — image chain is antitone (PROVED)
+  - `fitting_lemma` — main theorem statement (sorry - needs decomposition step)
+  - File is 252 LOC (needs hygiene split)
+  - **Key insight**: End X multiplication is `x * y = y ≫ x` (reversed)
+
+## Previous Session
+
 - **lemmafeld-ehs6 (Hygiene: Split ExtDerivationIso) - COMPLETE**: Split 665 LOC file into 4 files
   - `SemidirectProduct.lean` (169 LOC): DerivationToExtension + D→E→D roundtrip
   - `ExtDerivationConstruction.lean` (187 LOC): ExtensionToDerivation + k-linear E→D→E roundtrip
