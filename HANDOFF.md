@@ -27,12 +27,12 @@
 5. ~~lemmafeld-awey~~ **DONE** — Division algebra classification
 6. ~~lemmafeld-hyvg~~ **RESOLVED** — Research complete, decomposed into implementation sub-issues
 7. ~~lemmafeld-8yab~~ **DONE** — Define Subobject.iterateComap (157 LOC)
-8. **lemmafeld-ovvv** (P2): Prove chain stabilization (~40 LOC) — NOW READY TO WORK
-9. **lemmafeld-8sen** (P2): Prove categorical Orzech theorem (~50 LOC) — blocked by ovvv
+8. ~~lemmafeld-ovvv~~ **DONE** — Prove chain stabilization (added to IterateComap.lean)
+9. **lemmafeld-8sen** (P2): Prove categorical Orzech theorem (~50 LOC) — NOW READY TO WORK
 
 ### Key Blockers
-- **Fitting Lemma chain** (now 4 deep): Root is lemmafeld-ovvv (chain stabilization)
-  - Chain: ovvv → 8sen → {zy7n, c5gz} → txf9 (Fitting)
+- **Fitting Lemma chain** (now 3 deep): Root is lemmafeld-8sen (categorical Orzech)
+  - Chain: 8sen → {zy7n, c5gz} → txf9 (Fitting)
 - **Grothendieck Group chain** (3 deep): Root is lemmafeld-mfs8 (JordanHolderLattice for Subobject)
 
 ### Book Coverage Summary
@@ -44,18 +44,28 @@
 
 ## Completed This Session (Current)
 
+- **lemmafeld-ovvv (Prove iterateComap chain stabilizes) - COMPLETE**:
+  - Updated `Chapter1/IterateComap.lean` (now 230 LOC)
+  - **Critical correction:** Fixed incorrect `pullback_bot` lemma
+    - WRONG: `(pullback f).obj ⊥ = ⊥`
+    - CORRECT: `(pullback f).obj ⊥ = kernelSubobject f`
+  - **New lemmas proved:**
+    - `isPullback_kernel_zero` — kernel f is the pullback of 0 along f
+    - `pullback_bot_eq_kernelSubobject` — pullback of ⊥ equals kernel
+    - `iterateComap_bot_one` — `iterateComap f ⊥ 1 = kernelSubobject f`
+    - `iterateComap_bot_mono` — chain from ⊥ is always monotone
+    - `iterateComap_stabilizes` — general stabilization for Noetherian
+    - `iterateComap_bot_stabilizes` — chain from ⊥ stabilizes
+  - Updated `docs/learnings/chapter1/length_objects.md`
+  - Created hygiene issue lemmafeld-gs7c (file is 230 LOC > 200 guideline)
+  - **Unblocks lemmafeld-8sen** (next in Fitting chain)
+
+## Previous Session
+
 - **lemmafeld-8yab (Define Subobject.iterateComap) - COMPLETE**:
   - Created `Chapter1/IterateComap.lean` (157 LOC)
   - Categorical analog of `LinearMap.iterateMapComap` from mathlib
   - **Definition:** `iterateComap f K n = ((pullback f).obj)^[n] K`
-  - **Key lemmas proved:**
-    - `iterateComap_zero`, `iterateComap_succ` — basic properties
-    - `iterateComap_mono_of_le` — preserves ≤ between starting subobjects
-    - `iterateComap_mono_of_le_pullback` — chain is monotone when `K ≤ (pullback f).obj K`
-    - `iterateComap_mono` — full monotonicity
-    - `iterateComap_bot` — iterating from ⊥ stays at ⊥
-  - **One sorry:** `pullback_bot` needs IsInitial lemmas (minor gap)
-  - Updated `docs/learnings/chapter1/length_objects.md`
   - Unblocks lemmafeld-ovvv (next in chain)
 
 ## Previous Session

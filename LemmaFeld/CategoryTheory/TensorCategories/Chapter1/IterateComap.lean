@@ -4,7 +4,11 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: LemmaFeld Contributors
 -/
 import Mathlib.CategoryTheory.Subobject.Lattice
+import Mathlib.CategoryTheory.Subobject.Limits
+import Mathlib.CategoryTheory.Subobject.NoetherianObject
 import Mathlib.CategoryTheory.Abelian.Basic
+import Mathlib.CategoryTheory.Limits.Shapes.Pullback.CommSq
+import Mathlib.Order.OrderIsoNat
 
 /-!
 # Iterate Comap for Subobjects
@@ -131,27 +135,96 @@ section AbelianConnection
 
 variable [Abelian C]
 
-/-- The pullback of ⊥ along any morphism is ⊥.
-This follows from: the pullback of the zero morphism from initial gives initial.
-TODO: Complete proof using IsInitial lemmas. -/
-theorem pullback_bot : (pullback f).obj (⊥ : Subobject X) = ⊥ := by
-  rw [pullback_obj, mk_eq_bot_iff_zero, bot_arrow]
-  -- pullback.snd 0 f = 0 because pullback of 0 from initial is initial
-  -- The underlying object ((⊥ : Subobject X) : C) ≅ 0 is initial
-  -- Pulling back along any morphism f preserves initiality
-  apply zero_of_source_iso_zero
-  -- pullback 0 f ≅ 0 : use IsPullback.of_isInitial and uniqueness
-  sorry
+open scoped ZeroObject
 
-/-- iterateComap f ⊥ n = ⊥ for all n.
-The preimage chain starting from 0 stays at 0. -/
-@[simp]
-theorem iterateComap_bot (n : ℕ) : iterateComap f (⊥ : Subobject X) n = ⊥ := by
-  induction n with
-  | zero => rfl
-  | succ n ih =>
-    simp only [iterateComap_succ, ih, pullback_bot]
+/-- The kernel square is a pullback: kernel f is the pullback of 0 : 0 → X along f.
+This is the key fact relating pullbacks to kernels in abelian categories. -/
+theorem isPullback_kernel_zero :
+    IsPullback (0 : kernel f ⟶ (0 : C)) (kernel.ι f) (0 : (0 : C) ⟶ X) f := by
+  refine IsPullback.of_isLimit (c := PullbackCone.mk (0 : kernel f ⟶ (0 : C)) (kernel.ι f) ?_) ?_
+  · simp
+  · refine PullbackCone.isLimitAux' _ ?_
+    intro s
+    have hs : s.snd ≫ f = 0 := by
+      have := s.condition
+      simp at this
+      exact this.symm
+    refine ⟨kernel.lift f s.snd hs, ?_, ?_, ?_⟩
+    · apply Subsingleton.elim
+    · simp [kernel.lift_ι]
+    · intro m _ hsnd
+      apply equalizer.hom_ext
+      simp only [kernel.lift_ι]
+      convert hsnd using 1
+
+/-- The pullback of ⊥ along f equals the kernel subobject of f.
+This is because ⊥ : Subobject X represents the zero subobject, and pulling back
+0 : 0 → X along f : X → X gives the kernel of f.
+
+Note: This corrects the earlier incorrect claim that pullback of ⊥ is ⊥. -/
+theorem pullback_bot_eq_kernelSubobject :
+    (pullback f).obj (⊥ : Subobject X) = kernelSubobject f := by
+  have h := pullback_obj_mk (isPullback_kernel_zero f)
+  rw [kernelSubobject]
+  rw [← h]
+  congr 1
+  exact bot_eq_zero (B := X)
+
+/-- The iterateComap chain starting from ⊥ gives the kernel subobject chain.
+- iterateComap f ⊥ 0 = ⊥
+- iterateComap f ⊥ 1 = kernelSubobject f
+- iterateComap f ⊥ (n+1) = kernelSubobject (f^(n+1)) (conceptually)
+
+This is the categorical analog of how iterateMapComap with i = id and K = ⊥
+gives the kernel chain in the module case. -/
+theorem iterateComap_bot_succ (n : ℕ) :
+    iterateComap f (⊥ : Subobject X) (n + 1) = (pullback f).obj (iterateComap f ⊥ n) :=
+  iterateComap_succ f ⊥ n
+
+/-- At step 1, iterateComap f ⊥ gives the kernel subobject. -/
+theorem iterateComap_bot_one :
+    iterateComap f (⊥ : Subobject X) 1 = kernelSubobject f := by
+  simp only [iterateComap_succ, iterateComap_zero, pullback_bot_eq_kernelSubobject]
+
+/-- The chain starting from ⊥ is always monotone (since ⊥ is minimal). -/
+theorem iterateComap_bot_mono : Monotone (fun n => iterateComap f (⊥ : Subobject X) n) :=
+  iterateComap_mono f ⊥ bot_le
 
 end AbelianConnection
+
+/-! ## Stabilization for Noetherian Objects
+
+For a Noetherian object X (meaning WellFoundedGT on Subobject X, i.e., the ascending
+chain condition holds), any monotone chain of subobjects stabilizes.
+
+This applies to the `iterateComap f ⊥` chain, giving the categorical analog of the
+kernel chain stabilization used in the Orzech theorem.
+-/
+
+section Noetherian
+
+variable [Abelian C] {X : C} (f : X ⟶ X) [IsNoetherianObject X]
+
+/-- For a monotone chain of subobjects of a Noetherian object, there exists n
+such that the chain is constant from n onwards. -/
+theorem iterateComap_stabilizes (K : Subobject X) (hK : K ≤ (pullback f).obj K) :
+    ∃ n : ℕ, ∀ m : ℕ, n ≤ m → iterateComap f K n = iterateComap f K m := by
+  -- The chain is monotone by iterateComap_mono
+  have hmon : Monotone (fun n => iterateComap f K n) := iterateComap_mono f K hK
+  -- For Noetherian objects, WellFoundedGT holds on Subobject X
+  -- So monotone chains stabilize
+  have := WellFoundedGT.monotone_chain_condition ⟨fun n => iterateComap f K n, hmon⟩
+  exact this
+
+/-- The iterateComap chain starting from ⊥ stabilizes for Noetherian objects.
+This is the key stabilization result used for the categorical Orzech theorem.
+
+Since ⊥ ≤ (pullback f).obj ⊥ always holds (⊥ is minimal), the monotonicity
+condition is automatically satisfied. -/
+theorem iterateComap_bot_stabilizes :
+    ∃ n : ℕ, ∀ m : ℕ, n ≤ m → iterateComap f (⊥ : Subobject X) n = iterateComap f ⊥ m := by
+  exact iterateComap_stabilizes f ⊥ bot_le
+
+end Noetherian
 
 end CategoryTheory.Subobject

@@ -148,7 +148,7 @@ No categorical version exists for `IsNoetherianObject`.
 
 **Solution: Categorical iterateComap chain**
 
-**Lean file:** `Chapter1/IterateComap.lean` (157 LOC)
+**Lean file:** `Chapter1/IterateComap.lean` (230 LOC)
 
 **Definition implemented (2026-01-29):**
 ```lean
@@ -163,14 +163,24 @@ def iterateComap {X : C} (f : X ⟶ X) (K : Subobject X) (n : ℕ) : Subobject X
 - `iterateComap_mono_of_le` — preserves ≤ between starting subobjects
 - `iterateComap_mono_of_le_pullback` — chain is monotone when `K ≤ (pullback f).obj K`
 - `iterateComap_mono` — full monotonicity under same condition
-- `pullback_bot` — `(pullback f).obj ⊥ = ⊥` (one sorry: IsInitial lemma needed)
-- `iterateComap_bot` — `iterateComap f ⊥ n = ⊥` for all n
+
+**Critical correction (2026-01-29):** The earlier claims that `pullback_bot = ⊥` and
+`iterateComap_bot = ⊥` were **WRONG**. The pullback of ⊥ is the **kernel**, not ⊥!
+
+**Corrected lemmas:**
+- `isPullback_kernel_zero` — kernel f is the pullback of 0 : 0 → X along f
+- `pullback_bot_eq_kernelSubobject` — `(pullback f).obj ⊥ = kernelSubobject f`
+- `iterateComap_bot_one` — `iterateComap f ⊥ 1 = kernelSubobject f`
+- `iterateComap_bot_mono` — chain from ⊥ is always monotone (since ⊥ is minimal)
+
+**Stabilization lemmas (2026-01-29 - lemmafeld-ovvv COMPLETE):**
+- `iterateComap_stabilizes` — monotone chain stabilizes for Noetherian objects
+- `iterateComap_bot_stabilizes` — chain from ⊥ stabilizes for Noetherian objects
 
 **Remaining issues:**
-1. **lemmafeld-ovvv**: Prove chain stabilizes under Noetherian (~40 LOC)
-2. **lemmafeld-8sen**: Prove `mono_of_epi_endomorphism_noetherianObject` (~50 LOC)
+1. **lemmafeld-8sen**: Prove `mono_of_epi_endomorphism_noetherianObject` (~50 LOC)
 
-**Dependency chain:** ~~8yab~~ → ovvv → 8sen → {zy7n, c5gz}
+**Dependency chain:** ~~8yab~~ → ~~ovvv~~ → 8sen → {zy7n, c5gz}
 
 **Mathlib references:**
 - `Mathlib.Algebra.Module.Submodule.IterateMapComap` — module version
