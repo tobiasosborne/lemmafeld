@@ -1059,3 +1059,36 @@ have h : equiv (r • equiv.symm ⟨...⟩) = r • ⟨...⟩ := by
 **Gap remaining:** The decomposition `X = Ker(f^n) ⊕ Im(f^n)` at stabilization requires
 showing that `f^n` restricts to an isomorphism on `Im(f^n)` when both chains stabilize.
 This needs ~100 additional LOC to formalize properly.
+
+## 2026-01-29: Chain Stabilization API in Mathlib
+
+**Task:** Use mathlib's chain stabilization lemmas for Fitting's Lemma.
+
+**Key mathlib lemmas found:**
+
+1. `monotone_chain_condition_of_isNoetherianObject` — For `IsNoetherianObject X` and monotone
+   `f : ℕ →o Subobject X`, gives `∃ n, ∀ m ≥ n, f n = f m`.
+
+2. `antitone_chain_condition_of_isArtinianObject` — For `IsArtinianObject X` and monotone
+   `f : ℕ →o (Subobject X)ᵒᵈ`, gives stabilization. (Requires wrapping antitone as monotone in dual.)
+
+**Pattern for antitone chain stabilization:**
+```lean
+lemma imageSubobject_stabilizes [IsArtinianObject X] :
+    ∃ n : ℕ, ∀ m : ℕ, n ≤ m → imageSubobject (f ^ n) = imageSubobject (f ^ m) := by
+  have hf : Antitone (fun n => imageSubobject (f ^ n)) := imageSubobject_antitone f
+  have hf' : Monotone (fun n => OrderDual.toDual (imageSubobject (f ^ n))) := hf
+  obtain ⟨n, hn⟩ := antitone_chain_condition_of_isArtinianObject ⟨_, hf'⟩
+  refine ⟨n, fun m hm => ?_⟩
+  have heq := hn m hm
+  simp only [OrderHom.coe_mk, OrderDual.toDual_inj] at heq
+  exact heq
+```
+
+**Key insight:** `OrderDual.toDual_inj` simplifies equality in the order dual to equality in
+the original order. The `simp` lemma handles the unwrapping.
+
+**API notes:**
+- `IsNoetherianObject X` gives `WellFoundedGT (Subobject X)` (ACC)
+- `IsArtinianObject X` gives `WellFoundedLT (Subobject X)` (DCC)
+- `IsFiniteLengthObject X = IsArtinianObject X ∧ IsNoetherianObject X`

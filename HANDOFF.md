@@ -2,6 +2,17 @@
 
 ## Completed This Session (Current)
 
+- **lemmafeld-txf9 (Fitting's Lemma Decomposition) - PARTIAL**: Enhanced `Chapter1/FittingLemma.lean`
+  - `kernelSubobject_stabilizes` — PROVED: kernel chain stabilizes (Noetherian)
+  - `imageSubobject_stabilizes` — PROVED: image chain stabilizes (Artinian)
+  - `kernelSubobject_stable`, `imageSubobject_stable` — helper lemmas
+  - `kernelSubobject_inf_imageSubobject_eq_bot` — outlined with proof sketch (sorry)
+  - `kernelSubobject_sup_imageSubobject_eq_top` — outlined with proof sketch (sorry)
+  - File is 198 LOC (under 200 guideline)
+  - **Remaining:** Prove intersection=⊥ and sum=⊤ lemmas (~40 LOC), then complete fitting_lemma
+
+## Previous Session
+
 - **lemmafeld-hm49 (Hygiene: Split KrullSchmidt.lean) - COMPLETE**: Split 252 LOC file into 2 files
   - `Chapter1/KrullSchmidt.lean` (162 LOC): Indecomposable recap + Krull-Schmidt statements
   - `Chapter1/FittingLemma.lean` (126 LOC): Chain stabilization + Fitting's Lemma

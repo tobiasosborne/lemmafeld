@@ -85,7 +85,79 @@ lemma imageSubobject_le_of_ge {m n : ℕ} (h : m ≤ n) :
 lemma imageSubobject_antitone : Antitone (fun n => imageSubobject (f ^ n)) :=
   fun _ _ h => imageSubobject_le_of_ge f h
 
+/-- The kernel chain of f stabilizes: there exists n such that Ker(f^m) = Ker(f^n) for all m ≥ n. -/
+lemma kernelSubobject_stabilizes [IsNoetherianObject X] :
+    ∃ n : ℕ, ∀ m : ℕ, n ≤ m → kernelSubobject (f ^ n) = kernelSubobject (f ^ m) := by
+  have hf : Monotone (fun n => kernelSubobject (f ^ n)) := kernelSubobject_mono f
+  exact monotone_chain_condition_of_isNoetherianObject ⟨_, hf⟩
+
+/-- The image chain of f stabilizes: there exists n such that Im(f^m) = Im(f^n) for all m ≥ n. -/
+lemma imageSubobject_stabilizes [IsArtinianObject X] :
+    ∃ n : ℕ, ∀ m : ℕ, n ≤ m → imageSubobject (f ^ n) = imageSubobject (f ^ m) := by
+  have hf : Antitone (fun n => imageSubobject (f ^ n)) := imageSubobject_antitone f
+  -- Antitone in α is monotone in αᵒᵈ
+  have hf' : Monotone (fun n => OrderDual.toDual (imageSubobject (f ^ n))) := hf
+  obtain ⟨n, hn⟩ := antitone_chain_condition_of_isArtinianObject ⟨_, hf'⟩
+  refine ⟨n, fun m hm => ?_⟩
+  have heq := hn m hm
+  simp only [OrderHom.coe_mk, OrderDual.toDual_inj] at heq
+  exact heq
+
+/-- At chain stabilization, the image chain satisfies Im(f^(n+k)) = Im(f^n). -/
+lemma imageSubobject_stable [IsArtinianObject X] {n : ℕ}
+    (hn : ∀ m : ℕ, n ≤ m → imageSubobject (f ^ n) = imageSubobject (f ^ m)) (k : ℕ) :
+    imageSubobject (f ^ (n + k)) = imageSubobject (f ^ n) :=
+  (hn (n + k) (Nat.le_add_right n k)).symm
+
+/-- At chain stabilization, the kernel chain satisfies Ker(f^(n+k)) = Ker(f^n). -/
+lemma kernelSubobject_stable [IsNoetherianObject X] {n : ℕ}
+    (hn : ∀ m : ℕ, n ≤ m → kernelSubobject (f ^ n) = kernelSubobject (f ^ m)) (k : ℕ) :
+    kernelSubobject (f ^ (n + k)) = kernelSubobject (f ^ n) :=
+  (hn (n + k) (Nat.le_add_right n k)).symm
+
 end ChainStabilization
+
+/-! ## Key Lemmas for Fitting Decomposition
+
+At the stabilization point n, we have the key property:
+- Ker(f^n) ∩ Im(f^n) = 0
+- Ker(f^n) + Im(f^n) = X
+
+These imply X ≅ Ker(f^n) ⊕ Im(f^n).
+-/
+
+section FittingDecomposition
+
+variable {C : Type*} [Category C] [Abelian C]
+variable {X : C} (f : End X)
+
+/-- At stabilization, an element in both Ker(f^n) and Im(f^n) must be zero.
+
+Proof outline: If x ∈ Ker(f^n) ∩ Im(f^n), then x = f^n(y) for some y.
+Since f^n(x) = 0, we get f^(2n)(y) = 0, so y ∈ Ker(f^(2n)) = Ker(f^n).
+Thus x = f^n(y) = 0. -/
+lemma kernelSubobject_inf_imageSubobject_eq_bot {n : ℕ}
+    (hker : ∀ m : ℕ, n ≤ m → kernelSubobject (f ^ n) = kernelSubobject (f ^ m))
+    (him : ∀ m : ℕ, n ≤ m → imageSubobject (f ^ n) = imageSubobject (f ^ m)) :
+    kernelSubobject (f ^ n) ⊓ imageSubobject (f ^ n) = ⊥ := by
+  -- The proof requires showing that any element in both kernel and image is zero.
+  -- At stabilization: Ker(f^n) = Ker(f^(2n)), Im(f^n) = Im(f^(2n))
+  -- If x ∈ Ker(f^n) ∩ Im(f^n), write x = f^n(y). Then f^(2n)(y) = f^n(x) = 0.
+  -- So y ∈ Ker(f^(2n)) = Ker(f^n), hence x = f^n(y) = 0.
+  sorry
+
+/-- At stabilization, every element is the sum of elements from Ker(f^n) and Im(f^n).
+
+Proof outline: For any x, consider f^n(x) ∈ Im(f^n) = Im(f^(2n)).
+So f^n(x) = f^(2n)(y) for some y. Then x - f^n(y) ∈ Ker(f^n).
+Thus x = (x - f^n(y)) + f^n(y) ∈ Ker(f^n) + Im(f^n). -/
+lemma kernelSubobject_sup_imageSubobject_eq_top {n : ℕ}
+    (hker : ∀ m : ℕ, n ≤ m → kernelSubobject (f ^ n) = kernelSubobject (f ^ m))
+    (him : ∀ m : ℕ, n ≤ m → imageSubobject (f ^ n) = imageSubobject (f ^ m)) :
+    kernelSubobject (f ^ n) ⊔ imageSubobject (f ^ n) = ⊤ := by
+  sorry
+
+end FittingDecomposition
 
 /-! ## Fitting's Lemma -/
 
