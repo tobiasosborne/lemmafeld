@@ -177,10 +177,33 @@ def iterateComap {X : C} (f : X ⟶ X) (K : Subobject X) (n : ℕ) : Subobject X
 - `iterateComap_stabilizes` — monotone chain stabilizes for Noetherian objects
 - `iterateComap_bot_stabilizes` — chain from ⊥ stabilizes for Noetherian objects
 
-**Remaining issues:**
-1. **lemmafeld-8sen**: Prove `mono_of_epi_endomorphism_noetherianObject` (~50 LOC)
+**Categorical Orzech Theorem (2026-01-29 - lemmafeld-8sen PARTIAL):**
 
-**Dependency chain:** ~~8yab~~ → ~~ovvv~~ → 8sen → {zy7n, c5gz}
+**Lean file:** `Chapter1/CategoricalOrzech.lean` (143 LOC)
+
+**Lemmas proved:**
+- `kernel_ι_eq_zero_of_isIso` — kernel.ι of iso is zero
+- `kernelSubobject_of_isIso` — kernelSubobject of iso is ⊥
+- `pullback_kernelSubobject_eq` — (pullback f).obj (kernelSubobject g) = kernelSubobject (f ≫ g) (SORRY)
+- `iterateComap_bot_eq_kernelSubobject_pow` — iterateComap f ⊥ n = kernelSubobject (f^n)
+- `kernelSubobject_eq_bot_of_epi_noetherian` — epi f + Noetherian ⟹ kernelSubobject f = ⊥
+  - n = 0 case PROVED: if stabilizes at 0, f^0 = id is iso, so kernel is ⊥
+  - n ≥ 1 case SORRY: needs induced map construction
+- `mono_of_epi_endomorphism_noetherianObject` — main theorem (modulo key lemma sorry)
+- `isIso_of_epi_endomorphism_noetherianObject` — corollary
+
+**Remaining work for n ≥ 1 case:**
+The Djoković argument requires:
+1. Constructing induced map g : underlying(ker(f^n)) → underlying(ker(f^n)) from f-saturation
+2. Proving g is epi when f is epi (key technical step)
+3. Showing g^n = 0 (nilpotent since ker(f^n) is the n-th kernel)
+4. Concluding ker(f^n) = 0 from epi + nilpotent
+
+**Key insight:** The image(f ≫ ...) = image(...) relationship under epi needs categorical treatment.
+For modules, surjectivity lets you "pull elements back". Categorically, need to work with
+the subobject lattice and show f(K) = K when K = f⁻¹(K) and f is epi.
+
+**Dependency chain:** ~~8yab~~ → ~~ovvv~~ → 8sen (PARTIAL) → {zy7n, c5gz}
 
 **Mathlib references:**
 - `Mathlib.Algebra.Module.Submodule.IterateMapComap` — module version

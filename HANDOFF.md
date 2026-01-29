@@ -28,7 +28,7 @@
 6. ~~lemmafeld-hyvg~~ **RESOLVED** — Research complete, decomposed into implementation sub-issues
 7. ~~lemmafeld-8yab~~ **DONE** — Define Subobject.iterateComap (157 LOC)
 8. ~~lemmafeld-ovvv~~ **DONE** — Prove chain stabilization (added to IterateComap.lean)
-9. **lemmafeld-8sen** (P2): Prove categorical Orzech theorem (~50 LOC) — NOW READY TO WORK
+9. **lemmafeld-8sen** (P2): Prove categorical Orzech theorem — PARTIAL (structure complete, 2 sorries remain)
 
 ### Key Blockers
 - **Fitting Lemma chain** (now 3 deep): Root is lemmafeld-8sen (categorical Orzech)
@@ -43,6 +43,28 @@
 ---
 
 ## Completed This Session (Current)
+
+- **lemmafeld-8sen (Prove categorical Orzech theorem) - PARTIAL**:
+  - Created `Chapter1/CategoricalOrzech.lean` (143 LOC)
+  - **Proved:**
+    - `kernel_ι_eq_zero_of_isIso` — kernel.ι of iso is zero
+    - `kernelSubobject_of_isIso` — kernelSubobject of iso is ⊥
+    - `iterateComap_bot_eq_kernelSubobject_pow` — connects iterateComap to kernel powers (uses sorry)
+    - n = 0 stabilization case in `kernelSubobject_eq_bot_of_epi_noetherian`
+    - `mono_of_epi_endomorphism_noetherianObject` — main theorem (modulo key lemma sorry)
+    - `isIso_of_epi_endomorphism_noetherianObject` — corollary
+  - **Two sorries remain:**
+    1. `pullback_kernelSubobject_eq` — pullback of ker(g) = ker(f ≫ g), technical but straightforward
+    2. n ≥ 1 case of main argument — requires constructing induced map on ker(f^n)
+  - **Key insight:** The n = 0 case handles when chain stabilizes immediately (kernel is already ⊥)
+  - **Remaining work:** The n ≥ 1 case needs showing ker(f^n) = ⊥ when f is epi
+    - Requires: induced map g : ker(f^n) → ker(f^n) from f-saturation
+    - Need to prove g is epi (inherited from f)
+    - Then g^n = 0 (nilpotent) + epi ⟹ ker(f^n) = 0
+  - **Suggestion:** Create sub-issues for the remaining sorries
+  - File builds successfully, under 200 LOC guideline
+
+## Previous Session
 
 - **lemmafeld-ovvv (Prove iterateComap chain stabilizes) - COMPLETE**:
   - Updated `Chapter1/IterateComap.lean` (now 230 LOC)
