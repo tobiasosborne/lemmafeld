@@ -12,16 +12,16 @@
 - lemmafeld-h43p: Yoneda Ext
 - lemmafeld-0tar: Categorical semisimplicity class
 
-**Hygiene issues (13, 1 resolved):**
+**Hygiene issues (13, 2 resolved):**
 - ~~lemmafeld-2e9a~~: Split ExtAsDerivations.lean (507 LOC) **[P1 - RESOLVED]**
-- lemmafeld-xeb7: Split Abelian.lean (316 LOC) **[P1]**
+- ~~lemmafeld-xeb7~~: Split Abelian.lean (316 LOC) **[P1 - RESOLVED]**
 - lemmafeld-r16p, el7c, 9cfk, ns9g, r06j, sset: Split 6 files (234-264 LOC) **[P2]**
 - lemmafeld-08gi, ebwa, eg49, kq15, l91p: Trim 5 files (201-222 LOC) **[P3]**
 
 ### Recommended Next Steps (Priority Order)
 
 1. ~~lemmafeld-2e9a~~ **DONE** — Split ExtAsDerivations.lean
-2. **lemmafeld-xeb7** (P1): Split Abelian.lean — worst remaining hygiene violation (316 LOC)
+2. ~~lemmafeld-xeb7~~ **DONE** — Split Abelian.lean (316 LOC → 2 files)
 3. **lemmafeld-c5gz** (P2): Prove K ⊔ I = ⊤ — unblocks Fitting Lemma chain (actionable, clear approach)
 4. **lemmafeld-45ut** (P2): Finite codim intersection — quick win (~30 LOC), unblocks FiniteDual
 5. ~~lemmafeld-awey~~ **DONE** — Division algebra classification
@@ -38,6 +38,14 @@
 ---
 
 ## Completed This Session (Current)
+
+- **lemmafeld-xeb7 (Hygiene: Split Abelian.lean) - COMPLETE**:
+  - Split 316 LOC file into 2 files, both under 200 LOC:
+    - `Abelian.lean` (173 LOC): §1.3.1-1.3.3 — kernels, cokernels, canonical decomposition, examples
+    - `AbelianProperties.lean` (172 LOC): §1.3.4-1.3.8 — mono/epi, subobjects, Freyd-Mitchell
+  - All files build successfully
+
+## Previous Session
 
 - **lemmafeld-2e9a (Hygiene: Split ExtAsDerivations.lean) - COMPLETE**:
   - Split 507 LOC file into 4 files, all under 200 LOC:

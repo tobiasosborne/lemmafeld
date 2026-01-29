@@ -5,31 +5,20 @@ Authors: LemmaFeld Contributors
 -/
 import Mathlib.CategoryTheory.Abelian.Basic
 import Mathlib.CategoryTheory.Abelian.Images
-import Mathlib.CategoryTheory.Abelian.Exact
-import Mathlib.CategoryTheory.Abelian.FreydMitchell
 import Mathlib.CategoryTheory.Limits.Shapes.Kernels
-import Mathlib.CategoryTheory.Limits.Shapes.NormalMono.Basic
 
 /-!
-# Chapter 1, Section 1.3: Definition of Abelian Category
+# Chapter 1, Section 1.3: Definition of Abelian Category (Core)
 
 This file establishes the correspondence between Etingof et al. "Tensor Categories"
-§1.3 and mathlib's abelian category infrastructure.
+§1.3 and mathlib's abelian category infrastructure. Covers §1.3.1-1.3.3.
+
+For mono/epi characterizations (§1.3.4), subobjects (§1.3.5), and Freyd-Mitchell
+embedding (§1.3.8), see `AbelianProperties.lean`.
 
 ## Book Reference
 
 Etingof, Gelaki, Nikshych, Ostrik - "Tensor Categories" (AMS 2015), §1.3
-
-## §1.3 Summary
-
-The book defines:
-- **Definition 1.3.1**: Abelian category via canonical decomposition K → X → I → Y → C
-- **Remark 1.3.2**: Uniqueness of canonical decomposition
-- **Example 1.3.3**: Vec, modules, comodules are abelian
-- **Definition 1.3.4**: Mono (Ker = 0) and Epi (Coker = 0)
-- **Definition 1.3.5**: Subobject, quotient object, subquotient
-- **Definition 1.3.7**: Indecomposable abelian category
-- **Theorem 1.3.8**: Mitchell embedding theorem
 
 ## Mathlib Correspondence
 
@@ -41,11 +30,6 @@ The book defines:
 | Coimage = Coker(Ker) | `Abelian.coimage f` | `Mathlib.CategoryTheory.Abelian.Images` |
 | Image = Ker(Coker) | `Abelian.image f` | Same file |
 | Coimage ≅ Image | `coimageImageComparison` is `IsIso` | Key property |
-| Mono (Ker = 0) | `Mono f` + `kernel.ι_of_mono` | `kernel.ι f = 0` |
-| Epi (Coker = 0) | `Epi f` + `cokernel.π_of_epi` | `cokernel.π f = 0` |
-| Normal mono | `IsNormalMonoCategory C` | Every mono is a kernel |
-| Normal epi | `IsNormalEpiCategory C` | Every epi is a cokernel |
-| Freyd-Mitchell | `FreydMitchell.functor C` | Full faithful embedding into R-Mod |
 
 -/
 
@@ -185,132 +169,5 @@ section Examples
 -- FdVec (finite dim) is also abelian but requires more setup
 
 end Examples
-
-/-! ## §1.3 Definition 1.3.4: Monomorphism and Epimorphism
-
-Book: "A morphism f : X → Y is a monomorphism if Ker(f) = 0.
-It is an epimorphism if Coker(f) = 0."
-
-Mathlib: `Mono f` and `Epi f` are defined abstractly. In an abelian category,
-these have equivalent characterizations via kernels and cokernels.
-
-Key lemmas:
-- `kernel.ι_of_mono f : kernel.ι f = 0` (when f is mono)
-- `mono_of_kernel_zero h : Mono f` (when kernel.ι f = 0)
-- `cokernel.π_of_epi f : cokernel.π f = 0` (when f is epi)
-- `epi_of_cokernel_zero h : Epi f` (when cokernel.π f = 0)
--/
-
-section MonoEpi
-
-variable {C : Type*} [Category C] [Abelian C]
-
--- Book's "Ker(f) = 0" characterization for monomorphisms
--- Mathlib: Mono f ↔ kernel.ι f = 0
-
--- If f is mono, then kernel.ι f = 0
-example {X Y : C} (f : X ⟶ Y) [Mono f] : kernel.ι f = 0 := kernel.ι_of_mono f
-
--- Conversely, if kernel.ι f = 0, then f is mono
-example {X Y : C} (f : X ⟶ Y) (h : kernel.ι f = 0) : Mono f :=
-  Preadditive.mono_of_kernel_zero h
-
--- Dual for epimorphisms: Epi f ↔ cokernel.π f = 0
-
--- If f is epi, then cokernel.π f = 0
-example {X Y : C} (f : X ⟶ Y) [Epi f] : cokernel.π f = 0 := cokernel.π_of_epi f
-
--- Conversely, if cokernel.π f = 0, then f is epi
-example {X Y : C} (f : X ⟶ Y) (h : cokernel.π f = 0) : Epi f :=
-  Preadditive.epi_of_cokernel_zero h
-
--- Book: "a morphism is both mono and epi iff it is an isomorphism"
--- This is a key property of abelian categories
-
-example {X Y : C} (f : X ⟶ Y) [Mono f] [Epi f] : IsIso f := isIso_of_mono_of_epi f
-
-end MonoEpi
-
-/-! ## §1.3 Definition 1.3.5: Subobjects and Quotient Objects
-
-Book: "A subobject of Y is an object X together with a monomorphism i : X → Y.
-A quotient object of Y is an object Z with an epimorphism p : Y → Z.
-A subquotient is a quotient of a subobject."
-
-Mathlib:
-- `Subobject Y` — the poset of subobjects (mono classes)
-- Quotients are handled via cokernels
-- For a subobject X ⊂ Y (mono f : X → Y), the quotient Y/X = cokernel f
--/
-
-section SubobjectQuotient
-
-variable {C : Type*} [Category C] [Abelian C]
-
--- Subobject Y is the poset of monomorphisms into Y (up to iso)
--- Access via: `Subobject Y` in `Mathlib.CategoryTheory.Subobject.Basic`
-
--- For a mono f : X → Y, the quotient Y/X is the cokernel
-example {X Y : C} (f : X ⟶ Y) [Mono f] : C := cokernel f
-
--- The quotient map Y → Y/X
-example {X Y : C} (f : X ⟶ Y) [Mono f] : Y ⟶ cokernel f := cokernel.π f
-
--- This is an epi (Y → Y/X is surjective)
-example {X Y : C} (f : X ⟶ Y) [Mono f] : Epi (cokernel.π f) := inferInstance
-
-end SubobjectQuotient
-
-/-! ## §1.3 Definition 1.3.7: Indecomposable Abelian Category
-
-Book: "An abelian category C is indecomposable if it is not equivalent to a
-direct sum of two nonzero categories."
-
-This is related to the study of block decompositions. Mathlib doesn't have a
-dedicated `Indecomposable` class for categories, but the concept can be expressed
-using equivalences.
--/
-
-/-! ## §1.3 Theorem 1.3.8: Freyd-Mitchell Embedding
-
-Book: "Every abelian category is equivalent, as an additive category, to a full
-subcategory of the category of left modules over an associative unital ring A."
-
-Mathlib: `Mathlib.CategoryTheory.Abelian.FreydMitchell` has a complete formalization!
-
-| Book Statement | Mathlib | Type |
-|----------------|---------|------|
-| Embedding ring A | `FreydMitchell.EmbeddingRing C` | Type |
-| Embedding functor F : C → A-Mod | `FreydMitchell.functor C` | Functor |
-| F is full | `FreydMitchell.instFullModuleCatEmbeddingRingFunctor` | Instance |
-| F is faithful | `FreydMitchell.instFaithfulModuleCatEmbeddingRingFunctor` | Instance |
-| F preserves finite limits | Part of `freyd_mitchell` theorem | Instance |
-| F preserves finite colimits | Part of `freyd_mitchell` theorem | Instance |
--/
-
-section FreydMitchellEmbedding
-
-universe u v
-
-variable (C : Type u) [Category.{v} C] [Abelian C]
-
--- The ring into whose module category we embed
--- `FreydMitchell.EmbeddingRing C` is a ring (in Type (max u v))
-example : Ring (FreydMitchell.EmbeddingRing C) := inferInstance
-
--- The embedding functor: C → ModuleCat (EmbeddingRing C)
-#check (FreydMitchell.functor C : C ⥤ ModuleCat (FreydMitchell.EmbeddingRing C))
-
--- The functor is full: every morphism in the image lifts to C
-example : (FreydMitchell.functor C).Full := inferInstance
-
--- The functor is faithful: reflects equality of morphisms
-example : (FreydMitchell.functor C).Faithful := inferInstance
-
--- The main theorem: full and faithful, preserves finite (co)limits
--- `freyd_mitchell` states the existence with all four properties
-#check @freyd_mitchell C _ _
-
-end FreydMitchellEmbedding
 
 end LemmaFeld.TensorCategories.Chapter1
