@@ -2,6 +2,15 @@
 
 ## Completed This Session (Current)
 
+- **lemmafeld-zy7n (Prove Fitting decomposition: inf = ⊥) - PARTIAL**:
+  - Added `subobject_eq_bot_of_arrow_eq_zero` helper — PROVED
+  - Added `inf_arrow_comp_pow_eq_zero` — PROVED: (K ⊓ I).arrow ≫ f^n = 0
+  - Main lemma reduced to showing `(K ⊓ I).arrow = 0`
+  - **Remaining:** Need categorical formalization of surjectivity at stabilization
+  - File at 172 LOC (under 200 limit), builds with sorry
+
+## Previous Session
+
 - **lemmafeld-txf9 (Fitting's Lemma Decomposition) - RESEARCH COMPLETE**:
   - Developed proof strategy for `kernelSubobject_inf_imageSubobject_eq_bot` and `_sup_..._eq_top`
   - Discovered key helper lemma: `subobject_eq_bot_of_arrow_eq_zero`

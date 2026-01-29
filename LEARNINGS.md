@@ -1138,3 +1138,25 @@ lemma subobject_eq_bot_of_arrow_eq_zero (A : Subobject X) (h : A.arrow = 0) : A 
 - lemmafeld-zy7n: Prove inf = ⊥ (~30 LOC)
 - lemmafeld-c5gz: Prove sup = ⊤ (~30 LOC)
 - Both block lemmafeld-txf9 (Fitting's Lemma completion)
+
+## 2026-01-29: Fitting Decomposition Progress (lemmafeld-zy7n)
+
+**Task:** Prove `kernelSubobject_inf_imageSubobject_eq_bot`.
+
+**Progress:**
+1. Added helper `subobject_eq_bot_of_arrow_eq_zero` — PROVED
+2. Added `inf_arrow_comp_pow_eq_zero` — PROVED (K ⊓ I).arrow ≫ f^n = 0
+3. Reduced main lemma to showing `(K ⊓ I).arrow = 0`
+
+**Remaining gap:** Need to show that at stabilization, `(K ⊓ I).arrow = 0` follows from
+`(K ⊓ I).arrow ≫ f^n = 0`. The element-wise argument is:
+- If x ∈ Im(f^n) and f^n(x) = 0, then x = f^n(y) for some y (surjectivity at stabilization)
+- So f^(2n)(y) = 0, meaning y ∈ Ker(f^(2n)) = Ker(f^n)
+- Thus x = f^n(y) = 0
+
+**Categorical formalization challenge:** The surjectivity "x = f^n(y) for some y" requires
+showing `factorThruImageSubobject (f^(2n))` coincides with the composition through Im(f^n).
+At stabilization Im(f^n) = Im(f^(2n)), so this should work, but the categorical
+manipulation is non-trivial (~20 more LOC for a clean proof).
+
+**File state:** `Chapter1/FittingLemma.lean` at 172 LOC (under 200 limit), builds with sorry

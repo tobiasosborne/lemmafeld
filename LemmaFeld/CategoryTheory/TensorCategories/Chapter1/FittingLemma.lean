@@ -12,24 +12,10 @@ import LemmaFeld.CategoryTheory.TensorCategories.Chapter1.FiniteLength
 /-!
 # Fitting's Lemma
 
-This file contains Fitting's Lemma for abelian categories, a key ingredient in the
-proof of the Krull-Schmidt theorem (Theorem 1.5.7).
+Fitting's Lemma for abelian categories: for an indecomposable object X of finite
+length, any endomorphism f : X → X is either nilpotent or an isomorphism.
 
-## Mathematical Context
-
-**Fitting's Lemma**: For an indecomposable object X of finite length, any
-endomorphism f : X → X is either nilpotent or an isomorphism.
-
-The proof relies on:
-1. The kernel chain Ker(f) ⊆ Ker(f²) ⊆ ... is ascending and stabilizes (Noetherian)
-2. The image chain Im(f) ⊇ Im(f²) ⊇ ... is descending and stabilizes (Artinian)
-3. At stabilization n: X = Ker(f^n) ⊕ Im(f^n)
-4. Indecomposability forces one summand to be zero
-
-## References
-
-- Etingof et al. "Tensor Categories" (AMS 2015), §1.5
-- Fitting "Die Theorie der Automorphismenringe Abelscher Gruppen" (1934)
+§1.5 of Etingof et al. "Tensor Categories" (AMS 2015)
 -/
 
 noncomputable section
@@ -131,26 +117,31 @@ section FittingDecomposition
 variable {C : Type*} [Category C] [Abelian C]
 variable {X : C} (f : End X)
 
-/-- At stabilization, an element in both Ker(f^n) and Im(f^n) must be zero.
+open scoped ZeroObject in
+/-- If a subobject's arrow is zero, the subobject equals ⊥. -/
+lemma subobject_eq_bot_of_arrow_eq_zero (A : Subobject X) (h : A.arrow = 0) : A = ⊥ := by
+  have hiso : Subobject.underlying.obj A ≅ (0 : C) := isoZeroOfMonoEqZero h
+  apply Subobject.eq_of_comm (hiso ≪≫ Subobject.botCoeIsoZero.symm)
+  simp only [Iso.trans_hom, Subobject.bot_arrow, comp_zero, h]
 
-Proof outline: If x ∈ Ker(f^n) ∩ Im(f^n), then x = f^n(y) for some y.
-Since f^n(x) = 0, we get f^(2n)(y) = 0, so y ∈ Ker(f^(2n)) = Ker(f^n).
-Thus x = f^n(y) = 0. -/
+/-- The intersection of kernel and image, composed with f^n, is zero. -/
+lemma inf_arrow_comp_pow_eq_zero {n : ℕ} :
+    (kernelSubobject (f ^ n) ⊓ imageSubobject (f ^ n)).arrow ≫ f ^ n = 0 := by
+  rw [← Subobject.ofLE_arrow (inf_le_left (a := kernelSubobject (f ^ n)))]
+  rw [Category.assoc, kernelSubobject_arrow_comp, comp_zero]
+
+/-- At stabilization, Ker(f^n) ∩ Im(f^n) = 0. Key: f^n|_{Im(f^n)} is iso at stabilization. -/
 lemma kernelSubobject_inf_imageSubobject_eq_bot {n : ℕ}
     (hker : ∀ m : ℕ, n ≤ m → kernelSubobject (f ^ n) = kernelSubobject (f ^ m))
     (him : ∀ m : ℕ, n ≤ m → imageSubobject (f ^ n) = imageSubobject (f ^ m)) :
     kernelSubobject (f ^ n) ⊓ imageSubobject (f ^ n) = ⊥ := by
-  -- The proof requires showing that any element in both kernel and image is zero.
-  -- At stabilization: Ker(f^n) = Ker(f^(2n)), Im(f^n) = Im(f^(2n))
-  -- If x ∈ Ker(f^n) ∩ Im(f^n), write x = f^n(y). Then f^(2n)(y) = f^n(x) = 0.
-  -- So y ∈ Ker(f^(2n)) = Ker(f^n), hence x = f^n(y) = 0.
+  apply subobject_eq_bot_of_arrow_eq_zero
+  -- Need: (K ⊓ I).arrow = 0. Uses both stabilization conditions:
+  -- If x ∈ Im(f^n), x = f^n(y). If also f^n(x) = 0, then f^(2n)(y) = 0.
+  -- By kernel stabilization, y ∈ Ker(f^n), so x = f^n(y) = 0.
   sorry
 
-/-- At stabilization, every element is the sum of elements from Ker(f^n) and Im(f^n).
-
-Proof outline: For any x, consider f^n(x) ∈ Im(f^n) = Im(f^(2n)).
-So f^n(x) = f^(2n)(y) for some y. Then x - f^n(y) ∈ Ker(f^n).
-Thus x = (x - f^n(y)) + f^n(y) ∈ Ker(f^n) + Im(f^n). -/
+/-- At stabilization, Ker(f^n) + Im(f^n) = X. For any x, f^n(x) ∈ Im(f^(2n)) = Im(f^n). -/
 lemma kernelSubobject_sup_imageSubobject_eq_top {n : ℕ}
     (hker : ∀ m : ℕ, n ≤ m → kernelSubobject (f ^ n) = kernelSubobject (f ^ m))
     (him : ∀ m : ℕ, n ≤ m → imageSubobject (f ^ n) = imageSubobject (f ^ m)) :
@@ -166,30 +157,13 @@ section FittingLemma
 variable {C : Type*} [Category C] [Abelian C] [HasFiniteBiproducts C]
 variable {X : C}
 
-/-- **Fitting's Lemma**: For an indecomposable object X of finite length,
-any endomorphism f : X → X is either nilpotent or an isomorphism.
-
-The proof uses chain stabilization: since X has finite length, both the kernel
-chain and image chain stabilize. At stabilization n, X decomposes as
-Ker(f^n) ⊕ Im(f^n). Indecomposability forces one summand to be zero:
-- If Ker(f^n) = X then f^n = 0 (nilpotent)
-- If Im(f^n) = X then f^n is an isomorphism, hence f is an isomorphism -/
+/-- **Fitting's Lemma**: For indecomposable X of finite length, f ∈ End(X) is nilpotent or unit.
+At stabilization n, X = Ker(f^n) ⊕ Im(f^n). Indecomposability forces one summand to be 0. -/
 theorem fitting_lemma (f : End X) (hX : Indecomposable X) (hfl : IsFiniteLengthObject X) :
     IsNilpotent f ∨ IsUnit f := by
-  -- The full proof requires showing the decomposition X = Ker(f^n) ⊕ Im(f^n)
-  -- at chain stabilization. This needs the following steps:
-  -- 1. By Noetherian property, ∃ n such that Ker(f^n) = Ker(f^(n+1)) = ...
-  -- 2. By Artinian property, ∃ m such that Im(f^m) = Im(f^(m+1)) = ...
-  -- 3. At N = max(n,m): f^N|_{Im(f^N)} : Im(f^N) → Im(f^N) is an isomorphism
-  -- 4. Hence X = Ker(f^N) ⊕ Im(f^N)
-  -- 5. By indecomposability: Ker(f^N) = 0 or Im(f^N) = 0
-  sorry
+  sorry  -- Requires X = Ker(f^n) ⊕ Im(f^n) decomposition at chain stabilization
 
-/-- Local ring property for End(X): the non-units form a two-sided ideal.
-
-This is a consequence of Fitting's Lemma: if f and g are non-units (hence nilpotent),
-then f + g is also nilpotent (hence non-unit), assuming X is indecomposable of
-finite length. -/
+/-- Local ring property: non-units form a two-sided ideal. Follows from Fitting's Lemma. -/
 def EndomorphismRingIsLocal (X : C) : Prop :=
   ∀ f g : X ⟶ X, IsIso (f + g) → IsIso f ∨ IsIso g
 
