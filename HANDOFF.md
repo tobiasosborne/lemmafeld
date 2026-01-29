@@ -2,6 +2,19 @@
 
 ## Completed This Session (Current)
 
+- **lemmafeld-07og (TC 1.5.8: Grothendieck group) - COMPLETE**:
+  - Created `Chapter1/GrothendieckGroup.lean` (~180 LOC)
+  - `SimpleObject C` — subtype of simple objects
+  - `IsoClassSimple C` — isomorphism classes of simples (via Quotient)
+  - `GrothendieckGroup C` — free abelian group on IsoClassSimple
+  - `HasMultiplicity C` — class axiomatizing Jordan-Hölder multiplicities
+  - `simpleClass_eq_of_iso` — isomorphic simples give same Gr(C) class
+  - **GAP:** Full class map [X] requires `JordanHolderLattice (Subobject X)`
+  - Updated `docs/learnings/chapter1/length_objects.md`
+  - File builds successfully
+
+## Previous Session
+
 - **lemmafeld-4b1j (TC 1.7.1: Derived functors setup) - COMPLETE**:
   - Created `Chapter1/DerivedFunctors.lean` (~180 LOC)
   - Documents `ProjectiveResolution X`, `InjectiveResolution X`
@@ -336,17 +349,18 @@
 - **Chapter1/KrullSchmidt.lean** — §1.5 Krull-Schmidt theorem (statements, gaps noted)
 - **Chapter1/Coalgebras.lean** — §1.9 Grouplike and skew-primitive elements
 - **Chapter1/Projective.lean** — §1.6 Projective/injective objects, exact functors
-- **Chapter1/DerivedFunctors.lean** — §1.7 Derived functors setup (resolutions, Ext, group cohomology) (NEW)
+- **Chapter1/DerivedFunctors.lean** — §1.7 Derived functors setup (resolutions, Ext, group cohomology)
 - **Chapter1/ExternalTensorProduct.lean** — §1.11.1 External tensor product (LocallyFiniteAbelian, IsRightExactBifunctor, DeligneTensorProductData)
 - **Chapter1/FiniteDual.lean** — §1.12.1 Finite dual (IsFiniteDualElem, dualCounit)
-- All twenty-four files build successfully
+- **Chapter1/GrothendieckGroup.lean** — §1.5.8 Grothendieck group (IsoClassSimple, GrothendieckGroup, HasMultiplicity) (NEW)
+- All twenty-five files build successfully
 
 ## Next Steps
 
 1. TC 1.7.2-1.7.4: Ext^n definition, long exact sequence, group cohomology connection
 2. TC 1.8.1-1.8.4: Locally finite abelian categories
 3. TC 1.9.1-1.9.4: Coalgebras (definition, comodules, abelian, fundamental theorem)
-4. TC 1.5.7-1.5.8: Krull-Schmidt theorem, Grothendieck group (blocked by Fitting lemma)
+4. TC 1.5.7: Krull-Schmidt theorem (blocked by Fitting lemma)
 
 ## Known Issues / Gotchas
 

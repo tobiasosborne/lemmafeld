@@ -131,3 +131,32 @@ Classical argument requires "finding preimages" under surjective maps. Categoric
 **Research issue:** lemmafeld-hyvg (epi endo on Noetherian → mono)
 
 **Lean file:** `Chapter1/FittingLemma.lean`
+
+---
+
+## §1.5.8: Grothendieck Group
+
+**Book Definition 1.5.8:** Gr(C) is the free abelian group on isomorphism classes of simple objects. The class [X] = ∑_i [X : X_i] X_i uses Jordan-Hölder multiplicities.
+
+**Mathlib:**
+- `FreeAbelianGroup α` — free abelian group on type α
+- `Algebra.GrothendieckGroup M` — localization of monoid at ⊤ (DIFFERENT construction)
+- `JordanHolderLattice (Submodule R M)` — for modules only
+
+**Our implementation:**
+
+```lean
+def SimpleObject (C) := { X : C // Simple X }
+def IsoClassSimple (C) := Quotient (SimpleObject.setoid C)
+def GrothendieckGroup (C) := FreeAbelianGroup (IsoClassSimple C)
+
+class HasMultiplicity (C) where
+  multiplicity : (X : C) → (Y : C) → [Simple Y] → ℕ
+  multiplicity_add : ∀ (S : ShortComplex C), S.ShortExact → ...
+```
+
+**Key property:** If 0 → X → Y → Z → 0 is exact, then [Y] = [X] + [Z].
+
+**Gap:** Full class map [X] requires `JordanHolderLattice (Subobject X)` for categories.
+
+**Lean file:** `Chapter1/GrothendieckGroup.lean`
