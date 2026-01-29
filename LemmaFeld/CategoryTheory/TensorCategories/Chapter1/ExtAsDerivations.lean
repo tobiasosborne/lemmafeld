@@ -78,13 +78,13 @@ This establishes the isomorphism Ext¹(Y, X) ≅ H¹(A, Homₖ(Y, X)).
 4. ✅ `HochschildH1 R A M := (A →ₗ[R] M) ⧸ InnerDerivations R A M` — quotient module
 5. ✅ `HochschildH1.mk` — quotient map with `mk_eq_zero`, `mk_eq_mk` lemmas
 6. ✅ `HomRightSMul` — right A-action on Hom_k(Y, X) via precomposition
+7. ✅ `BimoduleDerivations R A M` — submodule of maps satisfying bimodule Leibniz rule
+8. ✅ `InnerDerivations_le_BimoduleDerivations` — inner derivations are bimodule derivations
 
 ### Remaining for full proof:
 
-1. Define bimodule derivations (maps satisfying Leibniz) as submodule
-2. Show InnerDerivations ⊆ BimoduleDerivations
-3. Construct explicit maps between extensions and derivations
-4. Show the maps are inverses up to the appropriate equivalences
+1. Construct explicit maps between extensions and derivations
+2. Show the maps are inverses up to the appropriate equivalences
 
 This is a significant formalization project beyond the scope of a single session.
 
@@ -316,6 +316,92 @@ theorem HochschildH1.eq_bot_iff :
 
 end HochschildH1
 
+/-! ### Bimodule Derivations
+
+For a bimodule M (with left A-action and right Aᵐᵒᵖ-action), a **bimodule derivation**
+is a linear map D : A →ₗ[R] M satisfying the bimodule Leibniz rule:
+
+  D(ab) = a • D(b) + D(a) • b
+
+where:
+- `a • D(b)` is the left A-action on M
+- `D(a) • b` is the right A-action, expressed as `MulOpposite.op b • D(a)`
+
+This differs from mathlib's `Derivation` which uses `D(ab) = a • D(b) + b • D(a)`
+(symmetric form appropriate for commutative A with M = A).
+-/
+
+section BimoduleDerivations
+
+variable (R A M : Type*) [CommRing R] [CommRing A] [AddCommGroup M]
+variable [Algebra R A] [Module A M] [Module Aᵐᵒᵖ M] [Module R M]
+variable [IsScalarTower R A M] [IsScalarTower R Aᵐᵒᵖ M] [SMulCommClass R Aᵐᵒᵖ M]
+
+/-- The bimodule Leibniz rule: D(ab) = a • D(b) + D(a) • b.
+The right action `D(a) • b` is expressed as `MulOpposite.op b • D(a)`. -/
+def IsBimoduleDerivation (D : A →ₗ[R] M) : Prop :=
+  ∀ a b : A, D (a * b) = a • D b + MulOpposite.op b • D a
+
+/-- The submodule of bimodule derivations in A →ₗ[R] M.
+These are R-linear maps satisfying D(ab) = a • D(b) + D(a) • b. -/
+def BimoduleDerivations : Submodule R (A →ₗ[R] M) where
+  carrier := {D | IsBimoduleDerivation R A M D}
+  zero_mem' := by
+    intro a b
+    simp only [LinearMap.zero_apply, smul_zero, add_zero]
+  add_mem' := by
+    intro D₁ D₂ hD₁ hD₂ a b
+    simp only [LinearMap.add_apply, smul_add]
+    rw [hD₁ a b, hD₂ a b]
+    abel
+  smul_mem' := by
+    intro r D hD a b
+    simp only [LinearMap.smul_apply]
+    rw [hD a b]
+    rw [smul_add, smul_comm r a, smul_comm r (MulOpposite.op b)]
+
+/-- Membership characterization for BimoduleDerivations. -/
+lemma mem_bimoduleDerivations_iff (D : A →ₗ[R] M) :
+    D ∈ BimoduleDerivations R A M ↔ IsBimoduleDerivation R A M D := Iff.rfl
+
+/-- A bimodule derivation satisfies D(1) = 0. -/
+lemma BimoduleDerivation.map_one (D : A →ₗ[R] M) (hD : IsBimoduleDerivation R A M D) :
+    D 1 = 0 := by
+  have h := hD 1 1
+  simp only [mul_one, MulOpposite.op_one, one_smul] at h
+  -- h : D 1 = D 1 + D 1
+  have : (0 : M) = D 1 := by
+    calc (0 : M) = D 1 - D 1 := (sub_self (D 1)).symm
+         _ = (D 1 + D 1) - D 1 := by rw [← h]
+         _ = D 1 := add_sub_cancel_right (D 1) (D 1)
+  exact this.symm
+
+/-- Inner derivations are bimodule derivations, provided the left and right actions commute. -/
+theorem InnerDerivations_le_BimoduleDerivations [SMulCommClass A Aᵐᵒᵖ M] :
+    InnerDerivations R A M ≤ BimoduleDerivations R A M := by
+  intro D hD
+  rw [mem_innerDerivations_iff] at hD
+  obtain ⟨f, rfl⟩ := hD
+  rw [mem_bimoduleDerivations_iff]
+  intro a b
+  -- Goal: D_f(ab) = a • D_f(b) + (op b) • D_f(a)
+  -- where D_f(x) = x • f - (op x) • f
+  simp only [InnerDerivation.toLinearMap, InnerDerivation.toFun,
+    LinearMap.coe_mk, AddHom.coe_mk]
+  -- LHS: (ab) • f - op(ab) • f
+  -- RHS: a • (b • f - op b • f) + op b • (a • f - op a • f)
+  rw [MulOpposite.op_mul]
+  -- LHS: (ab) • f - (op b * op a) • f
+  -- RHS: a • b • f - a • op b • f + op b • a • f - op b • op a • f
+  rw [mul_smul, mul_smul]
+  -- LHS: a • (b • f) - op b • (op a • f)
+  rw [smul_sub, smul_sub]
+  -- RHS expanded, need to use commutativity of A and Aᵐᵒᵖ actions
+  rw [smul_comm a (MulOpposite.op b) f]
+  abel
+
+end BimoduleDerivations
+
 end InnerDerivations
 
 /-! ## The A-bimodule Structure on Hom_k(Y, X)
@@ -411,10 +497,10 @@ The proof involves:
 - ✅ `HochschildH1 R A M` — quotient (A →ₗ[R] M) / InnerDerivations as H¹
 - ✅ `HochschildH1.mk` — quotient map with equality characterization
 - ✅ `HomRightSMul` — right A-action on Hom_k(Y, X) via precomposition
+- ✅ `BimoduleDerivations R A M` — submodule of linear maps satisfying bimodule Leibniz rule
+- ✅ `InnerDerivations_le_BimoduleDerivations` — inner derivations are bimodule derivations
 
 ### Remaining gaps:
-- Bimodule derivations (maps satisfying Leibniz rule) as submodule
-- Show InnerDerivations ⊆ BimoduleDerivations
 - The explicit isomorphism Ext¹ ≅ H¹
 -/
 

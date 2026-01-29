@@ -1281,3 +1281,46 @@ the sequential definition from the book. The equivalence is in `Functor.exact_tf
 - `ProjectivePresentation X` has fields `p`, `f : p ⟶ X`, `projective`, `epi`
 - `InjectivePresentation X` has fields `J`, `f : X ⟶ J`, `injective`, `mono`
 - `(0 : C)` notation requires `open scoped ZeroObject`
+
+## 2026-01-29: Ex 1.4.3(ii) - BimoduleDerivations Submodule
+
+**Task:** Define BimoduleDerivations submodule and prove InnerDerivations ⊆ BimoduleDerivations.
+
+**Updated:** `Chapter1/ExtAsDerivations.lean`
+
+**Key definitions:**
+
+| Concept | Definition | Notes |
+|---------|------------|-------|
+| Bimodule Leibniz rule | `D(ab) = a • D(b) + (op b) • D(a)` | Different from mathlib's symmetric form |
+| `IsBimoduleDerivation R A M D` | Predicate for bimodule Leibniz rule | |
+| `BimoduleDerivations R A M` | Submodule of A →ₗ[R] M | Closed under 0, +, • |
+| `InnerDerivations_le_BimoduleDerivations` | Inner derivations satisfy bimodule Leibniz | Requires `SMulCommClass A Aᵐᵒᵖ M` |
+
+**Mathlib vs bimodule Leibniz:**
+- Mathlib `Derivation`: `D(ab) = a • D(b) + b • D(a)` (symmetric, for commutative case)
+- Bimodule: `D(ab) = a • D(b) + D(a) • b` where right action is `(op b) • D(a)`
+
+**Proof technique for D(1) = 0:**
+From `h : D 1 = D 1 + D 1`, derive `D 1 = 0` via:
+```lean
+have : (0 : M) = D 1 := by
+  calc (0 : M) = D 1 - D 1 := (sub_self (D 1)).symm
+       _ = (D 1 + D 1) - D 1 := by rw [← h]
+       _ = D 1 := add_sub_cancel_right (D 1) (D 1)
+exact this.symm
+```
+
+**Proof technique for inner ⊆ bimodule:**
+For D_f(a) = a • f - (op a) • f, the bimodule Leibniz expands to:
+- LHS: (ab) • f - (op b • op a) • f = a • (b • f) - (op b) • ((op a) • f)
+- RHS: a • (b • f) - a • (op b) • f + (op b) • a • f - (op b) • (op a) • f
+
+Requires `SMulCommClass A Aᵐᵒᵖ M` to commute middle terms: `a • (op b) • f = (op b) • a • f`
+
+**API notes:**
+- `abel` tactic solves additive goals in modules
+- `ring` doesn't work on module elements (use `abel` instead)
+- `linarith` doesn't work on module elements (use explicit calculation)
+- `sub_self x` gives `x - x = 0`
+- `add_sub_cancel_right x y` gives `x + y - y = x`

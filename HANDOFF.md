@@ -2,6 +2,18 @@
 
 ## Completed This Session (Current)
 
+- **lemmafeld-i9od (BimoduleDerivations submodule) - COMPLETE**:
+  - Updated `Chapter1/ExtAsDerivations.lean` (~80 LOC added)
+  - `IsBimoduleDerivation R A M D`: predicate for bimodule Leibniz rule D(ab) = a • D(b) + (op b) • D(a)
+  - `BimoduleDerivations R A M`: submodule of linear maps satisfying bimodule Leibniz
+  - `BimoduleDerivation.map_one`: bimodule derivations send 1 to 0
+  - `InnerDerivations_le_BimoduleDerivations`: inner derivations are bimodule derivations
+    - Requires `SMulCommClass A Aᵐᵒᵖ M` (left and right actions commute)
+  - Updated documentation in file and this HANDOFF
+  - File builds successfully
+
+## Previous Session
+
 - **lemmafeld-y6ai (TC 1.6.1: Left and right exact functors) - COMPLETE**:
   - Created `Chapter1/Projective.lean` (256 LOC)
   - Documents mathlib's `PreservesFiniteLimits`/`PreservesFiniteColimits` for exact functors
