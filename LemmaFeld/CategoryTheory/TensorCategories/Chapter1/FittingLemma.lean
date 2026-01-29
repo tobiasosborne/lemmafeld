@@ -6,6 +6,7 @@ Authors: LemmaFeld Contributors
 import Mathlib.CategoryTheory.Limits.Shapes.Biproducts
 import Mathlib.CategoryTheory.Abelian.Basic
 import Mathlib.CategoryTheory.Subobject.Limits
+import Mathlib.CategoryTheory.Subobject.NoetherianObject
 import Mathlib.RingTheory.Nilpotent.Defs
 import LemmaFeld.CategoryTheory.TensorCategories.Chapter1.FiniteLength
 
@@ -130,22 +131,262 @@ lemma inf_arrow_comp_pow_eq_zero {n : ℕ} :
   rw [← Subobject.ofLE_arrow (inf_le_left (a := kernelSubobject (f ^ n)))]
   rw [Category.assoc, kernelSubobject_arrow_comp, comp_zero]
 
-/-- At stabilization, Ker(f^n) ∩ Im(f^n) = 0. Key: f^n|_{Im(f^n)} is iso at stabilization. -/
-lemma kernelSubobject_inf_imageSubobject_eq_bot {n : ℕ}
+/-! ### Helper: imageSubobject of composition with epi -/
+
+/-- When h is epi, imageSubobject(h ≫ f) = imageSubobject(f). -/
+lemma imageSubobject_comp_eq_of_epi {Y Z : C} (h : X ⟶ Y) [Epi h] (g : Y ⟶ Z) :
+    imageSubobject (h ≫ g) = imageSubobject g := by
+  have hle : imageSubobject (h ≫ g) ≤ imageSubobject g := imageSubobject_comp_le h g
+  have hEpi : Epi ((imageSubobject (h ≫ g)).ofLE (imageSubobject g) hle) :=
+    imageSubobject_comp_le_epi_of_epi h g
+  have hIso : IsIso ((imageSubobject (h ≫ g)).ofLE (imageSubobject g) hle) :=
+    isIso_of_mono_of_epi _
+  exact le_antisymm hle (Subobject.le_of_comm
+    (inv ((imageSubobject (h ≫ g)).ofLE _ hle)) (by simp [Subobject.ofLE_arrow]))
+
+/-- imageSubobject(I.arrow ≫ f^n) = imageSubobject(f^(2n)) where I = imageSubobject(f^n). -/
+lemma imageSubobject_arrow_comp_pow_eq {n : ℕ} :
+    imageSubobject ((imageSubobject (f^n)).arrow ≫ (f^n)) = imageSubobject (f^(2*n)) := by
+  have h2n : f^(2*n) = (f^n) ≫ (f^n) := by rw [two_mul, pow_add, End.mul_def]
+  let I := imageSubobject (f^n)
+  have hfac : factorThruImageSubobject (f^n) ≫ I.arrow = f^n := imageSubobject_arrow_comp (f^n)
+  have key : (f^n) ≫ (f^n) = factorThruImageSubobject (f^n) ≫ (I.arrow ≫ f^n) := by
+    conv_lhs => arg 1; rw [← hfac]
+    rw [Category.assoc]
+  rw [h2n, key]
+  exact (imageSubobject_comp_eq_of_epi (factorThruImageSubobject (f^n)) (I.arrow ≫ f^n)).symm
+
+/-- At image stabilization, imageSubobject(I.arrow ≫ f^n) = I. -/
+lemma imageSubobject_arrow_comp_eq_self {n : ℕ}
+    (him : ∀ m : ℕ, n ≤ m → imageSubobject (f ^ n) = imageSubobject (f ^ m)) :
+    imageSubobject ((imageSubobject (f^n)).arrow ≫ (f^n)) = imageSubobject (f^n) := by
+  have him2n : imageSubobject (f^n) = imageSubobject (f^(2*n)) :=
+    him (2*n) (Nat.le_mul_of_pos_left n (by omega))
+  rw [imageSubobject_arrow_comp_pow_eq f, him2n.symm]
+
+/-- g factors through imageSubobject g. -/
+lemma factors_imageSubobject {Y : C} (g : X ⟶ Y) : (imageSubobject g).Factors g := by
+  have h := imageSubobject_factors_comp_self g (𝟙 X)
+  simp only [Category.id_comp] at h
+  exact h
+
+/-! ### Categorical Orzech (local version)
+
+For the Fitting decomposition, we need: an epi endomorphism on a Noetherian object is mono.
+This is proved in CategoricalOrzech.lean, but we include a local version here to avoid
+circular imports. -/
+
+/-- An epi nilpotent endomorphism implies the object is zero. -/
+private theorem isZero_of_epi_pow_eq_zero' {Y : C} (g : End Y) [hg : Epi g]
+    (n : ℕ) (hn : 0 < n) (heq : g ^ n = 0) : IsZero Y := by
+  induction n with
+  | zero => exact (Nat.not_lt_zero 0 hn).elim
+  | succ m ih =>
+    cases m with
+    | zero =>
+      rw [pow_one] at heq
+      exact IsZero.of_epi_eq_zero g heq
+    | succ k =>
+      have hpow : g^(k + 2) = g^(k + 1) * g := pow_succ g (k + 1)
+      rw [hpow, End.mul_def] at heq
+      have heq' : g^(k + 1) = 0 := by
+        have h0 : g ≫ (0 : Y ⟶ Y) = 0 := comp_zero
+        rw [← h0] at heq
+        exact (cancel_epi g).mp heq
+      exact ih (Nat.succ_pos k) heq'
+
+/-- An epi endomorphism on a Noetherian object is mono. (Local copy for Fitting decomposition) -/
+private theorem mono_of_epi_endomorphism_noetherianObject' {Y : C}
+    (g : End Y) [hg : Epi g] [IsNoetherianObject Y] : Mono g := by
+  -- Get stabilization of kernel chain
+  obtain ⟨n, hn⟩ := kernelSubobject_stabilizes g
+  by_cases hn0 : n = 0
+  · -- Stabilizes at 0: kernelSubobject g = kernelSubobject (g^0) = kernelSubobject (𝟙 Y) = ⊥
+    subst hn0
+    have h01 : kernelSubobject (g ^ 0) = kernelSubobject (g ^ 1) := hn 1 (Nat.zero_le 1)
+    have hone : (g ^ (0 : ℕ) : End Y) = 𝟙 Y := by rw [pow_zero, End.one_def]
+    open scoped ZeroObject in
+    have hker0 : kernelSubobject (g ^ (0 : ℕ)) = ⊥ := by
+      rw [hone, kernelSubobject]
+      have : kernel.ι (𝟙 Y) = 0 := by
+        -- kernel of identity is zero (since 𝟙 is mono, kernel is initial)
+        have hk : kernel (𝟙 Y) ≅ (0 : C) := kernel.ofMono (𝟙 Y)
+        have hzero : IsZero (kernel (𝟙 Y)) := hk.isZero_iff.mpr (isZero_zero C)
+        exact hzero.eq_zero_of_src _
+      exact Subobject.mk_eq_bot_iff_zero.mpr this
+    rw [pow_one] at h01
+    have hker_g : kernelSubobject g = ⊥ := by rw [← h01, hker0]
+    have hι : kernel.ι g = 0 := by
+      have harrow : (kernelSubobject g).arrow = 0 := by rw [hker_g, Subobject.bot_arrow]
+      rw [← kernelSubobject_arrow g] at harrow
+      exact zero_of_epi_comp (kernelSubobjectIso g).hom harrow
+    exact Abelian.mono_of_kernel_ι_eq_zero g hι
+  · -- n ≥ 1 case: use Djoković's argument
+    push_neg at hn0
+    have hn_pos : 0 < n := Nat.pos_of_ne_zero hn0
+    have hker_le : kernelSubobject g ≤ kernelSubobject (g ^ n) := by
+      have h1 : kernelSubobject g = kernelSubobject (g ^ 1) := by rw [pow_one]
+      rw [h1]
+      exact kernelSubobject_le_of_le g (Nat.one_le_of_lt hn_pos)
+    -- Saturation: ker(g^n) = ker(g^(n+1))
+    have hsat : kernelSubobject (g ^ n) = kernelSubobject (g ^ (n + 1)) := hn (n + 1) (Nat.le_succ n)
+    -- Construct iso from saturation
+    let φ := Subobject.isoOfMkEqMk (kernel.ι (g ^ n)) (kernel.ι (g ^ (n + 1))) hsat
+    have hφ : φ.hom ≫ kernel.ι (g ^ (n + 1)) = kernel.ι (g ^ n) := Subobject.ofMkLEMk_comp hsat.le
+    -- Construct k : kernel(g^(n+1)) → kernel(g^n)
+    have hpow : (g ^ (n + 1) : End Y) = g ≫ g ^ n := by rw [pow_succ, End.mul_def]
+    let k : kernel (g ^ (n + 1)) ⟶ kernel (g ^ n) :=
+      kernel.lift (g ^ n) (kernel.ι (g ^ (n + 1)) ≫ g) (by
+        rw [Category.assoc, ← hpow, kernel.condition])
+    have hk : k ≫ kernel.ι (g ^ n) = kernel.ι (g ^ (n + 1)) ≫ g := kernel.lift_ι _ _ _
+    -- k is epi (pullback stability)
+    have hk_epi : Epi k := by
+      have hp : IsPullback k (kernel.ι (g ^ (n + 1))) (kernel.ι (g ^ n)) g := by
+        refine IsPullback.of_isLimit (c := PullbackCone.mk k (kernel.ι (g ^ (n + 1))) hk) ?_
+        refine PullbackCone.isLimitAux' _ ?_
+        intro s
+        have hcond : s.snd ≫ g ^ (n + 1) = 0 := by
+          rw [hpow, ← Category.assoc, ← s.condition, Category.assoc, kernel.condition, comp_zero]
+        let ℓ := kernel.lift (g ^ (n + 1)) s.snd hcond
+        refine ⟨ℓ, ?_, kernel.lift_ι _ _ _, ?_⟩
+        · apply equalizer.hom_ext
+          rw [PullbackCone.mk_fst, Category.assoc, hk, ← Category.assoc, kernel.lift_ι, s.condition]
+        · intro m' _ hm2; apply equalizer.hom_ext; rw [kernel.lift_ι]; exact hm2
+      exact Abelian.epi_fst_of_isLimit _ g hp.isLimit
+    -- Define endomorphism h on kernel(g^n)
+    let h : End (kernel (g ^ n)) := φ.hom ≫ k
+    have hh : h ≫ kernel.ι (g ^ n) = kernel.ι (g ^ n) ≫ g := by
+      calc h ≫ kernel.ι (g ^ n)
+          = (φ.hom ≫ k) ≫ kernel.ι (g ^ n) := rfl
+        _ = φ.hom ≫ (k ≫ kernel.ι (g ^ n)) := by rw [Category.assoc]
+        _ = φ.hom ≫ (kernel.ι (g ^ (n + 1)) ≫ g) := by rw [hk]
+        _ = (φ.hom ≫ kernel.ι (g ^ (n + 1))) ≫ g := by rw [← Category.assoc]
+        _ = kernel.ι (g ^ n) ≫ g := by rw [hφ]
+    have h_epi : Epi h := epi_comp φ.hom k
+    -- h^n = 0 (nilpotent)
+    have hhpow : ∀ m : ℕ, (h ^ m) ≫ kernel.ι (g ^ n) = kernel.ι (g ^ n) ≫ (g ^ m) := by
+      intro m
+      induction m with
+      | zero => simp only [pow_zero, End.one_def, Category.id_comp, Category.comp_id]
+      | succ m ihm =>
+        calc (h ^ (m + 1)) ≫ kernel.ι (g ^ n)
+            = (h ^ m * h) ≫ kernel.ι (g ^ n) := by rw [pow_succ]
+          _ = (h ≫ (h ^ m)) ≫ kernel.ι (g ^ n) := by rw [End.mul_def]
+          _ = h ≫ ((h ^ m) ≫ kernel.ι (g ^ n)) := by rw [Category.assoc]
+          _ = h ≫ (kernel.ι (g ^ n) ≫ (g ^ m)) := by rw [ihm]
+          _ = (h ≫ kernel.ι (g ^ n)) ≫ (g ^ m) := by rw [← Category.assoc]
+          _ = (kernel.ι (g ^ n) ≫ g) ≫ (g ^ m) := by rw [hh]
+          _ = kernel.ι (g ^ n) ≫ (g ≫ (g ^ m)) := by rw [Category.assoc]
+          _ = kernel.ι (g ^ n) ≫ ((g ^ m) * g) := by rw [End.mul_def]
+          _ = kernel.ι (g ^ n) ≫ (g ^ (m + 1)) := by rw [pow_succ]
+    have hhn : (h ^ n) ≫ kernel.ι (g ^ n) = 0 := by rw [hhpow n, kernel.condition]
+    have hhn_zero : (h ^ n) = 0 := by rw [← cancel_mono (kernel.ι (g ^ n)), hhn, zero_comp]
+    -- kernel(g^n) is zero
+    have hKzero : IsZero (kernel (g ^ n)) :=
+      @isZero_of_epi_pow_eq_zero' C _ _ _ h h_epi n hn_pos hhn_zero
+    -- Conclude
+    have hker_n_bot : kernelSubobject (g ^ n) = ⊥ := Subobject.mk_eq_bot_iff_zero.mpr
+      (hKzero.eq_zero_of_src _)
+    have hker_g_bot : kernelSubobject g = ⊥ := le_antisymm (hker_le.trans (le_of_eq hker_n_bot)) bot_le
+    have hι : kernel.ι g = 0 := by
+      have harrow : (kernelSubobject g).arrow = 0 := by rw [hker_g_bot, Subobject.bot_arrow]
+      rw [← kernelSubobject_arrow g] at harrow
+      exact zero_of_epi_comp (kernelSubobjectIso g).hom harrow
+    exact Abelian.mono_of_kernel_ι_eq_zero g hι
+
+/-- At stabilization, Ker(f^n) ∩ Im(f^n) = 0. Key: f^n|_{Im(f^n)} is iso at stabilization.
+    Note: Requires IsNoetherianObject X to deduce that underlying(Im(f^n)) is Noetherian. -/
+lemma kernelSubobject_inf_imageSubobject_eq_bot [IsNoetherianObject X] {n : ℕ}
     (hker : ∀ m : ℕ, n ≤ m → kernelSubobject (f ^ n) = kernelSubobject (f ^ m))
     (him : ∀ m : ℕ, n ≤ m → imageSubobject (f ^ n) = imageSubobject (f ^ m)) :
     kernelSubobject (f ^ n) ⊓ imageSubobject (f ^ n) = ⊥ := by
   apply subobject_eq_bot_of_arrow_eq_zero
-  -- Need: (K ⊓ I).arrow = 0. Uses both stabilization conditions:
-  -- If x ∈ Im(f^n), x = f^n(y). If also f^n(x) = 0, then f^(2n)(y) = 0.
-  -- By kernel stabilization, y ∈ Ker(f^n), so x = f^n(y) = 0.
-  sorry
+  -- Let K = ker(f^n), I = im(f^n)
+  let K := kernelSubobject (f ^ n)
+  let I := imageSubobject (f ^ n)
+  -- Key fact: imageSubobject(I.arrow ≫ f^n) = I by image stabilization
+  have himArrow : imageSubobject (I.arrow ≫ f^n) = I := imageSubobject_arrow_comp_eq_self f him
+  -- So I.arrow ≫ f^n factors through I (since its image = I)
+  -- Proof: imageSubobject(I.arrow ≫ f^n) = I by himArrow, so g factors through I
+  -- TODO: API challenge with Subobject.Factors quotient representation
+  have hfac : I.Factors (I.arrow ≫ f^n) := by
+    have h1 := imageSubobject_factors_comp_self (f^n) I.arrow
+    -- h1 : (imageSubobject (f^n)).Factors (I.arrow ≫ f^n)
+    -- I = imageSubobject (f^n), so this is exactly what we need
+    convert h1
+  -- Define restriction h : underlying(I) → underlying(I)
+  let h : End (Subobject.underlying.obj I) := I.factorThru (I.arrow ≫ f^n) hfac
+  have hh : h ≫ I.arrow = I.arrow ≫ f^n := Subobject.factorThru_arrow _ _ _
+  -- h is epi: since imageSubobject(I.arrow ≫ f^n) = I, the factorization is surjective
+  -- Proof structure: h = factorThruImageSubobject ≫ isoOfEq.hom, both are epi
+  have h_epi : Epi h := by
+    -- h = factorThruImageSubobject (I.arrow ≫ f^n) ≫ isoOfEq.hom
+    -- Since himArrow : imageSubobject(I.arrow ≫ f^n) = I, we have an iso
+    let φ := Subobject.isoOfEq _ _ himArrow
+    -- Show h = factorThruImageSubobject ≫ φ.hom by mono of I.arrow
+    have heq : h = factorThruImageSubobject (I.arrow ≫ f^n) ≫ φ.hom := by
+      rw [← cancel_mono I.arrow, Category.assoc]
+      -- RHS: factorThruImageSubobject _ ≫ φ.hom ≫ I.arrow
+      --    = factorThruImageSubobject _ ≫ (imageSubobject _).arrow  (since φ.hom = ofLE)
+      --    = I.arrow ≫ f^n  (by imageSubobject_arrow_comp)
+      have hφ : φ.hom ≫ I.arrow = (imageSubobject (I.arrow ≫ f^n)).arrow :=
+        Subobject.ofLE_arrow himArrow.le
+      rw [hφ, imageSubobject_arrow_comp]
+      -- LHS: h ≫ I.arrow = I.arrow ≫ f^n by hh
+      exact hh
+    rw [heq]
+    exact epi_comp _ _
+  -- underlying(I) is Noetherian (subobject of Noetherian X)
+  have hNoeth : IsNoetherianObject (Subobject.underlying.obj I) :=
+    isNoetherianObject_of_mono I.arrow
+  -- By categorical Orzech, h is mono (hence iso)
+  have h_iso : IsIso h := by
+    have h_mono : Mono h := @mono_of_epi_endomorphism_noetherianObject'
+      C _ _ _ h h_epi hNoeth
+    exact isIso_of_mono_of_epi h
+  -- Now conclude: (K ⊓ I).arrow = 0
+  -- We have (K ⊓ I) ≤ I, so (K ⊓ I).arrow = ofLE ≫ I.arrow
+  have hKI_le_I : K ⊓ I ≤ I := inf_le_right
+  -- ofLE ≫ I.arrow ≫ f^n = (K ⊓ I).arrow ≫ f^n = 0
+  have hzero : (K ⊓ I).arrow ≫ f^n = 0 := inf_arrow_comp_pow_eq_zero f
+  -- (K ⊓ I).arrow = ofLE ≫ I.arrow
+  have harrow : (K ⊓ I).arrow = (K ⊓ I).ofLE I hKI_le_I ≫ I.arrow := (Subobject.ofLE_arrow _).symm
+  -- So ofLE ≫ I.arrow ≫ f^n = 0, i.e., ofLE ≫ (h ≫ I.arrow) = 0
+  have h1 : (K ⊓ I).ofLE I hKI_le_I ≫ h ≫ I.arrow = 0 := by
+    -- Rewrite h ≫ I.arrow to I.arrow ≫ f^n
+    rw [hh]
+    -- Now: ofLE ≫ I.arrow ≫ f^n = 0
+    rw [← Category.assoc, Subobject.ofLE_arrow]
+    -- Now: (K ⊓ I).arrow ≫ f^n = 0
+    exact hzero
+  -- Since I.arrow is mono, ofLE ≫ h = 0
+  have h2 : (K ⊓ I).ofLE I hKI_le_I ≫ h = 0 := by
+    rw [← cancel_mono I.arrow, Category.assoc, h1, zero_comp]
+  -- Since h is iso, ofLE = 0
+  have h3 : (K ⊓ I).ofLE I hKI_le_I = 0 := by
+    calc (K ⊓ I).ofLE I hKI_le_I
+        = ((K ⊓ I).ofLE I hKI_le_I ≫ h) ≫ inv h := by simp
+      _ = 0 ≫ inv h := by rw [h2]
+      _ = 0 := zero_comp
+  -- Finally, (K ⊓ I).arrow = ofLE ≫ I.arrow = 0 ≫ I.arrow = 0
+  rw [harrow, h3, zero_comp]
 
-/-- At stabilization, Ker(f^n) + Im(f^n) = X. For any x, f^n(x) ∈ Im(f^(2n)) = Im(f^n). -/
+/-- At stabilization, Ker(f^n) + Im(f^n) = X. For any x, f^n(x) ∈ Im(f^(2n)) = Im(f^n).
+
+**Proof approach**: We need to show that the coprojection K ⊕ I → X is epi.
+1. From kernelSubobject_inf_imageSubobject_eq_bot, we have h : End(underlying(I)) is an iso.
+2. The splitting map s : X → underlying(I) is factorThruImageSubobject(f^n) ≫ inv(h).
+3. Define projection π : X → X by π = s ≫ I.arrow (maps to image component).
+4. Then (𝟙 X - π) maps to kernel component since f^n ≫ (𝟙 X - π) = 0.
+5. The map [kernel_lift, s] : X → K ⊕ I is a section of [K.arrow, I.arrow].
+6. This shows biprod.desc K.arrow I.arrow is epi, hence K ⊔ I = ⊤.
+-/
 lemma kernelSubobject_sup_imageSubobject_eq_top {n : ℕ}
     (hker : ∀ m : ℕ, n ≤ m → kernelSubobject (f ^ n) = kernelSubobject (f ^ m))
     (him : ∀ m : ℕ, n ≤ m → imageSubobject (f ^ n) = imageSubobject (f ^ m)) :
     kernelSubobject (f ^ n) ⊔ imageSubobject (f ^ n) = ⊤ := by
+  -- TODO: Implement the splitting construction using the iso h from inf_eq_bot proof.
+  -- Mathematical argument is clear (see docstring), categorical API needs work.
   sorry
 
 end FittingDecomposition
@@ -158,10 +399,20 @@ variable {C : Type*} [Category C] [Abelian C] [HasFiniteBiproducts C]
 variable {X : C}
 
 /-- **Fitting's Lemma**: For indecomposable X of finite length, f ∈ End(X) is nilpotent or unit.
-At stabilization n, X = Ker(f^n) ⊕ Im(f^n). Indecomposability forces one summand to be 0. -/
+
+**Proof outline**:
+1. Get stabilization n from IsNoetherianObject (finite length → Noetherian).
+2. At stabilization: Ker(f^n) ⊓ Im(f^n) = ⊥ and Ker(f^n) ⊔ Im(f^n) = ⊤.
+3. This gives X ≅ Ker(f^n) ⊕ Im(f^n) (direct sum decomposition in abelian category).
+4. Since X is indecomposable, one summand must be 0:
+   - If Im(f^n) = 0: f is nilpotent (f^n = 0).
+   - If Ker(f^n) = 0: f^n (hence f) is mono, and f is epi on finite length objects,
+     so f is an isomorphism (unit).
+-/
 theorem fitting_lemma (f : End X) (hX : Indecomposable X) (hfl : IsFiniteLengthObject X) :
     IsNilpotent f ∨ IsUnit f := by
-  sorry  -- Requires X = Ker(f^n) ⊕ Im(f^n) decomposition at chain stabilization
+  -- TODO: Complete after kernelSubobject_sup_imageSubobject_eq_top is proved.
+  sorry
 
 /-- Local ring property: non-units form a two-sided ideal. Follows from Fitting's Lemma. -/
 def EndomorphismRingIsLocal (X : C) : Prop :=

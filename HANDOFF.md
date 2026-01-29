@@ -47,6 +47,16 @@
 
 ## Completed This Session (Current)
 
+- **lemmafeld-zy7n (Prove Fitting decomposition: inf = ⊥) - PARTIAL PROGRESS**:
+  - **RESOLVED** the `h_epi` sorry in `kernelSubobject_inf_imageSubobject_eq_bot`
+    - Key: `h = factorThruImageSubobject(I.arrow ≫ f^n) ≫ isoOfEq.hom` (both epi)
+    - Used `Subobject.ofLE_arrow himArrow.le` to connect φ.hom with the image arrow
+  - **Remaining sorries:**
+    - `kernelSubobject_sup_imageSubobject_eq_top` (line 384) — documented proof approach
+    - `fitting_lemma` (line 392) — depends on sup = ⊤
+  - File builds successfully with 2 sorries (was 3)
+  - Added detailed docstrings explaining proof strategies for remaining work
+
 - **lemmafeld-bl7f (Prove n ≥ 1 case of Orzech theorem) - COMPLETE**:
   - Completed `Chapter1/CategoricalOrzech.lean` (now 282 LOC)
   - **NEW: Proved `isZero_of_epi_pow_eq_zero`** — helper lemma: epi g + g^n = 0 ⟹ IsZero Y
