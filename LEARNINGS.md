@@ -1160,3 +1160,49 @@ At stabilization Im(f^n) = Im(f^(2n)), so this should work, but the categorical
 manipulation is non-trivial (~20 more LOC for a clean proof).
 
 **File state:** `Chapter1/FittingLemma.lean` at 172 LOC (under 200 limit), builds with sorry
+
+## 2026-01-29: Fitting Decomposition Categorical Proof Gap (lemmafeld-zy7n)
+
+**Task:** Prove `(K ⊓ I).arrow = 0` where `K = kernelSubobject (f^n)` and `I = imageSubobject (f^n)`.
+
+**What we have:**
+1. `inf_arrow_comp_pow_eq_zero` — PROVED: `(K ⊓ I).arrow ≫ f^n = 0`
+2. `subobject_eq_bot_of_arrow_eq_zero` — PROVED: if `A.arrow = 0` then `A = ⊥`
+
+**The gap:** Need to show `(K ⊓ I).arrow = 0` from `(K ⊓ I).arrow ≫ f^n = 0`.
+
+**Classical module argument:**
+1. Let x ∈ K ∩ I. Since x ∈ I = Im(f^n), there exists y with x = f^n(y).
+2. Since x ∈ K = Ker(f^n), f^n(x) = 0.
+3. So f^(2n)(y) = f^n(f^n(y)) = f^n(x) = 0.
+4. By kernel stabilization, Ker(f^(2n)) = Ker(f^n), so y ∈ Ker(f^n).
+5. Hence x = f^n(y) = 0.
+
+**Categorical challenge:** Step 1 requires "finding a preimage" — given x ∈ I, find y with f^n(y) = x.
+- In modules, "epi" means surjective, so preimages exist.
+- In categories, "epi" means right-cancellative, NOT that preimages exist.
+- The image factorization `factorThruImageSubobject : X → I` is epi but has no section.
+
+**Attempted approach:** Define restriction h = I.arrow ≫ factorThru(f^n) : I → I.
+- h is epi (from image stabilization Im(f^n) = Im(f^(2n)))
+- h is mono ⟺ K ∩ I = 0 (circular!)
+- Showing h is iso requires showing it's mono, which is what we're trying to prove.
+
+**Potential fixes:**
+1. **Add finite length assumption:** If I has finite length and h : I → I is epi with ker(h) = ker(h²)
+   (constant kernel chain), then I/ker(h) ≅ I, which contradicts finite length if ker(h) ≠ 0.
+   This would require showing imageSubobject of finite length object has finite length.
+
+2. **Use specific structure of image subobject:** At stabilization I = Im(f^(2n)), elements of I
+   are literally in the image of f^(2n) = f^n ∘ f^n. Need lemma: for any j : Z → I,
+   exists w : Z → X with w ≫ f^(2n) = j ≫ I.arrow.
+
+3. **Different proof technique:** Perhaps use the fact that in an abelian category with
+   generators/cogenerators, we can work "element-wise" in some sense.
+
+**Estimated additional work:** ~50 LOC for either:
+- A helper lemma about epi endomorphisms on Noetherian subobjects being iso
+- OR a different proof approach using the image factorization more cleverly
+
+**Recommendation:** Create a sub-issue for proving "epi endo on Noetherian → iso" categorically,
+or add `[IsNoetherianObject (Subobject.underlying.obj (imageSubobject (f^n)))]` to the hypotheses

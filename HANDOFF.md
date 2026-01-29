@@ -2,11 +2,23 @@
 
 ## Completed This Session (Current)
 
+- **lemmafeld-zy7n (Prove Fitting decomposition: inf = ⊥) - BLOCKED**:
+  - Investigated proof of `kernelSubobject_inf_imageSubobject_eq_bot`
+  - **Key finding:** Classical module argument requires "finding preimages" under surjective maps
+  - In categories, epi ≠ surjective in the element-wise sense
+  - Attempted approach: show h = I.arrow ≫ factorThru(f^n) : I → I is iso
+    - h is epi ✓ (from image stabilization)
+    - h is mono ⟺ K ∩ I = 0 (circular!)
+  - **Created research issue:** lemmafeld-hyvg (epi endo on Noetherian → mono)
+  - **Blocker:** Need categorical lemma not in mathlib
+  - See LEARNINGS.md "Fitting Decomposition Categorical Proof Gap" for full analysis
+
+## Previous Session
+
 - **lemmafeld-zy7n (Prove Fitting decomposition: inf = ⊥) - PARTIAL**:
   - Added `subobject_eq_bot_of_arrow_eq_zero` helper — PROVED
   - Added `inf_arrow_comp_pow_eq_zero` — PROVED: (K ⊓ I).arrow ≫ f^n = 0
   - Main lemma reduced to showing `(K ⊓ I).arrow = 0`
-  - **Remaining:** Need categorical formalization of surjectivity at stabilization
   - File at 172 LOC (under 200 limit), builds with sorry
 
 ## Previous Session
