@@ -44,11 +44,11 @@
 - Hom(X, Y) = 0 if X, Y simple and X ≇ Y
 - Hom(X, X) = k for simple X
 
-**Mathlib:** `isIso_of_hom_simple` in `CategoryTheory.Preadditive.Schur`
+**Mathlib:** `isIso_of_hom_simple` and `finrank_endomorphism_simple_eq_one` in `CategoryTheory.Preadditive.Schur`
 
 **Our formalization:**
 - `hom_simple_eq_zero_of_not_iso` — proved
-- `end_simple_eq_one_dim` — sorry (needs division algebra classification)
+- `end_simple_eq_one_dim` — proved via `CategoryTheory.finrank_endomorphism_simple_eq_one`
 
 ---
 
@@ -72,8 +72,11 @@
 
 | Gap | Description | Issue |
 |-----|-------------|-------|
-| Division algebra | fin dim over alg closed k = k | Not created |
-| Subquotients | Proper subquotient formalization | Not created |
-| Duality | Finite category duality C ↔ A^op-mod | Not created |
+| ~~Division algebra~~ | ~~fin dim over alg closed k = k~~ | **RESOLVED** via mathlib |
+| Subquotients | Proper subquotient formalization | lemmafeld-qr9k |
+| Duality | Finite category duality C ↔ A^op-mod | lemmafeld-z5db |
 
-These are prerequisites for advanced features, not blocking current work.
+**Resolved 2026-01-29:** Division algebra classification is handled by mathlib's
+`CategoryTheory.finrank_endomorphism_simple_eq_one` which proves finrank = 1 directly
+without explicitly constructing the algebra isomorphism. The proof uses that End(X)
+is a finite-dimensional division algebra over an algebraically closed field.

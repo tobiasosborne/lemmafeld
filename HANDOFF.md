@@ -5,8 +5,8 @@
 **Stats:** 428 issues (377 open, 50 closed), 370 ready to work, 8 blocked, 27 Lean files in Chapter 1
 
 ### Issues Created This Review
-**Gap issues (5):**
-- lemmafeld-awey: Division algebra over alg closed field (blocks Schur's lemma sorry)
+**Gap issues (5, 1 resolved):**
+- ~~lemmafeld-awey~~: Division algebra — **RESOLVED** via mathlib
 - lemmafeld-qr9k: Subquotient formalization
 - lemmafeld-z5db: Finite abelian category duality
 - lemmafeld-h43p: Yoneda Ext
@@ -23,8 +23,8 @@
 1. **lemmafeld-2e9a** (P1): Split ExtAsDerivations.lean — worst hygiene violation at 507 LOC
 2. **lemmafeld-c5gz** (P2): Prove K ⊔ I = ⊤ — unblocks Fitting Lemma chain (actionable, clear approach)
 3. **lemmafeld-45ut** (P2): Finite codim intersection — quick win (~30 LOC), unblocks FiniteDual
-4. **lemmafeld-awey** (P2): Division algebra classification — clears sorry in LocallyFinite.lean
-5. **lemmafeld-xeb7** (P1): Split Abelian.lean — second-worst hygiene violation
+4. **lemmafeld-xeb7** (P1): Split Abelian.lean — second-worst hygiene violation
+5. ~~lemmafeld-awey~~ **DONE** — Division algebra classification
 
 ### Key Blockers
 - **Fitting Lemma chain** (5 deep): Root is lemmafeld-hyvg (epi endo → mono research)
@@ -38,6 +38,14 @@
 ---
 
 ## Completed This Session (Current)
+
+- **lemmafeld-awey (Division algebra classification for Schur's lemma) - COMPLETE**:
+  - Updated `Chapter1/LocallyFinite.lean` to prove `end_simple_eq_one_dim`
+  - Used mathlib's `CategoryTheory.finrank_endomorphism_simple_eq_one` from `Preadditive.Schur`
+  - Removed sorry, file now fully compiles
+  - Updated `docs/learnings/chapter1/locally_finite.md`
+
+## Previous Session
 
 - **lemmafeld-2gce (TC 1.8.1: Locally finite abelian category definition) - COMPLETE**:
   - Created `Chapter1/LocallyFinite.lean` (~170 LOC)

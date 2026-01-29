@@ -147,18 +147,20 @@ Hom(X, X) is a 1-dimensional k-vector space (hence isomorphic to k).
 
 Book Proposition 1.8.4 (second part): "Hom_C(X, X) = k for any simple object X."
 
-**Proof sketch:**
-1. End(X) is a division algebra (Schur's lemma)
+**Proof:**
+1. End(X) is a division algebra (Schur's lemma: `instDivisionRingEndOfHasKernelsOfSimple`)
 2. End(X) is finite dimensional over k (locally finite condition)
 3. Finite dimensional division algebras over algebraically closed k are trivial
 
-**Mathlib status:** The statement requires `IsAlgClosed k` and the fact that
-finite dimensional division algebras over algebraically closed fields equal k.
+**Mathlib:** `CategoryTheory.finrank_endomorphism_simple_eq_one` in
+`Mathlib.CategoryTheory.Preadditive.Schur` proves exactly this.
 -/
 theorem end_simple_eq_one_dim [IsAlgClosed k] (X : C)
     [Simple X] [hfd : Module.Finite k (X ⟶ X)] :
-    Module.finrank k (X ⟶ X) = 1 := by
-  sorry  -- Requires division algebra classification
+    Module.finrank k (X ⟶ X) = 1 :=
+  -- Module.Finite k V implies FiniteDimensional k V for fields
+  haveI : FiniteDimensional k (X ⟶ X) := inferInstance
+  CategoryTheory.finrank_endomorphism_simple_eq_one k X
 
 end SchurLemma
 
@@ -242,7 +244,6 @@ The duality statement would require showing that if C ≃ A-mod then Cᵒᵖ ≃
 | O(C) | `SimpleClasses C` | Iso classes of simples |
 
 **Gaps:**
-- `end_simple_eq_one_dim`: Requires fin dim division algebra = k (alg closed)
 - `IsSurjective`: Needs proper subquotient formalization
 - Duality: Finite category duality is not formalized
 -/
