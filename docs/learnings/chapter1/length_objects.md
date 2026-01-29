@@ -148,12 +148,29 @@ No categorical version exists for `IsNoetherianObject`.
 
 **Solution: Categorical iterateComap chain**
 
-Issues created to implement categorical Orzech:
-1. **lemmafeld-8yab**: Define `Subobject.iterateComap` (~40 LOC)
-2. **lemmafeld-ovvv**: Prove chain stabilizes under Noetherian (~40 LOC)
-3. **lemmafeld-8sen**: Prove `mono_of_epi_endomorphism_noetherianObject` (~50 LOC)
+**Lean file:** `Chapter1/IterateComap.lean` (157 LOC)
 
-**Dependency chain:** 8yab → ovvv → 8sen → {zy7n, c5gz}
+**Definition implemented (2026-01-29):**
+```lean
+/-- For endomorphism f : X ⟶ X, iterateComap f K n is the nth iterate of pullback along f. -/
+def iterateComap {X : C} (f : X ⟶ X) (K : Subobject X) (n : ℕ) : Subobject X :=
+  ((pullback f).obj)^[n] K
+```
+
+**Key lemmas proved:**
+- `iterateComap_zero` — `iterateComap f K 0 = K`
+- `iterateComap_succ` — `iterateComap f K (n+1) = (pullback f).obj (iterateComap f K n)`
+- `iterateComap_mono_of_le` — preserves ≤ between starting subobjects
+- `iterateComap_mono_of_le_pullback` — chain is monotone when `K ≤ (pullback f).obj K`
+- `iterateComap_mono` — full monotonicity under same condition
+- `pullback_bot` — `(pullback f).obj ⊥ = ⊥` (one sorry: IsInitial lemma needed)
+- `iterateComap_bot` — `iterateComap f ⊥ n = ⊥` for all n
+
+**Remaining issues:**
+1. **lemmafeld-ovvv**: Prove chain stabilizes under Noetherian (~40 LOC)
+2. **lemmafeld-8sen**: Prove `mono_of_epi_endomorphism_noetherianObject` (~50 LOC)
+
+**Dependency chain:** ~~8yab~~ → ovvv → 8sen → {zy7n, c5gz}
 
 **Mathlib references:**
 - `Mathlib.Algebra.Module.Submodule.IterateMapComap` — module version

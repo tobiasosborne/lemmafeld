@@ -2,7 +2,7 @@
 
 ## Project Review (2026-01-29)
 
-**Stats:** 428 issues (376 open, 51 closed), 369 ready to work, 8 blocked, 30 Lean files in Chapter 1
+**Stats:** 428 issues (~375 open, ~52 closed), 369 ready to work, 7 blocked, 32 Lean files in Chapter 1
 
 ### Issues Created This Review
 **Gap issues (5, 1 resolved):**
@@ -26,13 +26,13 @@
 4. ~~lemmafeld-45ut~~ **DONE** — Finite codim intersection (added to FiniteDual.lean)
 5. ~~lemmafeld-awey~~ **DONE** — Division algebra classification
 6. ~~lemmafeld-hyvg~~ **RESOLVED** — Research complete, decomposed into implementation sub-issues
-7. **lemmafeld-8yab** (P2): Define Subobject.iterateComap (~40 LOC) — READY TO WORK
-8. **lemmafeld-ovvv** (P2): Prove chain stabilization (~40 LOC) — blocked by 8yab
+7. ~~lemmafeld-8yab~~ **DONE** — Define Subobject.iterateComap (157 LOC)
+8. **lemmafeld-ovvv** (P2): Prove chain stabilization (~40 LOC) — NOW READY TO WORK
 9. **lemmafeld-8sen** (P2): Prove categorical Orzech theorem (~50 LOC) — blocked by ovvv
 
 ### Key Blockers
-- **Fitting Lemma chain** (now 5 deep): Root is lemmafeld-8yab (iterateComap definition)
-  - Chain: 8yab → ovvv → 8sen → {zy7n, c5gz} → txf9 (Fitting)
+- **Fitting Lemma chain** (now 4 deep): Root is lemmafeld-ovvv (chain stabilization)
+  - Chain: ovvv → 8sen → {zy7n, c5gz} → txf9 (Fitting)
 - **Grothendieck Group chain** (3 deep): Root is lemmafeld-mfs8 (JordanHolderLattice for Subobject)
 
 ### Book Coverage Summary
@@ -43,6 +43,22 @@
 ---
 
 ## Completed This Session (Current)
+
+- **lemmafeld-8yab (Define Subobject.iterateComap) - COMPLETE**:
+  - Created `Chapter1/IterateComap.lean` (157 LOC)
+  - Categorical analog of `LinearMap.iterateMapComap` from mathlib
+  - **Definition:** `iterateComap f K n = ((pullback f).obj)^[n] K`
+  - **Key lemmas proved:**
+    - `iterateComap_zero`, `iterateComap_succ` — basic properties
+    - `iterateComap_mono_of_le` — preserves ≤ between starting subobjects
+    - `iterateComap_mono_of_le_pullback` — chain is monotone when `K ≤ (pullback f).obj K`
+    - `iterateComap_mono` — full monotonicity
+    - `iterateComap_bot` — iterating from ⊥ stays at ⊥
+  - **One sorry:** `pullback_bot` needs IsInitial lemmas (minor gap)
+  - Updated `docs/learnings/chapter1/length_objects.md`
+  - Unblocks lemmafeld-ovvv (next in chain)
+
+## Previous Session
 
 - **lemmafeld-hyvg (Research: epi endo on Noetherian → mono) - RESOLVED**:
   - Researched how to unblock Fitting's Lemma decomposition proofs
@@ -486,7 +502,8 @@
 - **Chapter1/ExternalTensorProduct.lean** — §1.11.1 External tensor product (IsRightExactBifunctor, DeligneTensorProductData)
 - **Chapter1/FiniteDual.lean** — §1.12.1 Finite dual (IsFiniteDualElem, dualCounit)
 - **Chapter1/GrothendieckGroup.lean** — §1.5.8 Grothendieck group (IsoClassSimple, GrothendieckGroup, HasMultiplicity)
-- All twenty-seven files build successfully
+- **Chapter1/IterateComap.lean** — Categorical Orzech support (iterateComap for Subobject chains) (NEW)
+- All thirty-two Chapter 1 files build successfully
 
 ## Next Steps
 
