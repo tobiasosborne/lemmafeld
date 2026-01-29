@@ -1,4 +1,4 @@
-# Chapter 1: External Tensor Product (§1.11-1.12)
+# Chapter 1: External Tensor Product & Finite Dual (§1.11-1.12)
 
 ## §1.11.1: Deligne Tensor Product
 
@@ -69,3 +69,54 @@ Before full implementation, need:
 - `Module.Finite k (X ⟶ Y)` for finite dimensional Hom condition
 
 **Lean file:** `Chapter1/ExternalTensorProduct.lean`
+
+---
+
+## §1.12: The Finite Dual of an Algebra
+
+**Definition 1.12.1:** The finite dual A*_fin of A is the collection of all f ∈ A*
+that vanish on a (two-sided) ideal of finite codimension.
+
+**Proposition 1.12.2:** The maps Δ := m* and ε := u* (dual of multiplication
+and unit) define a coalgebra structure on A*_fin.
+
+**Remark 1.12.3:** If A has no finite dimensional modules, then A*_fin = 0.
+
+### Mathlib Status — PARTIAL GAP
+
+| Concept | Mathlib | Notes |
+|---------|---------|-------|
+| Two-sided ideal | `TwoSidedIdeal R` | `Mathlib.RingTheory.TwoSidedIdeal.Basic` |
+| Quotient A/I | `I.ringCon.Quotient` | Has ring structure via RingCon |
+| Dual space A* | `Module.Dual k A` | `Mathlib.LinearAlgebra.Dual.Defs` |
+| Finite dual | `IsFiniteDualElem` | **NEW**: predicate in `FiniteDual.lean` |
+| Coalgebra | `Coalgebra R A` | `Mathlib.RingTheory.Coalgebra.Basic` |
+
+### Key Challenge: Module Structure on Quotients
+
+The quotient `I.ringCon.Quotient` inherits a ring structure, but for it to be a
+k-vector space, we need to show the k-algebra structure descends. Mathlib's
+`TwoSidedIdeal` doesn't directly provide this.
+
+### Our Definitions
+
+```lean
+/-- f is in the finite dual if it vanishes on some ideal with finite quotient -/
+def IsFiniteDualElem (f : Module.Dual k A) : Prop :=
+  ∃ I : TwoSidedIdeal A, (∃ _ : Fintype I.ringCon.Quotient, True)
+    ∧ ∀ x ∈ I, f x = 0
+
+/-- The counit on A*: ε(f) = f(1) -/
+def dualCounit : Module.Dual k A →ₗ[k] k
+```
+
+---
+
+## Gaps for §1.12 Full Implementation
+
+1. **Module structure on quotients** — show k-algebra structure descends
+2. **Finite codimension intersection** — if I, J have finite codim, so does I ⊓ J
+3. **Coalgebra structure** — define Δ : A*_fin → A*_fin ⊗ A*_fin
+4. **FiniteDual submodule** — construct as `Submodule k (Module.Dual k A)`
+
+**Lean file:** `Chapter1/FiniteDual.lean`

@@ -2,6 +2,21 @@
 
 ## Completed This Session (Current)
 
+- **lemmafeld-z4mn (TC 1.12.1: Finite dual definition) - COMPLETE**:
+  - Created `Chapter1/FiniteDual.lean` (~140 LOC)
+  - `IsFiniteDualElem f`: predicate for f ∈ A* being in the finite dual
+  - `dualCounit`: k-linear map A* → k via f ↦ f(1)
+  - Documented coalgebra structure (Δ = m*, ε = u*)
+  - Documented Remark 1.12.3 (A*_fin = 0 if no finite dim modules)
+  - **GAPS IDENTIFIED (issues created):**
+    - lemmafeld-45ut: Finite codimension intersection
+    - lemmafeld-oedl: Coalgebra structure on FiniteDual
+    - lemmafeld-1ja9: FiniteDual as submodule
+  - Updated `docs/learnings/chapter1/deligne.md` with §1.12 content
+  - File builds successfully
+
+## Previous Session
+
 - **lemmafeld-pq7w (Hygiene: Refactor LEARNINGS.md) - COMPLETE**:
   - Refactored monolithic LEARNINGS.md (~1368 LOC) into indexed hierarchy
   - Created `docs/learnings/` structure:
@@ -306,12 +321,13 @@
 - **Chapter1/KrullSchmidt.lean** — §1.5 Krull-Schmidt theorem (statements, gaps noted)
 - **Chapter1/Coalgebras.lean** — §1.9 Grouplike and skew-primitive elements
 - **Chapter1/Projective.lean** — §1.6 Projective/injective objects, exact functors
-- **Chapter1/ExternalTensorProduct.lean** — §1.11.1 External tensor product (LocallyFiniteAbelian, IsRightExactBifunctor, DeligneTensorProductData) (NEW)
-- All twenty-two files build successfully
+- **Chapter1/ExternalTensorProduct.lean** — §1.11.1 External tensor product (LocallyFiniteAbelian, IsRightExactBifunctor, DeligneTensorProductData)
+- **Chapter1/FiniteDual.lean** — §1.12.1 Finite dual (IsFiniteDualElem, dualCounit) (NEW)
+- All twenty-three files build successfully
 
 ## Next Steps
 
-1. **lemmafeld-pq7w (P1)**: Refactor LEARNINGS.md into indexed hierarchy of subdocs (context optimization)
+1. TC 1.12.2-1.12.4: Complete finite dual implementation (intersection, coalgebra, submodule)
 2. TC 1.5.7-1.5.8: Krull-Schmidt theorem, Grothendieck group (blocked by Fitting lemma)
 3. TC 1.6.2-1.6.4: Remaining projective/injective issues
 4. Chapter 2: Monoidal categories foundations
