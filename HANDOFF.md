@@ -22,18 +22,20 @@
 
 1. ~~lemmafeld-2e9a~~ **DONE** — Split ExtAsDerivations.lean
 2. ~~lemmafeld-xeb7~~ **DONE** — Split Abelian.lean (316 LOC → 2 files)
-3. ~~lemmafeld-c5gz~~ **BLOCKED** — Prove K ⊔ I = ⊤ — blocked by categorical Orzech chain
+3. ~~lemmafeld-c5gz~~ **UNBLOCKED** — Prove K ⊔ I = ⊤ — was blocked by Orzech, now ready
 4. ~~lemmafeld-45ut~~ **DONE** — Finite codim intersection (added to FiniteDual.lean)
 5. ~~lemmafeld-awey~~ **DONE** — Division algebra classification
 6. ~~lemmafeld-hyvg~~ **RESOLVED** — Research complete, decomposed into implementation sub-issues
 7. ~~lemmafeld-8yab~~ **DONE** — Define Subobject.iterateComap (157 LOC)
 8. ~~lemmafeld-ovvv~~ **DONE** — Prove chain stabilization (added to IterateComap.lean)
-9. **lemmafeld-8sen** (P2): Prove categorical Orzech theorem — PARTIAL (1 sorry remains)
-10. **lemmafeld-bl7f** (P2): Prove n ≥ 1 case (Djoković argument) — NEW
+9. ~~lemmafeld-8sen~~ **DONE** — Prove categorical Orzech theorem (no sorries!)
+10. ~~lemmafeld-bl7f~~ **DONE** — Prove n ≥ 1 case (Djoković argument)
+11. **lemmafeld-zy7n** (P2): Prove Fitting decomposition inf = ⊥ — UNBLOCKED
+12. **lemmafeld-c5gz** (P2): Prove Fitting decomposition sup = ⊤ — UNBLOCKED
 
 ### Key Blockers
-- **Fitting Lemma chain** (now 4 deep): Root is lemmafeld-bl7f (n ≥ 1 case)
-  - Chain: bl7f → 8sen → {zy7n, c5gz} → txf9 (Fitting)
+- **Fitting Lemma chain** (now 2 deep): Orzech complete, next is zy7n and c5gz
+  - Chain: ~~bl7f~~ → ~~8sen~~ → {zy7n, c5gz} → txf9 (Fitting)
 - **Grothendieck Group chain** (3 deep): Root is lemmafeld-mfs8 (JordanHolderLattice for Subobject)
 
 ### Book Coverage Summary
@@ -45,21 +47,25 @@
 
 ## Completed This Session (Current)
 
-- **lemmafeld-8sen (Prove categorical Orzech theorem) - PARTIAL → PROGRESSED**:
-  - Updated `Chapter1/CategoricalOrzech.lean` (now ~170 LOC)
-  - **NEW: Proved `pullback_kernelSubobject_eq`** — pullback of ker(g) = ker(f ≫ g)
-    - Key proof: constructed IsPullback showing kernel(f ≫ g) is pullback of kernel(g) along f
-    - Used `PullbackCone.isLimitAux'` to show universal property
-  - **Sorries reduced from 2 to 1:**
-    - ~~`pullback_kernelSubobject_eq`~~ — **PROVED** (was sorry)
-    - n ≥ 1 case — **STILL SORRY** (extracted to lemmafeld-bl7f)
-  - **Created sub-issue:** lemmafeld-bl7f for n ≥ 1 case (Djoković argument)
-  - File builds successfully, under 200 LOC guideline
-    - Requires: induced map g : ker(f^n) → ker(f^n) from f-saturation
-    - Need to prove g is epi (inherited from f)
-    - Then g^n = 0 (nilpotent) + epi ⟹ ker(f^n) = 0
-  - **Suggestion:** Create sub-issues for the remaining sorries
-  - File builds successfully, under 200 LOC guideline
+- **lemmafeld-bl7f (Prove n ≥ 1 case of Orzech theorem) - COMPLETE**:
+  - Completed `Chapter1/CategoricalOrzech.lean` (now 282 LOC)
+  - **NEW: Proved `isZero_of_epi_pow_eq_zero`** — helper lemma: epi g + g^n = 0 ⟹ IsZero Y
+    - Uses induction with `cancel_epi` to show g^(n-1) = 0, ..., g = 0
+    - Then `IsZero.of_epi_eq_zero` concludes Y is zero
+  - **NEW: Proved n ≥ 1 case in `kernelSubobject_eq_bot_of_epi_noetherian`**:
+    - Step 1: Saturation via `isoOfMkEqMk` gives isomorphism φ : ker(f^n) ≅ ker(f^(n+1))
+    - Step 2: Construct induced map k via kernel.lift (pullback construction)
+    - Step 3: k is epi by `Abelian.epi_fst_of_isLimit` (epi stable under base change)
+    - Step 4: Define g = φ.hom ≫ k : ker(f^n) → ker(f^n), which is epi
+    - Step 5: Prove g^n = 0 by induction: g ≫ kernel.ι = kernel.ι ≫ f
+    - Step 6: Apply `isZero_of_epi_pow_eq_zero` to conclude ker(f^n) = ⊥
+  - **All sorries eliminated!** File builds with no warnings (except style)
+  - Created hygiene issue lemmafeld-2xm7 (file is 282 LOC > 200 guideline)
+  - **Unblocks:** lemmafeld-zy7n (inf = ⊥) and lemmafeld-c5gz (sup = ⊤)
+
+- **lemmafeld-8sen (Prove categorical Orzech theorem) - COMPLETE**:
+  - Main theorem `mono_of_epi_endomorphism_noetherianObject` now has no sorries
+  - Corollary `isIso_of_epi_endomorphism_noetherianObject` also complete
 
 ## Previous Session
 

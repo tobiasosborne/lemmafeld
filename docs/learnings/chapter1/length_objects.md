@@ -177,36 +177,34 @@ def iterateComap {X : C} (f : X ⟶ X) (K : Subobject X) (n : ℕ) : Subobject X
 - `iterateComap_stabilizes` — monotone chain stabilizes for Noetherian objects
 - `iterateComap_bot_stabilizes` — chain from ⊥ stabilizes for Noetherian objects
 
-**Categorical Orzech Theorem (2026-01-29 - lemmafeld-8sen PARTIAL):**
+**Categorical Orzech Theorem (2026-01-29 - lemmafeld-8sen COMPLETE, lemmafeld-bl7f COMPLETE):**
 
-**Lean file:** `Chapter1/CategoricalOrzech.lean` (~170 LOC)
+**Lean file:** `Chapter1/CategoricalOrzech.lean` (~280 LOC)
 
 **Lemmas proved:**
+- `isZero_of_epi_pow_eq_zero` — epi g + g^n = 0 ⟹ IsZero Y (helper for nilpotent argument)
 - `kernel_ι_eq_zero_of_isIso` — kernel.ι of iso is zero
 - `kernelSubobject_of_isIso` — kernelSubobject of iso is ⊥
-- `pullback_kernelSubobject_eq` — (pullback f).obj (kernelSubobject g) = kernelSubobject (f ≫ g) ✓
+- `pullback_kernelSubobject_eq` — (pullback f).obj (kernelSubobject g) = kernelSubobject (f ≫ g)
   - **Proof technique:** Construct IsPullback via `PullbackCone.isLimitAux'`
-  - Key: kernel(f ≫ g) is the pullback of kernel(g) along f
-  - Induced map: `kernel.lift g (kernel.ι (f ≫ g) ≫ f) _`
 - `iterateComap_bot_eq_kernelSubobject_pow` — iterateComap f ⊥ n = kernelSubobject (f^n)
 - `kernelSubobject_eq_bot_of_epi_noetherian` — epi f + Noetherian ⟹ kernelSubobject f = ⊥
-  - n = 0 case PROVED: if stabilizes at 0, f^0 = id is iso, so kernel is ⊥
-  - n ≥ 1 case SORRY: needs induced map construction (lemmafeld-bl7f)
-- `mono_of_epi_endomorphism_noetherianObject` — main theorem (modulo key lemma sorry)
-- `isIso_of_epi_endomorphism_noetherianObject` — corollary
+  - n = 0 case: if stabilizes at 0, f^0 = id is iso, so kernel is ⊥
+  - **n ≥ 1 case (Djoković argument):** COMPLETE
+    1. Extract isomorphism φ from saturation via `isoOfMkEqMk`
+    2. Construct induced map k via pullback, induced endo g = φ.hom ≫ k
+    3. g is epi: k is epi (by `Abelian.epi_fst_of_isLimit`), φ.hom is iso
+    4. g^n = 0: from g ≫ kernel.ι = kernel.ι ≫ f and kernel.ι ≫ f^n = 0
+    5. By `isZero_of_epi_pow_eq_zero`: kernel (f^n) is zero, hence ⊥
+- `mono_of_epi_endomorphism_noetherianObject` — **MAIN THEOREM** (no sorries!)
+- `isIso_of_epi_endomorphism_noetherianObject` — corollary: epi endo on Noetherian is iso
 
-**Remaining work for n ≥ 1 case (lemmafeld-bl7f):**
-The Djoković argument requires:
-1. Constructing induced map g : underlying(ker(f^n)) → underlying(ker(f^n)) from f-saturation
-2. Proving g is epi when f is epi (key technical step)
-3. Showing g^n = 0 (nilpotent since ker(f^n) is the n-th kernel)
-4. Concluding ker(f^n) = 0 from epi + nilpotent
+**Key insights from proof:**
+- Epi stability under pullback (`Abelian.epi_fst_of_isLimit`) is crucial
+- The induced map construction uses `isoOfMkEqMk` + kernel.lift
+- Nilpotent + epi argument: g^n = 0, g epi ⟹ g^(n-1) = 0 by cancel_epi, inductively g = 0
 
-**Key insight:** The image(f ≫ ...) = image(...) relationship under epi needs categorical treatment.
-For modules, surjectivity lets you "pull elements back". Categorically, need to work with
-the subobject lattice and show f(K) = K when K = f⁻¹(K) and f is epi.
-
-**Dependency chain:** ~~8yab~~ → ~~ovvv~~ → 8sen (PARTIAL) → bl7f → {zy7n, c5gz}
+**Dependency chain:** ~~8yab~~ → ~~ovvv~~ → ~~8sen~~ → ~~bl7f~~ → {zy7n, c5gz}
 
 **Mathlib references:**
 - `Mathlib.Algebra.Module.Submodule.IterateMapComap` — module version
