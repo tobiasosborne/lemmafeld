@@ -1007,8 +1007,38 @@ theorem krullSchmidt_uniqueness {X : C} (hX : IsFiniteLengthObject X)
       -- Use f after substituting j = ⟨0, _⟩
       exact ⟨f ≪≫ eqToIso (by rw [heqj])⟩
     · -- Inductive case: d₁.n > 1
-      -- Full proof requires strong induction + cancellation lemma
-      -- This is tracked in lemmafeld-cn3q (cancellation) and lemmafeld-vxyi (sorry fill)
+      -- The full proof requires strong induction on n + biproduct cancellation.
+      -- Key steps:
+      -- 1. Show d₁.n = d₂.n (both have same size since X is fixed)
+      -- 2. Show d₂.n > 1 (else X is indecomposable, contradicting d₁.n > 1)
+      -- 3. Use biproduct cancellation: Y₀ ⊞ rest₁ ≅ Z_j ⊞ rest₂ with Y₀ ≅ Z_j implies rest₁ ≅ rest₂
+      -- 4. Apply IH on the (n-1)-component remainders
+      -- 5. Construct σ from j and the permutation from IH
+
+      have hn_gt1 : 1 < d₁.n := Nat.lt_of_le_of_ne
+        (Nat.one_le_iff_ne_zero.mpr (Nat.pos_iff_ne_zero.mp hn_pos)) (Ne.symm hn1)
+
+      have hd2_pos : 0 < d₂.n := Fin.pos j
+
+      -- d₂.n > 1: if d₂.n = 1, then X is indecomposable, contradicting d₁.n > 1
+      have hd2_gt1 : 1 < d₂.n := by
+        by_contra hd2_le1
+        have hd2_eq1 : d₂.n = 1 := Nat.eq_of_le_of_lt_succ
+          (Nat.one_le_iff_ne_zero.mpr (Nat.pos_iff_ne_zero.mp hd2_pos))
+          (Nat.lt_succ_of_le (Nat.not_lt.mp hd2_le1))
+        have iso_X_single : X ≅ d₂.components ⟨0, by omega⟩ :=
+          d₂.iso ≪≫ biproductSingletonIso' hd2_eq1 d₂.components
+        have hX_indec : Indecomposable X :=
+          indecomposable_of_iso_indecomposable (d₂.indecomposable ⟨0, by omega⟩) iso_X_single.symm
+        exact not_indecomposable_of_biproduct_gt_one d₁.components hn_gt1 d₁.indecomposable
+          (indecomposable_of_iso_indecomposable hX_indec d₁.iso)
+
+      -- The remaining proof requires:
+      -- 1. Biproduct cancellation lemma (Biprod.isoElim applied to remainder biproducts)
+      -- 2. Strong induction on n to handle the recursive structure
+      -- 3. Careful index manipulation for "removing" matched components
+      --
+      -- Tracked in: lemmafeld-cn3q (cancellation), lemmafeld-vxyi (this sorry)
       sorry
 
 end KrullSchmidtUniqueness

@@ -377,14 +377,39 @@ lemma exchangeLemma {X : C} {n m : ℕ} (hn : 0 < n) ... :
 - If d₁.n = 0, X is zero (biproduct over empty index)
 - Therefore d₂.n = 0 as well (no indecomposables in zero)
 
-**Inductive case (n > 0):** SORRY
+**Single component case (n = 1):** COMPLETE
+- If d₁.n = 1, X is indecomposable
+- Therefore d₂.n = 1 as well
+- The iso f from exchange lemma provides the component matching
+
+**Inductive case (n > 1):** PARTIAL (1 SORRY)
+- Proved: If d₁.n > 1, then d₂.n > 1 (via indecomposability argument)
 - Exchange lemma gives Y₀ ≅ Z_j for some j
-- Remaining: cancellation lemma + proper induction structure
+- Remaining: biproduct cancellation + strong induction
+
+**Key Mathlib lemma for cancellation (2026-01-31):**
+```lean
+-- CategoryTheory.Biprod.isoElim (Mathlib.CategoryTheory.Preadditive.Biproducts)
+def isoElim (f : X₁ ⊞ X₂ ≅ Y₁ ⊞ Y₂)
+    [IsIso (biprod.inl ≫ f.hom ≫ biprod.fst)] : X₂ ≅ Y₂
+```
+
+This gives biproduct cancellation when the (1,1) component is an iso.
+
+**Strategy for biproduct cancellation:**
+1. Factor `⨁ Y ≅ Y₀ ⊞ (⨁ tail Y)` (head-tail split)
+2. Factor `⨁ Z ≅ Z_j ⊞ (⨁ other Z)` (bring matched index j to front)
+3. Compose to get iso: `Y₀ ⊞ rest₁ ≅ Z_j ⊞ rest₂`
+4. The (1,1) component is f_j from exchange lemma (which is iso)
+5. Apply `Biprod.isoElim` to get `rest₁ ≅ rest₂`
+6. Apply IH on remainders to get full equivalence
 
 **Next steps for completion:**
-1. Prove cancellation: if M ⊕ N ≅ M ⊕ P with M indecomposable, then N ≅ P
-2. Structure induction correctly with strong induction on n
-3. Construct permutation from matched indices
+1. Implement head-tail split isomorphism for biproducts
+2. Implement "bring index j to front" isomorphism (uses reindex/permutation)
+3. Verify (1,1) component equals f_j
+4. Apply Biprod.isoElim + strong induction
+5. Construct permutation σ from matched indices
 
 **Lean file:** `Chapter1/KrullSchmidt.lean`
 
