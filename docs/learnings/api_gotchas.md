@@ -24,6 +24,7 @@ Common API issues and their solutions.
 | Single element biproduct | `biproductUniqueIso [Unique J] (f : J → C) : ⨁ f ≅ f default` |
 | No `biproduct.isoPEmpty` | Use empty biproduct API differently |
 | No `biproduct.isoUnit` | Use `biproductUniqueIso` with Unit |
+| `biprod.braiding ∘ biprod.braiding = id` | Use `simp` — `biprod.braiding_map_braiding` is for general maps |
 
 ## Linear Categories
 
