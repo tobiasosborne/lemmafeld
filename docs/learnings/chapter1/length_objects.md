@@ -253,7 +253,7 @@ def iterateComap {X : C} (f : X ⟶ X) (K : Subobject X) (n : ℕ) : Subobject X
 
 **Lean file:** `Chapter1/FittingLemma.lean`
 
-### Krull-Schmidt Existence (2026-01-30 - lemmafeld-zczy PARTIAL)
+### Krull-Schmidt Existence (2026-01-30 - lemmafeld-zczy PARTIAL, 2 sorries)
 
 **Statement:** Any finite length object admits an indecomposable decomposition.
 
@@ -268,17 +268,26 @@ def iterateComap {X : C} (f : X ⟶ X) (K : Subobject X) (n : ℕ) : Subobject X
 - `biproduct_empty_isZero` - ⨁ Fin.elim0 is zero
 - `biproductSingletonIso` - ⨁ (fun _ : Fin 1 => X) ≅ X
 
-**Remaining sorries (3):**
-1. `biproductBiprodIso.hom_inv_id` - hom ≫ inv = 𝟙 (partially proven - `inv_hom_id` is done!)
-   - Full iso structure implemented with `hom`, `inv`, `inv_hom_id` proven
-   - `hom_inv_id` requires careful extensionality with biproduct components
-2. Recursive decomposition of Y
-3. Recursive decomposition of Z
+**biproductBiprodIso — COMPLETE (2026-01-30, lemmafeld-lxg9):**
 
-**New helper lemmas (2026-01-30):**
+Proves `(⨁ f) ⊞ (⨁ g) ≅ ⨁ (concatFin f g)` for concatenating decompositions.
+
+- `hom`: biprod.desc that maps left components to first n indices, right to last m
+- `inv`: biproduct.desc that routes back based on index being < n or ≥ n
+- `hom_inv_id`: Proved using `biprod.hom_ext'` then `biproduct.hom_ext'`
+  - Key insight: Use extensionality from both directions
+  - Simplify index arithmetic with `Nat.add_sub_cancel_left`
+- `inv_hom_id`: Proved using `biproduct.hom_ext'` + split_ifs on index
+
+Helper lemmas:
 - `concatFin` - concatenated family definition
 - `concatFin_left/right/right'` - key equalities for index mapping
 - `biproduct_ι_cast'` - reindexing biproduct inclusions via eqToHom
+- `biproduct_ι_fin_eq'` - biproduct.ι with equal indices via congrArg
+
+**Remaining sorries (2):**
+1. Recursive decomposition of Y - needs well-founded recursion
+2. Recursive decomposition of Z - needs well-founded recursion
 
 **Key insight:** The recursive calls need well-founded recursion. The termination
 argument is that Y and Z embed into X via proper monomorphisms, and the Artinian

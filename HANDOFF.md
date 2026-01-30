@@ -18,26 +18,25 @@
 
 ## Current Session (2026-01-30 Evening)
 
-### lemmafeld-zczy: Krull-Schmidt existence — PARTIAL (3 sorries)
+### lemmafeld-zczy: Krull-Schmidt existence — PARTIAL (2 sorries)
 
 - **Theorem:** `krullSchmidt_existence`
-- **File:** `Chapter1/KrullSchmidt.lean` (now ~350 LOC)
-- **Status:** Structure complete, 3 sorries remaining
+- **File:** `Chapter1/KrullSchmidt.lean` (now ~360 LOC)
+- **Status:** Structure complete, 2 sorries remaining
 
 **Completed:**
 - Base cases: empty decomposition (zero object), singleton decomposition (indecomposable)
 - Recursive case structure with concatenation
 - Helper lemmas: `isFiniteLengthObject_of_iso`, `isFiniteLengthObject_biprod_fst/snd`
 - Structural lemmas: `biproduct_empty_isZero`, `biproductSingletonIso`
-- **NEW:** `biproductBiprodIso` partially complete:
+- **`biproductBiprodIso` COMPLETE (no sorries!):**
   - Full iso structure with `hom`, `inv` definitions
-  - `inv_hom_id` PROVEN (no sorry!)
-  - Helper lemmas: `concatFin`, `concatFin_left/right/right'`, `biproduct_ι_cast'`
+  - `hom_inv_id` and `inv_hom_id` PROVEN
+  - Helper lemmas: `concatFin`, `concatFin_left/right/right'`, `biproduct_ι_cast'`, `biproduct_ι_fin_eq'`
 
 **Remaining sorries:**
-1. `biproductBiprodIso.hom_inv_id`: hom ≫ inv = 𝟙 — needs biprod/biproduct extensionality
-2. Recursive decomposition of Y — needs well-founded recursion
-3. Recursive decomposition of Z — needs well-founded recursion
+1. Recursive decomposition of Y — needs well-founded recursion
+2. Recursive decomposition of Z — needs well-founded recursion
 
 **Key insight:** The recursion needs well-founded induction. Termination argument:
 - Y and Z embed into X via proper monomorphisms (since X ≅ Y ⊕ Z with both nonzero)
@@ -62,10 +61,9 @@
 
 ## Immediate Next Steps
 
-### 1. Complete lemmafeld-zczy (3 sorries)
-- Fill `biproductBiprodIso` — explicit biproduct concatenation iso
-- Set up well-founded relation for recursion
-- Use `WellFounded.fix` for the recursive calls
+### 1. Complete lemmafeld-zczy (2 sorries)
+- Set up well-founded relation for recursion (lemmafeld-4ik7)
+- Use `WellFounded.fix` for the recursive calls on Y and Z
 
 ### 2. lemmafeld-01k3 (P2): Krull-Schmidt uniqueness
 - Still blocked by zczy completion
@@ -81,18 +79,17 @@
 
 | Chain | Current State |
 |-------|---------------|
-| **Fitting → Local Ring → KS** | fitting_lemma ✓ → 6xvp ✓ → zczy (3 sorries) |
+| **Fitting → Local Ring → KS** | fitting_lemma ✓ → 6xvp ✓ → zczy (2 sorries, biproductBiprodIso ✓) |
 | **Grothendieck Group** | Root: lemmafeld-mfs8 (JordanHolderLattice for Subobject) — deep gap |
 
 ---
 
 ## Files Modified This Session
 
-- `Chapter1/KrullSchmidt.lean` — Added Krull-Schmidt existence proof structure
-  - New lemmas: `isFiniteLengthObject_of_iso`, `isFiniteLengthObject_biprod_fst/snd`
-  - New defs: `emptyDecomposition`, `singletonDecomposition`, `biproductBiprodIso`
-  - New theorem: `krullSchmidt_existence` (3 sorries)
-- `docs/learnings/chapter1/length_objects.md` — Documented KS existence progress
+- `Chapter1/KrullSchmidt.lean` — Completed `biproductBiprodIso` (no sorries)
+  - Added `biproduct_ι_fin_eq'` helper lemma
+  - Proved `hom_inv_id` using `biprod.hom_ext'` + `biproduct.hom_ext'`
+  - 2 sorries remain in `krullSchmidt_existence` (well-founded recursion)
 
 ---
 

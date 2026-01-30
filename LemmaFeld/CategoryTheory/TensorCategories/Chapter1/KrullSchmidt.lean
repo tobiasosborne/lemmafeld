@@ -252,6 +252,11 @@ private lemma biproduct_ι_cast' {J : Type*} [Fintype J] (h : J → C) [HasBipro
     (j j' : J) (hj : j = j') : biproduct.ι h j = eqToHom (by rw [hj]) ≫ biproduct.ι h j' := by
   subst hj; simp
 
+private lemma biproduct_ι_fin_eq' {J : Type*} {D : Type*} [Category D] [Preadditive D]
+    (p : J → D) [HasBiproduct p] (i j : J) (hij : i = j) :
+    biproduct.ι p i = eqToHom (congrArg p hij) ≫ biproduct.ι p j := by
+  subst hij; simp
+
 /-- The biproduct of two biproducts is isomorphic to the biproduct over the concatenated index.
 
 This is the key structural lemma for concatenating decompositions.
@@ -277,9 +282,28 @@ def biproductBiprodIso {n m : ℕ} (f : Fin n → C) (g : Fin m → C) :
     else
       eqToHom (concatFin_right' f g k h) ≫ biproduct.ι g ⟨k.val - n, by omega⟩ ≫ biprod.inr
   hom_inv_id := by
-    -- The proof requires showing (hom ≫ inv) ≫ fst/snd equals fst/snd
-    -- via extensionality on the biproduct components.
-    sorry
+    apply biprod.hom_ext'
+    · simp only [Category.comp_id]
+      rw [show biprod.inl ≫ biprod.desc _ _ ≫ _ =
+             (biprod.inl ≫ biprod.desc _ _) ≫ _ from (Category.assoc _ _ _).symm,
+           biprod.inl_desc]
+      apply biproduct.hom_ext'; intro i
+      rw [biproduct.ι_desc_assoc]
+      simp only [Category.assoc, biproduct.ι_desc, i.isLt, ↓reduceDIte, eqToHom_trans_assoc,
+                 Fin.eta, eqToHom_refl, Category.id_comp]
+    · simp only [Category.comp_id]
+      rw [show biprod.inr ≫ biprod.desc _ _ ≫ _ =
+             (biprod.inr ≫ biprod.desc _ _) ≫ _ from (Category.assoc _ _ _).symm,
+           biprod.inr_desc]
+      apply biproduct.hom_ext'; intro j
+      rw [biproduct.ι_desc_assoc]
+      simp only [Category.assoc, biproduct.ι_desc]
+      have h : ¬ (n + j.val < n) := by omega
+      simp only [h, ↓reduceDIte, eqToHom_trans_assoc]
+      have fin_eq : (⟨n + j.val - n, by omega⟩ : Fin m) = j := by
+        simp only [Nat.add_sub_cancel_left, Fin.eta]
+      rw [biproduct_ι_fin_eq' g _ j fin_eq]
+      simp only [Category.assoc, eqToHom_trans_assoc, eqToHom_refl, Category.id_comp]
   inv_hom_id := by
     apply biproduct.hom_ext'; intro k
     simp only [biproduct.ι_desc_assoc, Category.comp_id]
