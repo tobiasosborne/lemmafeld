@@ -788,6 +788,84 @@ lemma exchangeLemma {X : C} {n m : ℕ} (hn : 0 < n)
   have hf_iso : IsIso (f j) := isIso_of_mono_of_epi (f j)
   exact ⟨j, ⟨asIso (f j)⟩⟩
 
+/-! ### Biproduct Cancellation Infrastructure
+
+These lemmas enable the "cancel matching component" step in KS uniqueness:
+Given `Y₀ ⊞ rest_Y ≅ Z_j ⊞ rest_Z` with `Y₀ ≅ Z_j`, conclude `rest_Y ≅ rest_Z`.
+-/
+
+/-- Swap j to position 0 in Fin n. Uses Equiv.swap. -/
+private def finSwapFront {n : ℕ} (j : Fin n) : Fin n ≃ Fin n :=
+  Equiv.swap j ⟨0, j.pos⟩
+
+@[simp]
+private lemma finSwapFront_apply_self {n : ℕ} (j : Fin n) :
+    finSwapFront j j = ⟨0, j.pos⟩ := Equiv.swap_apply_left j ⟨0, j.pos⟩
+
+@[simp]
+private lemma finSwapFront_apply_zero {n : ℕ} (j : Fin n) :
+    finSwapFront j ⟨0, j.pos⟩ = j := Equiv.swap_apply_right j ⟨0, j.pos⟩
+
+private lemma finSwapFront_symm {n : ℕ} (j : Fin n) : (finSwapFront j).symm = finSwapFront j := by
+  unfold finSwapFront
+  ext k
+  simp only [Equiv.symm_swap]
+
+/-- Biproduct reindexed by swapping j to front. -/
+private def biproductSwapFrontIso {n : ℕ} (f : Fin n → C) (j : Fin n) :
+    ⨁ f ≅ ⨁ (f ∘ (finSwapFront j).symm) := by
+  have hw : ∀ k, (f ∘ (finSwapFront j).symm) ((finSwapFront j) k) ≅ f k := fun k => by
+    simp only [Function.comp_apply, Equiv.symm_apply_apply]; exact Iso.refl _
+  exact biproduct.whiskerEquiv (finSwapFront j) hw
+
+/-- After swapping j to front, component 0 is f j. -/
+private lemma biproductSwapFront_zero {n : ℕ} (f : Fin n → C) (j : Fin n) :
+    (f ∘ (finSwapFront j).symm) ⟨0, j.pos⟩ = f j := by
+  simp only [Function.comp_apply, finSwapFront_symm, finSwapFront_apply_zero]
+
+/-- Tail of a family, for head-tail splitting. -/
+private def finTail {n : ℕ} (hn : 0 < n) (f : Fin n → C) : Fin (n - 1) → C :=
+  fun i => f ⟨i.val + 1, by omega⟩
+
+/-- Head-tail split for biproducts: ⨁ f ≅ f 0 ⊞ ⨁ (tail f) for n > 0. -/
+private def biproductHeadTailIso {n : ℕ} (hn : 0 < n) (f : Fin n → C) :
+    ⨁ f ≅ f ⟨0, hn⟩ ⊞ ⨁ (finTail hn f) := by
+  -- Strategy: Use biproductBiprodIso with singleton head
+  let head : Fin 1 → C := fun _ => f ⟨0, hn⟩
+  let tail : Fin (n - 1) → C := finTail hn f
+  -- biproductBiprodIso gives: (⨁ head) ⊞ (⨁ tail) ≅ ⨁ (concatFin head tail)
+  -- We have: 1 + (n - 1) = n
+  have hn_eq : 1 + (n - 1) = n := by omega
+  -- Build equivalence Fin n ≃ Fin (1 + (n - 1))
+  let e : Fin n ≃ Fin (1 + (n - 1)) := {
+    toFun := fun i => ⟨i.val, by omega⟩
+    invFun := fun k => ⟨k.val, by omega⟩
+    left_inv := fun i => by ext; simp
+    right_inv := fun k => by ext; simp
+  }
+  -- The reindexed family matches concatFin head tail
+  have heq : ∀ k : Fin (1 + (n - 1)), concatFin head tail k = f ⟨k.val, by omega⟩ := fun k => by
+    simp only [concatFin, head, tail, finTail]
+    by_cases hk : k.val < 1
+    · simp only [hk, ↓reduceDIte]; congr 1; ext
+      exact (Nat.lt_one_iff.mp hk).symm
+    · simp only [hk, ↓reduceDIte]; congr 1; ext
+      have hk_ge : k.val ≥ 1 := Nat.not_lt.mp hk
+      exact Nat.sub_add_cancel hk_ge
+  -- Build the composite iso
+  have hw : ∀ i, f (e.symm (e i)) ≅ f i := fun i => eqToIso (by simp only [Equiv.symm_apply_apply])
+  let iso_reindex : ⨁ f ≅ ⨁ (f ∘ e.symm) := biproduct.whiskerEquiv e hw
+  have hw2 : ∀ k, (f ∘ e.symm) k ≅ f ⟨k.val, by omega⟩ := fun k =>
+    eqToIso (by simp only [Function.comp_apply, e]; rfl)
+  let iso_cast : ⨁ (f ∘ e.symm) ≅ ⨁ (fun k : Fin (1 + (n - 1)) => f ⟨k.val, by omega⟩) :=
+    biproduct.mapIso hw2
+  let iso_concat : ⨁ (fun k : Fin (1 + (n - 1)) => f ⟨k.val, by omega⟩) ≅ ⨁ (concatFin head tail) :=
+    biproduct.mapIso (fun k => eqToIso (heq k).symm)
+  let iso_split : ⨁ (concatFin head tail) ≅ (⨁ head) ⊞ (⨁ tail) := (biproductBiprodIso head tail).symm
+  -- Finally, ⨁ head ≅ head 0 = f 0 via biproductSingletonIso
+  let iso_head : ⨁ head ≅ f ⟨0, hn⟩ := biproductSingletonIso (f ⟨0, hn⟩)
+  exact iso_reindex ≪≫ iso_cast ≪≫ iso_concat ≪≫ iso_split ≪≫ biprod.mapIso iso_head (Iso.refl _)
+
 /-- A biproduct summand of a zero object is zero. -/
 lemma isZero_component_of_isZero_biproduct {n : ℕ} (f : Fin n → C)
     (hZ : IsZero (⨁ f)) (i : Fin n) : IsZero (f i) := by
@@ -1033,11 +1111,39 @@ theorem krullSchmidt_uniqueness {X : C} (hX : IsFiniteLengthObject X)
         exact not_indecomposable_of_biproduct_gt_one d₁.components hn_gt1 d₁.indecomposable
           (indecomposable_of_iso_indecomposable hX_indec d₁.iso)
 
-      -- The remaining proof requires:
-      -- 1. Biproduct cancellation lemma (Biprod.isoElim applied to remainder biproducts)
-      -- 2. Strong induction on n to handle the recursive structure
-      -- 3. Careful index manipulation for "removing" matched components
+      -- Step 1: Build head-tail split for d₁
+      -- ⨁ d₁.components ≅ d₁.components 0 ⊞ ⨁ (finTail hn_pos d₁.components)
+      let iso_d1_split : ⨁ d₁.components ≅
+          d₁.components ⟨0, hn_pos⟩ ⊞ ⨁ (finTail hn_pos d₁.components) :=
+        biproductHeadTailIso hn_pos d₁.components
+
+      -- Step 2: Swap j to front for d₂, then head-tail split
+      -- ⨁ d₂.components ≅ ⨁ (swapped) ≅ d₂.components j ⊞ ⨁ (rest)
+      let d2_swapped := d₂.components ∘ (finSwapFront j).symm
+      let iso_d2_swap : ⨁ d₂.components ≅ ⨁ d2_swapped := biproductSwapFrontIso d₂.components j
+      have hd2_swapped_0 : d2_swapped ⟨0, hd2_pos⟩ = d₂.components j := biproductSwapFront_zero _ j
+      let iso_d2_split : ⨁ d2_swapped ≅
+          d2_swapped ⟨0, hd2_pos⟩ ⊞ ⨁ (finTail hd2_pos d2_swapped) :=
+        biproductHeadTailIso hd2_pos d2_swapped
+
+      -- Step 3: Full iso from d₁.components 0 ⊞ rest₁ to d₂.components j ⊞ rest₂
+      -- Compose: X → ⨁ d₁ → head ⊞ tail₁ and X → ⨁ d₂ → swap → head ⊞ tail₂
+      let iso_full : (d₁.components ⟨0, hn_pos⟩ ⊞ ⨁ (finTail hn_pos d₁.components)) ≅
+          (d2_swapped ⟨0, hd2_pos⟩ ⊞ ⨁ (finTail hd2_pos d2_swapped)) :=
+        iso_d1_split.symm ≪≫ d₁.iso.symm ≪≫ d₂.iso ≪≫ iso_d2_swap ≪≫ iso_d2_split
+
+      -- Step 4: The (1,1) component of iso_full should be related to f
+      -- To apply Biprod.isoElim, we need: IsIso (biprod.inl ≫ iso_full.hom ≫ biprod.fst)
+      -- This equals the projection Y₀ → X → Z_j, which is f up to coercion
       --
+      -- The remaining work requires:
+      -- a) Prove the (1,1) component equals f (the exchange lemma iso)
+      -- b) Apply Biprod.isoElim to get remainder iso
+      -- c) Build IndecomposableDecomposition for remainders (n-1 components each)
+      -- d) Apply strong induction hypothesis
+      -- e) Combine permutations
+      --
+      -- This requires restructuring the proof to use Nat.strong_induction_on.
       -- Tracked in: lemmafeld-cn3q (cancellation), lemmafeld-vxyi (this sorry)
       sorry
 
