@@ -3,7 +3,7 @@
 ## Project Stats
 
 - **Issues:** ~428 total, ~373 open, ~54 closed
-- **Chapter 1 Files:** 32 Lean files, all building
+- **Chapter 1 Files:** 33 Lean files, all building
 - **Blockers:** 5 issues currently blocked
 
 ## Book Coverage Summary
@@ -18,21 +18,30 @@
 
 ## Recent Completions (2026-01-30)
 
+### Hygiene: ChainStabilization extraction (lemmafeld-rqy9 in progress)
+
+- **Extracted:** `Chapter1/ChainStabilization.lean` (101 LOC)
+  - pow_comp_comm, pow_add_eq_comp, pow_add_eq_comp'
+  - kernelSubobject_mono, imageSubobject_antitone
+  - kernelSubobject_stabilizes, imageSubobject_stabilizes
+  - kernelSubobject_stable, imageSubobject_stable
+- **FittingLemma.lean:** 779 → 701 LOC (still needs more splitting)
+- **Remaining:** CategoricalOrzech local copies, FittingDecomposition helpers
+
 ### Fitting's Lemma (§1.5.7) — COMPLETE ✓
 
 - **lemmafeld-zrau**: Biproduct iso from lattice complement — DONE
-  - Mono from `Subobject.inf_factors` + `bot_factors_iff_zero`
-  - Epi by constructing section from sup = ⊤ decomposition
 - **lemmafeld-txf9**: `fitting_lemma` theorem — DONE (no sorries)
-- **File:** `Chapter1/FittingLemma.lean` (~720 LOC, needs splitting)
+- **File:** `Chapter1/FittingLemma.lean` (701 LOC)
 
 ---
 
 ## Immediate Next Steps
 
-### 1. lemmafeld-rqy9 (P1): Split FittingLemma.lean (~720 LOC)
-- Hygiene — file exceeds 200 LOC guideline
-- Candidate split: Extract categorical Orzech into separate file
+### 1. lemmafeld-rqy9 (P1): Continue splitting FittingLemma.lean (701 LOC)
+- ChainStabilization.lean extracted (101 LOC) — DONE
+- Still needs: CategoricalOrzech local copies, FittingDecomposition helpers
+- Complex due to circular import with CategoricalOrzech.lean
 
 ### 2. lemmafeld-6xvp (P2): Prove End(X) is local for indecomposable X
 - Now unblocked (depends on fitting_lemma which is complete)
@@ -82,6 +91,7 @@ Chapter1/
 ├── Basic.lean                # §1.1
 ├── BimoduleDerivations.lean  # Ex 1.4.3(ii)
 ├── CategoricalOrzech.lean    # Categorical Orzech theorem
+├── ChainStabilization.lean   # §1.5 endomorphism chain lemmas
 ├── Coalgebras.lean           # §1.9
 ├── DerivedFunctors.lean      # §1.7.1
 ├── DirectSum.lean            # §1.2
@@ -94,7 +104,7 @@ Chapter1/
 ├── ExternalTensorProduct.lean # §1.11.1
 ├── FiniteDual.lean           # §1.12.1
 ├── FiniteLength.lean         # §1.5
-├── FittingLemma.lean         # §1.5 (2 sorries in fitting_lemma biproduct)
+├── FittingLemma.lean         # §1.5 (701 LOC, needs more splitting)
 ├── GrothendieckGroup.lean    # §1.5.8
 ├── HochschildH1.lean         # Ex 1.4.3(ii)
 ├── InnerDerivations.lean     # Ex 1.4.3(ii)
