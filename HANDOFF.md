@@ -2,9 +2,9 @@
 
 ## Project Stats
 
-- **Issues:** ~428 total, ~373 open, ~54 closed
+- **Issues:** ~428 total, ~372 open, ~55 closed
 - **Chapter 1 Files:** 33 Lean files, all building
-- **Blockers:** 5 issues currently blocked
+- **Blockers:** 4 issues currently blocked
 
 ## Book Coverage Summary
 
@@ -18,54 +18,50 @@
 
 ## Current Session (2026-01-30)
 
-### lemmafeld-6xvp: End(X) is local ring — IN PROGRESS (1 sorry)
+### lemmafeld-6xvp: End(X) is local ring — COMPLETE ✓
 
-- **Theorem added:** `isLocalRing_end_of_indecomposable_finiteLength`
+- **Theorem:** `isLocalRing_end_of_indecomposable_finiteLength`
 - **File:** `Chapter1/FittingLemma.lean`
-- **Status:** Structure complete, 1 sorry remaining in contradiction case
-- **The sorry:** Need to prove that two nilpotent elements can't sum to a unit
+- **Status:** Proof complete, no sorries
 
-**Proof strategy for the sorry (next session):**
-1. If `f + g = u` (unit) and `f` is nilpotent, show `u⁻¹ * f` is nilpotent via conjugation
-2. Then `1 - u⁻¹ * f` is a unit (geometric series: `IsNilpotent.isUnit_one_sub`)
-3. So `g = u * (1 - u⁻¹ * f)` is a product of units, hence a unit
-4. But `g` was assumed nilpotent, and nilpotent units ⟹ ring is trivial
-5. `End X` is nontrivial (we proved `nontrivial_end_of_not_isZero`), contradiction
-
-**Key lemma needed:** `(u⁻¹ * f)^{n+1} = 0` when `f^n = 0`. The proof uses:
-- Conjugation: `(u⁻¹ * f * u)^n = u⁻¹ * f^n * u = 0`
-- Induction on powers to show `(f * u⁻¹)^{n+1} = f * (u⁻¹ * f * u)^n * (u⁻¹)^{n+1} = 0`
+**Key insight:** Added helper lemma `eq_zero_of_isNilpotent_of_left_inv` which shows that
+if x is nilpotent and has a left inverse in a nontrivial ring, then x = 0. This enabled
+proving that if f and g are both nilpotent but f+g is a unit, we get a contradiction:
+- Apply Fitting to v*f where v = (f+g)⁻¹
+- If v*f is unit: f has left inverse → f = 0 → g is unit but nilpotent → contradiction
+- If v*f is nilpotent: v*g = 1 - v*f is unit → g has left inverse → g = 0 → f is unit but nilpotent → contradiction
 
 ---
 
 ## Recent Completions (2026-01-30)
 
+### End(X) is Local Ring — COMPLETE ✓
+
+- **lemmafeld-6xvp**: `isLocalRing_end_of_indecomposable_finiteLength` — DONE (no sorries!)
+- **File:** `Chapter1/FittingLemma.lean` (now ~770 LOC)
+- **New lemma:** `eq_zero_of_isNilpotent_of_left_inv`
+
 ### Fitting's Lemma (§1.5.7) — COMPLETE ✓
 
 - **lemmafeld-zrau**: Biproduct iso from lattice complement — DONE
-- **lemmafeld-txf9**: `fitting_lemma` theorem — DONE (no sorries)
-- **File:** `Chapter1/FittingLemma.lean` (now ~735 LOC)
-
-### Added this session:
-- `nontrivial_end_of_not_isZero` — End(X) is nontrivial when X ≠ 0
-- `isLocalRing_end_of_indecomposable_finiteLength` — theorem statement with 1 sorry
+- **lemmafeld-txf9**: `fitting_lemma` theorem — DONE
 
 ---
 
 ## Immediate Next Steps
 
-### 1. Fill the sorry in `isLocalRing_end_of_indecomposable_finiteLength`
-- Add helper lemma: nilpotent preserved under unit multiplication
-- Complete the contradiction proof
-- ~20 LOC estimated
-
-### 2. lemmafeld-zczy (P2): Krull-Schmidt existence
-- Now unblocked once 6xvp is complete
+### 1. lemmafeld-zczy (P2): Krull-Schmidt existence
+- Now unblocked!
 - Finite length objects decompose into indecomposables
+- Uses local ring property just proved
 
-### 3. Hygiene: FittingLemma.lean (735 LOC)
-- Exceeds 200 LOC guideline
-- Consider extracting local ring proof to separate file
+### 2. lemmafeld-01k3 (P2): Krull-Schmidt uniqueness
+- Blocked by zczy
+- Indecomposable decompositions are unique up to permutation
+
+### 3. Hygiene: FittingLemma.lean (770 LOC)
+- Exceeds 200 LOC guideline significantly
+- Consider extracting to separate files
 
 ---
 
@@ -73,17 +69,16 @@
 
 | Chain | Current State |
 |-------|---------------|
-| **Fitting → Local Ring → KS** | fitting_lemma ✓ → 6xvp (1 sorry) → zczy |
+| **Fitting → Local Ring → KS** | fitting_lemma ✓ → 6xvp ✓ → zczy (ready!) |
 | **Grothendieck Group** | Root: lemmafeld-mfs8 (JordanHolderLattice for Subobject) — deep gap |
 
 ---
 
 ## Files Modified This Session
 
-- `Chapter1/FittingLemma.lean` — Added local ring theorem (1 sorry)
-  - New imports: `Mathlib.RingTheory.Nilpotent.Basic`, `Mathlib.RingTheory.LocalRing.Basic`
-  - New lemma: `nontrivial_end_of_not_isZero`
-  - New theorem: `isLocalRing_end_of_indecomposable_finiteLength`
+- `Chapter1/FittingLemma.lean` — Completed local ring theorem
+  - New lemma: `eq_zero_of_isNilpotent_of_left_inv` (~25 LOC)
+  - Filled sorry in `isLocalRing_end_of_indecomposable_finiteLength` (~35 LOC)
 
 ---
 

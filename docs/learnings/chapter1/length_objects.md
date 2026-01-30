@@ -235,6 +235,24 @@ def iterateComap {X : C} (f : X ⟶ X) (K : Subobject X) (n : ℕ) : Subobject X
 
 **Lean file:** `Chapter1/FittingLemma.lean`
 
+### End(X) is Local Ring (2026-01-30 - lemmafeld-6xvp COMPLETE)
+
+**Statement:** For indecomposable X of finite length, End(X) is a local ring.
+
+**Key lemma:** `eq_zero_of_isNilpotent_of_left_inv`
+- If x is nilpotent and has a left inverse l (l*x = 1), then x = 0
+- Proof: By induction, l*x^(k+1) = x^k, so x^n = 0 implies x^(n-1) = 0, etc.
+
+**Main theorem:** `isLocalRing_end_of_indecomposable_finiteLength`
+- Uses `IsLocalRing.of_isUnit_or_isUnit_of_isUnit_add`
+- By Fitting, every endo is nilpotent or unit
+- If f, g both nilpotent but f+g unit with inverse v:
+  - Apply Fitting to v*f
+  - If v*f unit: f has left inverse → f = 0 → contradiction
+  - If v*f nilpotent: v*g = 1 - v*f is unit → g has left inverse → g = 0 → contradiction
+
+**Lean file:** `Chapter1/FittingLemma.lean`
+
 ---
 
 ## §1.5.8: Grothendieck Group
