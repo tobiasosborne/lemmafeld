@@ -788,6 +788,84 @@ lemma exchangeLemma {X : C} {n m : ℕ} (hn : 0 < n)
   have hf_iso : IsIso (f j) := isIso_of_mono_of_epi (f j)
   exact ⟨j, ⟨asIso (f j)⟩⟩
 
+/-- A biproduct summand of a zero object is zero. -/
+lemma isZero_component_of_isZero_biproduct {n : ℕ} (f : Fin n → C)
+    (hZ : IsZero (⨁ f)) (i : Fin n) : IsZero (f i) := by
+  rw [IsZero.iff_id_eq_zero]
+  have h1 : biproduct.ι f i ≫ biproduct.π f i = 𝟙 (f i) := biproduct.ι_π_self f i
+  have h2 : biproduct.ι f i ≫ biproduct.π f i = 0 := by
+    have hι := hZ.eq_zero_of_tgt (biproduct.ι f i)
+    rw [hι, Limits.zero_comp]
+  rw [← h1, h2]
+
+/-- If X is zero and X ≅ ⨁ f with all f i indecomposable, then n = 0. -/
+lemma eq_zero_of_isZero_indecomposable_decomposition {n : ℕ} (f : Fin n → C)
+    (hf : ∀ i, Indecomposable (f i)) (Y : C) (hY : IsZero Y)
+    (e : Y ≅ ⨁ f) : n = 0 := by
+  by_contra h
+  push_neg at h
+  have hn : 0 < n := Nat.pos_of_ne_zero h
+  have hZbiprod : IsZero (⨁ f) := hY.of_iso e.symm
+  have hZf0 : IsZero (f ⟨0, hn⟩) := isZero_component_of_isZero_biproduct f hZbiprod ⟨0, hn⟩
+  exact (hf ⟨0, hn⟩).1 hZf0
+
+/-- Finite length transfer through biproduct iso. -/
+lemma isFiniteLengthObject_of_biproduct_iso {n : ℕ} {X : C} (f : Fin n → C)
+    (e : X ≅ ⨁ f) (hX : IsFiniteLengthObject X) (i : Fin n) : IsFiniteLengthObject (f i) := by
+  have hBiprod : IsFiniteLengthObject (⨁ f) := isFiniteLengthObject_of_iso e hX
+  haveI : IsArtinianObject (⨁ f) := hBiprod.artinian
+  haveI : IsNoetherianObject (⨁ f) := hBiprod.noetherian
+  constructor
+  · exact isArtinianObject_of_mono (biproduct.ι f i)
+  · exact isNoetherianObject_of_mono (biproduct.ι f i)
+
+/-- **Krull-Schmidt Uniqueness**: Any two indecomposable decompositions of a finite
+length object are equivalent up to permutation and isomorphism.
+
+The proof uses:
+1. Base case: If d₁.n = 0, then X is zero, so d₂.n = 0 as well
+2. Inductive case: By exchange lemma, d₁.components 0 ≅ d₂.components j for some j
+   Then apply cancellation and induction on the remainders
+-/
+theorem krullSchmidt_uniqueness {X : C} (hX : IsFiniteLengthObject X)
+    (d₁ d₂ : IndecomposableDecomposition C X) : DecompositionsEquivalent C d₁ d₂ := by
+  -- Case split on whether d₁.n = 0
+  by_cases hn : d₁.n = 0
+  · -- Base case: d₁.n = 0, so X is zero (biproduct over empty index is zero)
+    have hBiprod_zero : IsZero (⨁ d₁.components) := by
+      have hemp : IsEmpty (Fin d₁.n) := by rw [hn]; exact Fin.isEmpty
+      haveI := hemp
+      -- When index type is empty, biproduct is initial/terminal, hence zero
+      constructor
+      · intro Y
+        exact ⟨{ default := biproduct.desc (fun i => IsEmpty.elim hemp i)
+                 uniq := fun f => by ext j; exact IsEmpty.elim hemp j }⟩
+      · intro Y
+        exact ⟨{ default := biproduct.lift (fun i => IsEmpty.elim hemp i)
+                 uniq := fun f => by ext j; exact IsEmpty.elim hemp j }⟩
+    have hXzero : IsZero X := hBiprod_zero.of_iso d₁.iso
+    have hd2_n_eq : d₂.n = 0 := eq_zero_of_isZero_indecomposable_decomposition
+      d₂.components d₂.indecomposable X hXzero d₂.iso
+    refine ⟨by omega, Equiv.refl _, ?_⟩
+    intro i
+    have : i.val < 0 := by rw [← hn]; exact i.isLt
+    exact (Nat.not_lt_zero i.val this).elim
+  · -- Inductive case: d₁.n > 0
+    have hn_pos : 0 < d₁.n := Nat.pos_of_ne_zero hn
+    have hYfl : ∀ i, IsFiniteLengthObject (d₁.components i) :=
+      fun i => isFiniteLengthObject_of_biproduct_iso d₁.components d₁.iso hX i
+    have hZfl : ∀ j, IsFiniteLengthObject (d₂.components j) :=
+      fun j => isFiniteLengthObject_of_biproduct_iso d₂.components d₂.iso hX j
+    obtain ⟨j, ⟨f⟩⟩ := exchangeLemma hn_pos d₁.components d₂.components
+      d₁.indecomposable d₂.indecomposable hYfl hZfl d₁.iso d₂.iso
+    -- f : d₁.components ⟨0, hn_pos⟩ ≅ d₂.components j
+    -- Full proof requires:
+    -- 1. Show d₁.n = d₂.n by strong induction
+    -- 2. Construct the permutation from the matching
+    -- 3. Apply cancellation lemma for the "remainder" decompositions
+    -- 4. Combine the permutation from IH with the swap at position j
+    sorry
+
 end KrullSchmidtUniqueness
 
 /-! ## Summary

@@ -350,41 +350,41 @@ with both nonzero:
 
 **Completed lemmas (NO SORRIES):**
 
-1. `nonunits_add_of_local` — Contrapositive of local ring property:
-   ```lean
-   lemma nonunits_add_of_local {R : Type*} [Ring R] [IsLocalRing R] {a b : R}
-       (ha : ¬IsUnit a) (hb : ¬IsUnit b) : ¬IsUnit (a + b)
-   ```
-   - Uses `IsLocalRing.isUnit_or_isUnit_of_add_one` contraposed
-   - Key: scale by inverse of unit, use `Units.isUnit_units_mul`
+1. `nonunits_add_of_local` — Contrapositive of local ring property
+2. `exists_isUnit_of_finsum_eq_one` — Finite sum version
+3. `exchangeLemma` — **COMPLETE** (2026-01-30)
+4. `isZero_component_of_isZero_biproduct` — Biproduct summand of zero is zero
+5. `eq_zero_of_isZero_indecomposable_decomposition` — Zero object has no indecomposables
+6. `isFiniteLengthObject_of_biproduct_iso` — Finite length transfers through biproduct
 
-2. `exists_isUnit_of_finsum_eq_one` — Finite sum version:
-   ```lean
-   lemma exists_isUnit_of_finsum_eq_one {R : Type*} [Ring R] [IsLocalRing R] {n : ℕ}
-       (f : Fin n → R) (hf : ∑ i, f i = 1) : ∃ i, IsUnit (f i)
-   ```
-   - Induction on n using `Fin.sum_univ_succ`
-   - Base n=0: contradiction (0 ≠ 1)
-   - Inductive: if f 0 not unit, then ∑ f i.succ is unit, scale by inverse, apply IH
-
-**Exchange Lemma (lemmafeld-y9yx — SORRY):**
+**Exchange Lemma (lemmafeld-y9yx — COMPLETE):**
 ```lean
-lemma exchangeLemma {X : C} {n m : ℕ} (hn : 0 < n)
-    (Y : Fin n → C) (Z : Fin m → C)
-    (hY : ∀ i, Indecomposable (Y i)) (hZ : ∀ j, Indecomposable (Z j))
-    (hYfl : ∀ i, IsFiniteLengthObject (Y i)) (hZfl : ∀ j, IsFiniteLengthObject (Z j))
-    (iso₁ : X ≅ ⨁ Y) (iso₂ : X ≅ ⨁ Z) :
+lemma exchangeLemma {X : C} {n m : ℕ} (hn : 0 < n) ... :
     ∃ j, Nonempty (Y ⟨0, hn⟩ ≅ Z j)
 ```
 
-**Proof strategy for exchange lemma:**
+**Proof strategy (completed):**
 1. Define projections pⱼ = (Y₀ ↪ X → Zⱼ ↪ X → Y₀) via compositions
 2. Show ∑ⱼ pⱼ = 𝟙_{Y₀} using biproduct identities
 3. Apply `exists_isUnit_of_finsum_eq_one`: some pⱼ is unit in End(Y₀)
 4. Write pⱼ = fⱼ ≫ gⱼ where fⱼ : Y₀ → Zⱼ, gⱼ : Zⱼ → Y₀
-5. Show gⱼ ≫ fⱼ is unit in End(Zⱼ) using Fitting's lemma:
-   - If fⱼ ≫ gⱼ is unit and gⱼ ≫ fⱼ is nilpotent, derive contradiction
-6. Conclude fⱼ is iso (split mono + split epi in abelian category)
+5. Show gⱼ ≫ fⱼ is unit in End(Zⱼ) using Fitting's lemma
+6. Conclude fⱼ is iso (mono + epi in abelian category)
+
+**Uniqueness Theorem (krullSchmidt_uniqueness — 1 SORRY):**
+
+**Base case (n = 0):** COMPLETE
+- If d₁.n = 0, X is zero (biproduct over empty index)
+- Therefore d₂.n = 0 as well (no indecomposables in zero)
+
+**Inductive case (n > 0):** SORRY
+- Exchange lemma gives Y₀ ≅ Z_j for some j
+- Remaining: cancellation lemma + proper induction structure
+
+**Next steps for completion:**
+1. Prove cancellation: if M ⊕ N ≅ M ⊕ P with M indecomposable, then N ≅ P
+2. Structure induction correctly with strong induction on n
+3. Construct permutation from matched indices
 
 **Lean file:** `Chapter1/KrullSchmidt.lean`
 

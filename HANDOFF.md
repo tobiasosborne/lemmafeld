@@ -1,10 +1,10 @@
-# Handoff: 2026-01-30 (Late Night)
+# Handoff: 2026-01-30 (Late Night Session 2)
 
 ## Project Stats
 
 - **Issues:** ~429 total, ~371 open, ~58 closed
 - **Chapter 1 Files:** 33 Lean files, all building
-- **Blockers:** 3 issues currently blocked (down from 4)
+- **Blockers:** 2 issues currently blocked
 
 ## Book Coverage Summary
 
@@ -16,44 +16,40 @@
 
 ---
 
-## Current Session (2026-01-30 Late Night)
+## Current Session (2026-01-30 Late Night Session 2)
 
-### lemmafeld-y9yx: Exchange Lemma — COMPLETE ✓
+### lemmafeld-01k3: Krull-Schmidt Uniqueness — IN PROGRESS
 
 - **File:** `Chapter1/KrullSchmidt.lean`
-- **Theorem:** `exchangeLemma`
-- **Status:** DONE - No sorries!
+- **Status:** 1 sorry remaining
 
-**Proof structure:**
-1. Define projection maps f_j : Y₀ → Z_j and g_j : Z_j → Y₀
-2. Show ∑ (f_j ≫ g_j) = 𝟙 in End(Y₀)
-3. Apply `exists_isUnit_of_finsum_eq_one` to get j with IsUnit (p_j)
-4. Use Fitting's lemma: if p_j = f_j ≫ g_j is iso, then g_j ≫ f_j is also iso
-5. f_j is mono (from f ≫ g iso) and epi (from g ≫ f iso)
-6. mono + epi in abelian = iso via `isIso_of_mono_of_epi`
+**Completed this session:**
+- Base case (n = 0): COMPLETE
+  - If d₁.n = 0, X is zero (biproduct over empty index)
+  - Therefore d₂.n = 0 (no indecomposables in zero)
+  - Equivalence is trivial (empty permutation)
+- Helper lemmas:
+  - `isZero_component_of_isZero_biproduct`
+  - `eq_zero_of_isZero_indecomposable_decomposition`
+  - `isFiniteLengthObject_of_biproduct_iso`
 
-**Key technical insights:**
-- `End.mul_def : x * y = y ≫ x` (opposite order!)
-- `pow_succ : q^(l+1) = q^l * q = q ≫ q^l` (using End's opposite mul)
-- Power commutativity: `pow_mul_comm'` gives `q^l * q = q * q^l`
-
-### lemmafeld-01k3: Krull-Schmidt uniqueness — NOW UNBLOCKED
-
-- **Previously blocked by:** lemmafeld-y9yx (now complete)
-- **Next step:** Complete uniqueness theorem using exchangeLemma
+**Remaining work:**
+- Inductive case needs:
+  1. Cancellation lemma: M ⊕ N ≅ M ⊕ P with M indecomposable ⟹ N ≅ P
+  2. Proper strong induction structure
+  3. Permutation construction from matched indices
 
 ---
 
 ## Recent Completions (2026-01-30)
 
-### Exchange Lemma — COMPLETE ✓ (this session)
+### Exchange Lemma — COMPLETE ✓
 
 - **lemmafeld-y9yx**: `exchangeLemma` theorem — DONE
 - **File:** `Chapter1/KrullSchmidt.lean`
 
 ### Krull-Schmidt Existence — COMPLETE ✓
 
-- **lemmafeld-4ik7**: Well-founded recursion infrastructure — DONE
 - **lemmafeld-zczy**: `krullSchmidt_existence` theorem — DONE
 - **File:** `Chapter1/KrullSchmidt.lean`
 
@@ -64,7 +60,6 @@
 
 ### Fitting's Lemma (§1.5.7) — COMPLETE ✓
 
-- **lemmafeld-zrau**: Biproduct iso from lattice complement — DONE
 - **lemmafeld-txf9**: `fitting_lemma` theorem — DONE
 
 ---
@@ -72,12 +67,12 @@
 ## Immediate Next Steps
 
 ### 1. Complete lemmafeld-01k3 (KS uniqueness)
-- Exchange lemma now available
-- Should be straightforward iteration using exchangeLemma
+- Need cancellation lemma for biproducts
+- Estimated: ~80 LOC additional
 
-### 2. Hygiene: KrullSchmidt.lean (~770 LOC)
+### 2. Hygiene: KrullSchmidt.lean (~870 LOC)
 - Significantly exceeds 200 LOC guideline
-- Consider extracting WellFoundedRecursion section to separate file
+- Consider extracting sections to separate files
 
 ---
 
@@ -86,18 +81,19 @@
 | Chain | Current State |
 |-------|---------------|
 | **KS Existence** | ✅ COMPLETE |
-| **KS Uniqueness** | ✅ UNBLOCKED (exchangeLemma done) |
+| **KS Uniqueness** | ⏳ IN PROGRESS (1 sorry) |
 | **Grothendieck Group** | lemmafeld-mfs8 (JordanHolderLattice for Subobject) — deep gap |
 
 ---
 
 ## Files Modified This Session
 
-- `Chapter1/KrullSchmidt.lean` — Completed exchangeLemma proof
-  - FIXED: `exchangeLemma` - no more sorries
-  - NEW: `biproduct_sum_π_ι` helper lemma
-  - NEW: `pow_key` helper for power identity in induction
-  - File now at ~770 LOC
+- `Chapter1/KrullSchmidt.lean` — Added uniqueness theorem with base case
+  - NEW: `isZero_component_of_isZero_biproduct`
+  - NEW: `eq_zero_of_isZero_indecomposable_decomposition`
+  - NEW: `isFiniteLengthObject_of_biproduct_iso`
+  - NEW: `krullSchmidt_uniqueness` (1 sorry in inductive case)
+  - File now at ~870 LOC
 
 ---
 
