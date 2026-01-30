@@ -666,6 +666,19 @@ lemma exists_isUnit_of_finsum_eq_one {R : Type*} [Ring R] [IsLocalRing R] {n : �
       obtain ⟨j, hj⟩ := ih (fun i => u⁻¹ * f i.succ) hscaled
       exact ⟨j.succ, (Units.isUnit_units_mul u⁻¹ (f j.succ)).mp hj⟩
 
+/-- Helper: sum of π ≫ ι equals identity for biproducts. -/
+private lemma biproduct_sum_π_ι {n : ℕ} (f : Fin n → C) :
+    ∑ j : Fin n, biproduct.π f j ≫ biproduct.ι f j = 𝟙 (⨁ f) := by
+  apply biproduct.hom_ext'
+  intro k
+  rw [Preadditive.comp_sum, Category.comp_id]
+  conv_lhs =>
+    arg 2
+    ext j
+    rw [← Category.assoc, biproduct.ι_π]
+  simp only [dite_comp, zero_comp, Finset.sum_dite_eq, Finset.mem_univ, ↓reduceIte, eqToHom_refl,
+    Category.id_comp]
+
 /-- **Exchange Lemma**: Given two indecomposable decompositions of the same object,
 the first component of one decomposition is isomorphic to some component of the other.
 
@@ -680,12 +693,100 @@ lemma exchangeLemma {X : C} {n m : ℕ} (hn : 0 < n)
     (hYfl : ∀ i, IsFiniteLengthObject (Y i)) (hZfl : ∀ j, IsFiniteLengthObject (Z j))
     (iso₁ : X ≅ ⨁ Y) (iso₂ : X ≅ ⨁ Z) :
     ∃ j, Nonempty (Y ⟨0, hn⟩ ≅ Z j) := by
-  -- The projections Y₀ → X → Zⱼ → X → Y₀ sum to identity on Y₀
-  -- Each such projection is fⱼ ≫ gⱼ where fⱼ : Y₀ → Zⱼ and gⱼ : Zⱼ → Y₀
-  -- By exists_isUnit_of_finsum_eq_one, some fⱼ ≫ gⱼ is a unit in End(Y₀)
-  -- By Fitting's lemma, gⱼ ≫ fⱼ is also a unit in End(Zⱼ)
-  -- Hence fⱼ is an isomorphism
-  sorry
+  -- Define the projection maps
+  -- f_j : Y_0 → Z_j, g_j : Z_j → Y_0
+  -- p_j = f_j ≫ g_j : End(Y_0)
+  let Y₀ : C := Y ⟨0, hn⟩
+  let f : (j : Fin m) → (Y₀ ⟶ Z j) := fun j =>
+    biproduct.ι Y ⟨0, hn⟩ ≫ iso₁.inv ≫ iso₂.hom ≫ biproduct.π Z j
+  let g : (j : Fin m) → (Z j ⟶ Y₀) := fun j =>
+    biproduct.ι Z j ≫ iso₂.inv ≫ iso₁.hom ≫ biproduct.π Y ⟨0, hn⟩
+  let p : Fin m → End Y₀ := fun j => f j ≫ g j
+  -- Step 1: Show ∑_j p_j = 1 in End(Y₀)
+  have sum_eq_id : ∑ i : Fin m, p i = 1 := by
+    rw [End.one_def]
+    show ∑ j : Fin m, (biproduct.ι Y ⟨0, hn⟩ ≫ iso₁.inv ≫ iso₂.hom ≫ biproduct.π Z j) ≫
+         (biproduct.ι Z j ≫ iso₂.inv ≫ iso₁.hom ≫ biproduct.π Y ⟨0, hn⟩) = 𝟙 Y₀
+    simp only [Category.assoc]
+    have step1 : ∀ j : Fin m,
+      biproduct.ι Y ⟨0, hn⟩ ≫ iso₁.inv ≫ iso₂.hom ≫ biproduct.π Z j ≫
+      biproduct.ι Z j ≫ iso₂.inv ≫ iso₁.hom ≫ biproduct.π Y ⟨0, hn⟩ =
+      biproduct.ι Y ⟨0, hn⟩ ≫ iso₁.inv ≫ iso₂.hom ≫
+      ((biproduct.π Z j ≫ biproduct.ι Z j) ≫ iso₂.inv ≫ iso₁.hom ≫ biproduct.π Y ⟨0, hn⟩) := by
+      intro j; simp only [Category.assoc]
+    simp_rw [step1]
+    simp only [← Preadditive.comp_sum]
+    have sum_factor : ∑ j : Fin m, (biproduct.π Z j ≫ biproduct.ι Z j) ≫ iso₂.inv ≫ iso₁.hom ≫
+                biproduct.π Y ⟨0, hn⟩ =
+                iso₂.inv ≫ iso₁.hom ≫ biproduct.π Y ⟨0, hn⟩ := by
+      rw [← Preadditive.sum_comp, biproduct_sum_π_ι, Category.id_comp]
+    rw [sum_factor]
+    simp only [Iso.hom_inv_id_assoc, Iso.inv_hom_id_assoc, biproduct.ι_π_self]
+    rfl
+  -- Step 2: Get local ring instance on End(Y₀)
+  haveI : IsLocalRing (End Y₀) :=
+    isLocalRing_end_of_indecomposable_finiteLength (hY ⟨0, hn⟩) (hYfl ⟨0, hn⟩)
+  -- Step 3: Apply exists_isUnit_of_finsum_eq_one
+  obtain ⟨j, hj⟩ := exists_isUnit_of_finsum_eq_one p sum_eq_id
+  -- Step 4: p j = f j ≫ g j is a unit, so f j ≫ g j is an isomorphism
+  have hfg_iso : IsIso (p j) := by rwa [isUnit_iff_isIso] at hj
+  -- Step 5: f j is mono (since f j ≫ g j is iso, hence mono)
+  haveI hfg_mono : Mono (f j ≫ g j) := inferInstance
+  have hf_mono : Mono (f j) := mono_of_mono_fac (g := g j) (h := f j ≫ g j) rfl
+  -- Step 6: q = g j ≫ f j in End(Z j); by Fitting, either nilpotent or unit
+  let q : End (Z j) := g j ≫ f j
+  haveI hZj_local : IsLocalRing (End (Z j)) :=
+    isLocalRing_end_of_indecomposable_finiteLength (hZ j) (hZfl j)
+  have hq_or : IsNilpotent q ∨ IsUnit q := fitting_lemma q (hZ j) (hZfl j)
+  -- Key lemma: (f ≫ g)^(n+1) = f ≫ (g ≫ f)^n ≫ g
+  have pow_key : ∀ k : ℕ, (p j)^(k + 1) = f j ≫ (q^k) ≫ g j := by
+    intro k
+    induction k with
+    | zero =>
+      simp only [Nat.zero_add, pow_one, pow_zero, End.one_def, Category.id_comp]; rfl
+    | succ l ihl =>
+      -- Goal: (p j)^(l+2) = f j ≫ q^(l+1) ≫ g j
+      -- Use pow_succ (not pow_succ') since End.mul_def is x * y = y ≫ x
+      -- pow_succ : q^(l+1) = q^l * q = q ≫ q^l (with End's opposite mul)
+      rw [pow_succ (p j) (l + 1), ihl, End.mul_def, pow_succ q l, End.mul_def]
+      -- Goal: p j ≫ f j ≫ (q ^ l) ≫ g j = f j ≫ (q ≫ q ^ l) ≫ g j
+      -- Unfold p j = f j ≫ g j and q = g j ≫ f j
+      -- LHS = (f j ≫ g j) ≫ f j ≫ q^l ≫ g j = f j ≫ g j ≫ f j ≫ q^l ≫ g j = f j ≫ q ≫ q^l ≫ g j
+      -- RHS = f j ≫ q ≫ q^l ≫ g j
+      calc p j ≫ f j ≫ (q ^ l) ≫ g j
+        = (f j ≫ g j) ≫ f j ≫ (q ^ l) ≫ g j := rfl
+      _ = f j ≫ g j ≫ f j ≫ (q ^ l) ≫ g j := by simp only [Category.assoc]
+      _ = f j ≫ (g j ≫ f j) ≫ (q ^ l) ≫ g j := by simp only [Category.assoc]
+      _ = f j ≫ q ≫ (q ^ l) ≫ g j := rfl  -- since q := g j ≫ f j
+      _ = f j ≫ (q ≫ q ^ l) ≫ g j := by simp only [Category.assoc]
+  -- If q is nilpotent, contradiction with p j being a unit
+  have hq_unit : IsUnit q := by
+    rcases hq_or with ⟨k, hk_eq⟩ | hunit
+    · -- nilpotent case: q^k = 0
+      exfalso
+      rcases k with _ | k'
+      · -- q^0 = 0 means 1 = 0 in End(Z j), so Z j is zero
+        simp only [pow_zero] at hk_eq
+        have hid_eq_zero : 𝟙 (Z j) = 0 := by
+          simp only [End.one_def] at hk_eq; exact hk_eq
+        have hZj_zero : IsZero (Z j) := (Limits.IsZero.iff_id_eq_zero (Z j)).mpr hid_eq_zero
+        exact (hZ j).1 hZj_zero
+      · -- q^(k'+1) = 0, so (p j)^(k'+2) = f ≫ q^(k'+1) ≫ g = 0
+        have h_pow_zero : (p j)^(k' + 2) = 0 := by
+          rw [pow_key (k' + 1), hk_eq]
+          simp only [Limits.zero_comp, Limits.comp_zero]
+        have hpj_unit_pow : IsUnit ((p j)^(k' + 2)) := hj.pow (k' + 2)
+        rw [h_pow_zero] at hpj_unit_pow
+        exact not_isUnit_zero hpj_unit_pow
+    · exact hunit
+  -- Step 7: q is a unit, hence iso
+  have hq_iso : IsIso q := by rwa [isUnit_iff_isIso] at hq_unit
+  -- Step 8: f j is epi (since g j ≫ f j = q is iso, hence epi)
+  haveI hgf_epi : Epi (g j ≫ f j) := inferInstance
+  have hf_epi : Epi (f j) := epi_of_epi_fac (f := g j) (h := g j ≫ f j) rfl
+  -- Step 9: f j is mono + epi in abelian, so iso
+  have hf_iso : IsIso (f j) := isIso_of_mono_of_epi (f j)
+  exact ⟨j, ⟨asIso (f j)⟩⟩
 
 end KrullSchmidtUniqueness
 
