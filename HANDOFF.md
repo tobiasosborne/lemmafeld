@@ -18,11 +18,12 @@
 
 ## Immediate Next Steps
 
-### 1. lemmafeld-txf9 (P2): Complete fitting_lemma theorem
-- **UNBLOCKED** — all prerequisites done (zy7n, c5gz)
-- Just needs the final decomposition proof using inf=⊥ and sup=⊤
+### 1. lemmafeld-zrau (P2): Biproduct iso from lattice complement
+- **NEW** — blocks fitting_lemma completion (lemmafeld-txf9)
+- Need: biprod.desc K.arrow I.arrow is iso when K ⊓ I = ⊥ and K ⊔ I = ⊤
+- ~30 LOC, mostly biproduct universal property
 
-### 2. lemmafeld-rqy9 (P1): Split FittingLemma.lean (538 LOC)
+### 2. lemmafeld-rqy9 (P1): Split FittingLemma.lean (now 694 LOC)
 - Hygiene — file exceeds 200 LOC guideline
 
 ### 3. TC 1.8.2-1.8.4: Artinian categories
@@ -40,7 +41,7 @@
 
 | Chain | Current State |
 |-------|---------------|
-| **Fitting → Krull-Schmidt** | txf9 ready, needs final proof |
+| **Fitting → Krull-Schmidt** | zrau → txf9 (biproduct lemma blocks fitting_lemma) |
 | **Grothendieck Group** | Root: lemmafeld-mfs8 (JordanHolderLattice for Subobject) — deep gap |
 
 ---
@@ -82,7 +83,7 @@ Chapter1/
 ├── ExternalTensorProduct.lean # §1.11.1
 ├── FiniteDual.lean           # §1.12.1
 ├── FiniteLength.lean         # §1.5
-├── FittingLemma.lean         # §1.5 (1 sorry: fitting_lemma)
+├── FittingLemma.lean         # §1.5 (2 sorries in fitting_lemma biproduct)
 ├── GrothendieckGroup.lean    # §1.5.8
 ├── HochschildH1.lean         # Ex 1.4.3(ii)
 ├── InnerDerivations.lean     # Ex 1.4.3(ii)
@@ -107,7 +108,14 @@ Chapter1/
 3. **Check blockers**: `bd blocked`
 4. **Session protocol**: See CLAUDE.md Phase 1-5
 
-## Recent Completions (2026-01-29)
+## Recent Completions (2026-01-30)
+
+- **fitting_lemma structure** (lemmafeld-txf9): Main theorem skeleton complete, 2 sorries remaining
+  - I = ⊥ case (nilpotent): DONE
+  - I ≠ ⊥ case (unit via indecomposability): structure done, biproduct iso needs 2 sorries
+  - n = 0 edge case: DONE (ker(f) = ⊥, im(f) = ⊤)
+
+### Previous Session (2026-01-29)
 
 - **Categorical Orzech theorem** (lemmafeld-8sen, bl7f): `mono_of_epi_endomorphism_noetherianObject` — no sorries
 - **Fitting inf=⊥** (lemmafeld-zy7n): `kernelSubobject_inf_imageSubobject_eq_bot`

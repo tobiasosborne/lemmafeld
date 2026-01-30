@@ -526,8 +526,135 @@ variable {X : C}
 -/
 theorem fitting_lemma (f : End X) (hX : Indecomposable X) (hfl : IsFiniteLengthObject X) :
     IsNilpotent f ∨ IsUnit f := by
-  -- TODO: Complete after kernelSubobject_sup_imageSubobject_eq_top is proved.
-  sorry
+  -- Get instances
+  haveI := hfl.noetherian
+  haveI := hfl.artinian
+  -- Get stabilization indices
+  obtain ⟨nk, hnk⟩ := kernelSubobject_stabilizes f
+  obtain ⟨ni, hni⟩ := imageSubobject_stabilizes f
+  let n := max nk ni
+  have hnk' : ∀ m, n ≤ m → kernelSubobject (f ^ n) = kernelSubobject (f ^ m) := fun m hm =>
+    (hnk n (le_max_left _ _)).symm.trans (hnk m (le_trans (le_max_left _ _) hm))
+  have hni' : ∀ m, n ≤ m → imageSubobject (f ^ n) = imageSubobject (f ^ m) := fun m hm =>
+    (hni n (le_max_right _ _)).symm.trans (hni m (le_trans (le_max_right _ _) hm))
+  -- Get lattice decomposition
+  have hinf := kernelSubobject_inf_imageSubobject_eq_bot f hnk' hni'
+  have hsup := kernelSubobject_sup_imageSubobject_eq_top f hnk' hni'
+  -- Abbreviations
+  let K := kernelSubobject (f ^ n)
+  let I := imageSubobject (f ^ n)
+  -- Case analysis: either I = ⊥ (nilpotent) or K = ⊥ (unit)
+  -- From sup = ⊤ and inf = ⊥, one of them must be ⊥ (by indecomposability via biproduct iso)
+  by_cases hI : I = ⊥
+  · -- Case: I = ⊥, so f^n = 0, hence f is nilpotent
+    left
+    use n
+    -- imageSubobject (f^n) = ⊥ means f^n = 0
+    have hfn : f ^ n = 0 := by
+      have harrow : I.arrow = 0 := by rw [hI, Subobject.bot_arrow]
+      calc f ^ n = factorThruImageSubobject (f ^ n) ≫ I.arrow := (imageSubobject_arrow_comp _).symm
+        _ = factorThruImageSubobject (f ^ n) ≫ 0 := by rw [harrow]
+        _ = 0 := comp_zero
+    exact hfn
+  · -- Case: I ≠ ⊥, so we must have K = ⊥ (otherwise proper biproduct decomposition)
+    right
+    -- Show K = ⊥ by contradiction using indecomposability
+    -- From K ⊔ I = ⊤ and K ⊓ I = ⊥ with K ≠ ⊥ and I ≠ ⊥, we get a decomposition
+    -- X ≅ K ⊞ I contradicting indecomposability
+    have hK : K = ⊥ := by
+      by_contra hK_ne
+      have hK_nonzero : ¬IsZero (Subobject.underlying.obj K) := by
+        intro hzero; apply hK_ne
+        apply Subobject.eq_of_comm (hzero.isoZero ≪≫ Subobject.botCoeIsoZero.symm)
+        simp [hzero.eq_zero_of_src K.arrow]
+      have hI_nonzero : ¬IsZero (Subobject.underlying.obj I) := by
+        intro hzero; apply hI
+        apply Subobject.eq_of_comm (hzero.isoZero ≪≫ Subobject.botCoeIsoZero.symm)
+        simp [hzero.eq_zero_of_src I.arrow]
+      -- biprod.desc K.arrow I.arrow : K ⊞ I → X is iso (from inf=⊥ and sup=⊤)
+      -- TODO (lemmafeld-xxxx): Complete biproduct decomposition lemma
+      -- Proof sketch: mono from K ⊓ I = ⊥ (kernel of desc_map ≤ K ⊓ I),
+      --               epi from K ⊔ I = ⊤ (cokernel of desc_map ≤ coker of sup)
+      let desc_map : Subobject.underlying.obj K ⊞ Subobject.underlying.obj I ⟶ X :=
+        biprod.desc K.arrow I.arrow
+      -- desc_map is iso: mono from K ⊓ I = ⊥, epi from K ⊔ I = ⊤
+      -- TODO (lemmafeld-bipr): Prove biproduct decomposition from lattice complement
+      have desc_iso : IsIso desc_map := by
+        have desc_mono : Mono desc_map := sorry  -- kernel of desc_map ≤ K ⊓ I = ⊥
+        have desc_epi : Epi desc_map := sorry    -- coimage of desc_map ≥ K ⊔ I = ⊤
+        exact isIso_of_mono_of_epi desc_map
+      have decomp : X ≅ _ ⊞ _ := (asIso desc_map).symm
+      rcases hX.2 _ _ decomp with hKz | hIz
+      · exact hK_nonzero hKz
+      · exact hI_nonzero hIz
+    -- Now K = ⊥, so f^n is mono
+    have hfn_mono : Mono (f ^ n) := by
+      have hker_zero : kernel.ι (f ^ n) = 0 := by
+        have harrow : K.arrow = 0 := by rw [hK, Subobject.bot_arrow]
+        rw [← kernelSubobject_arrow (f ^ n)] at harrow
+        exact zero_of_epi_comp (kernelSubobjectIso _).hom harrow
+      exact Abelian.mono_of_kernel_ι_eq_zero _ hker_zero
+    -- From sup = ⊤ and K = ⊥, we have I = ⊤, so f^n is epi
+    have hI_top : I = ⊤ := by
+      have : K ⊔ I = ⊤ := hsup
+      rw [hK, bot_sup_eq] at this
+      exact this
+    have hfn_epi : Epi (f ^ n) := by
+      have harrow_iso : IsIso I.arrow := (Subobject.isIso_arrow_iff_eq_top I).mpr hI_top
+      have hfac : f ^ n = factorThruImageSubobject (f ^ n) ≫ I.arrow :=
+        (imageSubobject_arrow_comp _).symm
+      rw [hfac]; exact epi_comp _ _
+    -- f^n is iso
+    have hfn_iso : IsIso (f ^ n) := isIso_of_mono_of_epi _
+    -- Convert to IsUnit and use isUnit_pow_iff (n = 0 case: n ≠ 0 since hK = ⊥ came from inf/sup)
+    have hfn_unit : IsUnit (f ^ n) := (CategoryTheory.isUnit_iff_isIso _).mpr hfn_iso
+    by_cases hn : n = 0
+    · -- n = 0: ker/im chains stabilize immediately, so ker(f) = ⊥, im(f) = ⊤, hence f is iso
+      have hnk0 : nk = 0 := by omega
+      have hni0 : ni = 0 := by omega
+      have hkerf : kernelSubobject f = ⊥ := by
+        have h1 : kernelSubobject (f^1) = kernelSubobject (f^0) := by
+          have := hnk 1 (by omega : nk ≤ 1); rw [hnk0] at this; exact this.symm
+        rw [pow_one, pow_zero, End.one_def] at h1
+        have hker0 : kernelSubobject (𝟙 X) = ⊥ :=
+          Subobject.mk_eq_bot_iff_zero.mpr (kernel.ι_of_mono _)
+        exact h1.trans hker0
+      have himf : imageSubobject f = ⊤ := by
+        have h1 : imageSubobject (f^1) = imageSubobject (f^0) := by
+          have := hni 1 (by omega : ni ≤ 1); rw [hni0] at this; exact this.symm
+        rw [pow_one, pow_zero, End.one_def] at h1
+        -- imageSubobject (𝟙 X) = ⊤ because 𝟙 X = factorThruImageSubobject ≫ arrow
+        -- and factorThruImageSubobject (𝟙 X) = (imageSubobject (𝟙 X)).arrow⁻¹
+        have him0 : imageSubobject (𝟙 X) = ⊤ := by
+          apply (Subobject.isIso_arrow_iff_eq_top _).mp
+          -- Show arrow is iso: it's split by factorThruImageSubobject (𝟙 X)
+          have hsplit : factorThruImageSubobject (𝟙 X) ≫ (imageSubobject (𝟙 X)).arrow = 𝟙 X :=
+            imageSubobject_arrow_comp (𝟙 X)
+          have hepi : Epi (imageSubobject (𝟙 X)).arrow := by
+            constructor; intro Z g₁ g₂ hg
+            calc g₁ = 𝟙 _ ≫ g₁ := (Category.id_comp g₁).symm
+              _ = (factorThruImageSubobject (𝟙 X) ≫ (imageSubobject (𝟙 X)).arrow) ≫ g₁ := by
+                    rw [hsplit]
+              _ = factorThruImageSubobject (𝟙 X) ≫ (imageSubobject (𝟙 X)).arrow ≫ g₁ := by
+                    rw [Category.assoc]
+              _ = factorThruImageSubobject (𝟙 X) ≫ (imageSubobject (𝟙 X)).arrow ≫ g₂ := by rw [hg]
+              _ = (factorThruImageSubobject (𝟙 X) ≫ (imageSubobject (𝟙 X)).arrow) ≫ g₂ := by
+                    rw [← Category.assoc]
+              _ = 𝟙 _ ≫ g₂ := by rw [hsplit]
+              _ = g₂ := Category.id_comp g₂
+          exact isIso_of_mono_of_epi _
+        exact h1.trans him0
+      have f_mono : Mono f := by
+        have h : kernel.ι f = 0 := by
+          have harrow : (kernelSubobject f).arrow = 0 := by rw [hkerf, Subobject.bot_arrow]
+          rw [← kernelSubobject_arrow f] at harrow
+          exact zero_of_epi_comp (kernelSubobjectIso f).hom harrow
+        exact Abelian.mono_of_kernel_ι_eq_zero _ h
+      have f_epi : Epi f := by
+        have h : IsIso (imageSubobject f).arrow := (Subobject.isIso_arrow_iff_eq_top _).mpr himf
+        rw [(imageSubobject_arrow_comp f).symm]; exact epi_comp _ _
+      exact (CategoryTheory.isUnit_iff_isIso _).mpr (isIso_of_mono_of_epi f)
+    · exact (isUnit_pow_iff hn).mp hfn_unit
 
 /-- Local ring property: non-units form a two-sided ideal. Follows from Fitting's Lemma. -/
 def EndomorphismRingIsLocal (X : C) : Prop :=
