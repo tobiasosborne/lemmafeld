@@ -580,8 +580,122 @@ theorem fitting_lemma (f : End X) (hX : Indecomposable X) (hfl : IsFiniteLengthO
       -- desc_map is iso: mono from K ⊓ I = ⊥, epi from K ⊔ I = ⊤
       -- TODO (lemmafeld-bipr): Prove biproduct decomposition from lattice complement
       have desc_iso : IsIso desc_map := by
-        have desc_mono : Mono desc_map := sorry  -- kernel of desc_map ≤ K ⊓ I = ⊥
-        have desc_epi : Epi desc_map := sorry    -- coimage of desc_map ≥ K ⊔ I = ⊤
+        -- Helper: factors is closed under neg
+        have factors_neg : ∀ {Y : C} (P : Subobject X) (g : Y ⟶ X),
+            P.Factors g → P.Factors (-g) := fun P g hg => by
+          have h : (-P.factorThru g hg) ≫ P.arrow = -g := by
+            rw [Preadditive.neg_comp, P.factorThru_arrow g hg]
+          rw [← h]; exact Subobject.factors_comp_arrow _
+        have desc_mono : Mono desc_map := by
+          -- kernel of desc_map ≤ K ⊓ I = ⊥
+          apply Abelian.mono_of_kernel_ι_eq_zero
+          -- Show kernel.ι desc_map = 0
+          -- Let a = kernel.ι ≫ biprod.fst, b = kernel.ι ≫ biprod.snd
+          -- Then a ≫ K.arrow + b ≫ I.arrow = 0 (kernel condition)
+          set a := kernel.ι desc_map ≫ biprod.fst with ha_def
+          set b := kernel.ι desc_map ≫ biprod.snd with hb_def
+          have hab : a ≫ K.arrow + b ≫ I.arrow = 0 := by
+            have h := kernel.condition desc_map
+            -- h : kernel.ι desc_map ≫ desc_map = 0
+            -- desc_map = biprod.desc K.arrow I.arrow
+            -- kernel.ι ≫ biprod.desc K.arrow I.arrow
+            --   = (kernel.ι ≫ biprod.fst) ≫ K.arrow + (kernel.ι ≫ biprod.snd) ≫ I.arrow
+            have heq : kernel.ι desc_map = biprod.lift (kernel.ι desc_map ≫ biprod.fst)
+                (kernel.ι desc_map ≫ biprod.snd) := by
+              apply biprod.hom_ext <;> simp
+            calc a ≫ K.arrow + b ≫ I.arrow
+                = biprod.lift a b ≫ biprod.desc K.arrow I.arrow := by rw [biprod.lift_desc]
+              _ = biprod.lift (kernel.ι desc_map ≫ biprod.fst) (kernel.ι desc_map ≫ biprod.snd) ≫
+                    desc_map := by rfl
+              _ = kernel.ι desc_map ≫ desc_map := by rw [← heq]
+              _ = 0 := h
+          -- a ≫ K.arrow factors through both K and I
+          have hKfac : K.Factors (a ≫ K.arrow) := Subobject.factors_comp_arrow a
+          have hIfac : I.Factors (a ≫ K.arrow) := by
+            -- a ≫ K.arrow = -(b ≫ I.arrow)
+            have heq : a ≫ K.arrow = -(b ≫ I.arrow) := eq_neg_of_add_eq_zero_left hab
+            rw [heq]
+            exact factors_neg I _ (Subobject.factors_comp_arrow b)
+          -- So a ≫ K.arrow factors through K ⊓ I = ⊥
+          have hbotfac : (K ⊓ I).Factors (a ≫ K.arrow) :=
+            (Subobject.inf_factors _).mpr ⟨hKfac, hIfac⟩
+          rw [hinf] at hbotfac
+          -- ⊥.Factors f ↔ f = 0
+          have ha0 : a ≫ K.arrow = 0 := (Subobject.bot_factors_iff_zero _).mp hbotfac
+          -- Since K.arrow is mono, a = 0
+          have ha : a = 0 := by rw [← cancel_mono K.arrow, ha0, zero_comp]
+          -- Similarly b = 0
+          have hb0 : b ≫ I.arrow = 0 := by
+            have heq : a ≫ K.arrow = -(b ≫ I.arrow) := eq_neg_of_add_eq_zero_left hab
+            rw [ha0, eq_comm, neg_eq_zero] at heq
+            exact heq
+          have hb : b = 0 := by rw [← cancel_mono I.arrow, hb0, zero_comp]
+          -- kernel.ι = 0 since a = 0 and b = 0
+          apply biprod.hom_ext
+          · rw [← ha_def, ha, zero_comp]
+          · rw [← hb_def, hb, zero_comp]
+        have desc_epi : Epi desc_map := by
+          -- Reconstruct the section from the sup = ⊤ proof
+          -- We need to show biprod.desc K.arrow I.arrow is epi
+          -- From the proof of kernelSubobject_sup_imageSubobject_eq_top:
+          -- ∃ q_K, s_I such that 𝟙 X = q_K ≫ K.arrow + s_I ≫ I.arrow
+          -- This means biprod.lift q_K s_I is a section of desc_map
+          have himArrow : imageSubobject (I.arrow ≫ f^n) = I := imageSubobject_arrow_comp_eq_self f hni'
+          have hfac : I.Factors (I.arrow ≫ f^n) := by convert imageSubobject_factors_comp_self (f^n) I.arrow
+          let h : End (Subobject.underlying.obj I) := I.factorThru (I.arrow ≫ f^n) hfac
+          have hh : h ≫ I.arrow = I.arrow ≫ f^n := Subobject.factorThru_arrow _ _ _
+          have h_epi : Epi h := by
+            let φ := Subobject.isoOfEq _ _ himArrow
+            have heq : h = factorThruImageSubobject (I.arrow ≫ f^n) ≫ φ.hom := by
+              rw [← cancel_mono I.arrow, Category.assoc]
+              have hφ : φ.hom ≫ I.arrow = (imageSubobject (I.arrow ≫ f^n)).arrow :=
+                Subobject.ofLE_arrow himArrow.le
+              rw [hφ, imageSubobject_arrow_comp, hh]
+            rw [heq]; exact epi_comp _ _
+          have hNoeth : IsNoetherianObject (Subobject.underlying.obj I) := isNoetherianObject_of_mono I.arrow
+          have h_mono : Mono h := @mono_of_epi_endomorphism_noetherianObject' C _ _ _ h h_epi hNoeth
+          have h_iso : IsIso h := isIso_of_mono_of_epi h
+          let s_I := factorThruImageSubobject (f^n) ≫ inv h
+          let p_I := s_I ≫ I.arrow
+          have one_minus_p_comp_fn : (𝟙 X - p_I) ≫ f^n = 0 := by
+            have harrow_factor : I.arrow ≫ factorThruImageSubobject (f^n) = h := by
+              rw [← cancel_mono I.arrow, Category.assoc, imageSubobject_arrow_comp, hh]
+            have p_comp_fn : p_I ≫ f^n = f^n := by
+              have key : inv h ≫ I.arrow ≫ f^n = I.arrow := by
+                calc inv h ≫ I.arrow ≫ f^n = inv h ≫ (h ≫ I.arrow) := by rw [← hh]
+                  _ = (inv h ≫ h) ≫ I.arrow := by rw [Category.assoc]
+                  _ = 𝟙 _ ≫ I.arrow := by rw [@IsIso.inv_hom_id _ _ _ _ h h_iso]
+                  _ = I.arrow := Category.id_comp _
+              calc p_I ≫ f^n = (s_I ≫ I.arrow) ≫ f^n := rfl
+                _ = s_I ≫ (I.arrow ≫ f^n) := by rw [Category.assoc]
+                _ = (factorThruImageSubobject (f^n) ≫ inv h) ≫ (I.arrow ≫ f^n) := rfl
+                _ = factorThruImageSubobject (f^n) ≫ (inv h ≫ (I.arrow ≫ f^n)) := by rw [Category.assoc]
+                _ = factorThruImageSubobject (f^n) ≫ I.arrow := by rw [key]
+                _ = f^n := imageSubobject_arrow_comp _
+            rw [Preadditive.sub_comp, Category.id_comp, p_comp_fn, sub_self]
+          have hfac_K : K.Factors (𝟙 X - p_I) := (kernelSubobject_factors_iff (f^n) _).mpr one_minus_p_comp_fn
+          let q_K := K.factorThru (𝟙 X - p_I) hfac_K
+          have hqK : q_K ≫ K.arrow = 𝟙 X - p_I := Subobject.factorThru_arrow _ _ _
+          -- 𝟙 X = q_K ≫ K.arrow + s_I ≫ I.arrow
+          have id_decomp : 𝟙 X = q_K ≫ K.arrow + s_I ≫ I.arrow := by
+            calc 𝟙 X = (𝟙 X - p_I) + p_I := by rw [sub_add_cancel]
+              _ = q_K ≫ K.arrow + p_I := by rw [← hqK]
+              _ = q_K ≫ K.arrow + s_I ≫ I.arrow := rfl
+          -- biprod.lift q_K s_I is a section of desc_map
+          let section_map := biprod.lift q_K s_I
+          have hsection : section_map ≫ desc_map = 𝟙 X := by
+            rw [biprod.lift_desc]
+            exact id_decomp.symm
+          -- desc_map is epi since it has a section
+          constructor
+          intro Z g₁ g₂ hg
+          calc g₁ = 𝟙 X ≫ g₁ := (Category.id_comp g₁).symm
+            _ = (section_map ≫ desc_map) ≫ g₁ := by rw [hsection]
+            _ = section_map ≫ desc_map ≫ g₁ := by rw [Category.assoc]
+            _ = section_map ≫ desc_map ≫ g₂ := by rw [hg]
+            _ = (section_map ≫ desc_map) ≫ g₂ := by rw [← Category.assoc]
+            _ = 𝟙 X ≫ g₂ := by rw [hsection]
+            _ = g₂ := Category.id_comp g₂
         exact isIso_of_mono_of_epi desc_map
       have decomp : X ≅ _ ⊞ _ := (asIso desc_map).symm
       rcases hX.2 _ _ decomp with hKz | hIz

@@ -2,9 +2,9 @@
 
 ## Project Stats
 
-- **Issues:** ~428 total, ~375 open, ~52 closed
+- **Issues:** ~428 total, ~373 open, ~54 closed
 - **Chapter 1 Files:** 32 Lean files, all building
-- **Blockers:** 7 issues currently blocked
+- **Blockers:** 5 issues currently blocked
 
 ## Book Coverage Summary
 
@@ -16,23 +16,34 @@
 
 ---
 
+## Recent Completions (2026-01-30)
+
+### Fitting's Lemma (§1.5.7) — COMPLETE ✓
+
+- **lemmafeld-zrau**: Biproduct iso from lattice complement — DONE
+  - Mono from `Subobject.inf_factors` + `bot_factors_iff_zero`
+  - Epi by constructing section from sup = ⊤ decomposition
+- **lemmafeld-txf9**: `fitting_lemma` theorem — DONE (no sorries)
+- **File:** `Chapter1/FittingLemma.lean` (~720 LOC, needs splitting)
+
+---
+
 ## Immediate Next Steps
 
-### 1. lemmafeld-zrau (P2): Biproduct iso from lattice complement
-- **NEW** — blocks fitting_lemma completion (lemmafeld-txf9)
-- Need: biprod.desc K.arrow I.arrow is iso when K ⊓ I = ⊥ and K ⊔ I = ⊤
-- ~30 LOC, mostly biproduct universal property
-
-### 2. lemmafeld-rqy9 (P1): Split FittingLemma.lean (now 694 LOC)
+### 1. lemmafeld-rqy9 (P1): Split FittingLemma.lean (~720 LOC)
 - Hygiene — file exceeds 200 LOC guideline
+- Candidate split: Extract categorical Orzech into separate file
+
+### 2. lemmafeld-6xvp (P2): Prove End(X) is local for indecomposable X
+- Now unblocked (depends on fitting_lemma which is complete)
+- Next step toward Krull-Schmidt
 
 ### 3. TC 1.8.2-1.8.4: Artinian categories
 - Finite abelian, finite dim Hom
 - Natural continuation of §1.8
 
 ### 4. Hygiene backlog (P2-P3)
-- 6 files at 234-264 LOC need splitting
-- 5 files at 201-222 LOC need trimming
+- 7 files at 234-720 LOC need splitting
 - See `bd list --label=hygiene` for full list
 
 ---
@@ -41,7 +52,7 @@
 
 | Chain | Current State |
 |-------|---------------|
-| **Fitting → Krull-Schmidt** | zrau → txf9 (biproduct lemma blocks fitting_lemma) |
+| **Fitting → Krull-Schmidt** | ✓ fitting_lemma done → 6xvp (End local) → zczy (KS existence) |
 | **Grothendieck Group** | Root: lemmafeld-mfs8 (JordanHolderLattice for Subobject) — deep gap |
 
 ---
