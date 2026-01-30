@@ -146,6 +146,151 @@ def KrullSchmidt_Theorem : Prop :=
 
 end KrullSchmidtStatement
 
+/-! ## Auxiliary Lemmas for Existence Proof -/
+
+section AuxiliaryLemmas
+
+universe u v
+variable {C : Type u} [Category.{v} C] [Abelian C] [HasFiniteBiproducts C]
+
+/-- Finite length is preserved under isomorphism (to the target). -/
+lemma isFiniteLengthObject_of_iso {X Y : C} (i : X ≅ Y) (hX : IsFiniteLengthObject X) :
+    IsFiniteLengthObject Y := by
+  have hA := hX.artinian
+  have hN := hX.noetherian
+  constructor
+  · exact isArtinianObject_of_mono i.inv
+  · exact isNoetherianObject_of_mono i.inv
+
+/-- A binary biproduct component has finite length if the biproduct does. -/
+lemma isFiniteLengthObject_biprod_fst {X Y : C} (h : IsFiniteLengthObject (X ⊞ Y)) :
+    IsFiniteLengthObject X := by
+  haveI : IsArtinianObject (X ⊞ Y) := h.artinian
+  haveI : IsNoetherianObject (X ⊞ Y) := h.noetherian
+  constructor
+  · exact isArtinianObject_of_mono (biprod.inl : X ⟶ X ⊞ Y)
+  · exact isNoetherianObject_of_mono (biprod.inl : X ⟶ X ⊞ Y)
+
+/-- A binary biproduct component has finite length if the biproduct does. -/
+lemma isFiniteLengthObject_biprod_snd {X Y : C} (h : IsFiniteLengthObject (X ⊞ Y)) :
+    IsFiniteLengthObject Y := by
+  haveI : IsArtinianObject (X ⊞ Y) := h.artinian
+  haveI : IsNoetherianObject (X ⊞ Y) := h.noetherian
+  constructor
+  · exact isArtinianObject_of_mono (biprod.inr : Y ⟶ X ⊞ Y)
+  · exact isNoetherianObject_of_mono (biprod.inr : Y ⟶ X ⊞ Y)
+
+/-- The empty biproduct is the zero object. -/
+lemma biproduct_empty_isZero : IsZero (⨁ (Fin.elim0 : Fin 0 → C)) := by
+  refine ⟨fun Y => ⟨⟨⟨biproduct.desc (fun b => b.elim0)⟩, fun f => ?_⟩⟩,
+          fun Y => ⟨⟨⟨biproduct.lift (fun b => b.elim0)⟩, fun f => ?_⟩⟩⟩
+  · ext ⟨j, hj⟩
+    exact (Nat.not_lt_zero j hj).elim
+  · ext ⟨j, hj⟩
+    exact (Nat.not_lt_zero j hj).elim
+
+/-- The singleton biproduct is isomorphic to its element. -/
+def biproductSingletonIso (X : C) : ⨁ (fun _ : Fin 1 => X) ≅ X where
+  hom := biproduct.desc (fun _ => 𝟙 X)
+  inv := biproduct.lift (fun _ => 𝟙 X)
+  hom_inv_id := by
+    ext ⟨i, hi⟩ ⟨j, hj⟩
+    simp only [Category.assoc, biproduct.lift_π, biproduct.ι_desc_assoc, Category.id_comp]
+    have hi' : i = 0 := Nat.lt_one_iff.mp hi
+    have hj' : j = 0 := Nat.lt_one_iff.mp hj
+    subst hi' hj'
+    simp
+  inv_hom_id := by simp [biproduct.lift_desc]
+
+end AuxiliaryLemmas
+
+/-! ## Krull-Schmidt Existence Proof -/
+
+section KrullSchmidtExistence
+
+universe u v
+variable {C : Type u} [Category.{v} C] [Abelian C] [HasFiniteBiproducts C]
+
+/-- Empty decomposition for the zero object. -/
+def emptyDecomposition (X : C) (hX : IsZero X) : IndecomposableDecomposition C X where
+  n := 0
+  components := Fin.elim0
+  indecomposable := fun i => i.elim0
+  iso := hX.isoZero ≪≫ biproduct_empty_isZero.isoZero.symm
+
+/-- Singleton decomposition for an indecomposable object. -/
+def singletonDecomposition (X : C) (hX : Indecomposable X) : IndecomposableDecomposition C X where
+  n := 1
+  components := fun _ => X
+  indecomposable := fun _ => hX
+  iso := (biproductSingletonIso X).symm
+
+/-- Map iso to binary biproduct. -/
+def biprodMapIso {W X Y Z : C} (iWY : W ≅ Y) (iXZ : X ≅ Z) : W ⊞ X ≅ Y ⊞ Z :=
+  biprod.mapIso iWY iXZ
+
+/-- The biproduct of two biproducts is isomorphic to the biproduct over the concatenated index.
+
+This is the key structural lemma for concatenating decompositions.
+
+**Construction sketch:**
+- hom: (⨁ f) ⊞ (⨁ g) → ⨁ (concatenated)
+  - On left: biproduct.ι f i ↦ biproduct.ι (concat) ⟨i.val, ...⟩
+  - On right: biproduct.ι g j ↦ biproduct.ι (concat) ⟨n + j.val, ...⟩
+- inv: ⨁ (concatenated) → (⨁ f) ⊞ (⨁ g)
+  - For k < n: biproduct.ι k ↦ biproduct.ι f ⟨k, ...⟩ ≫ biprod.inl
+  - For k ≥ n: biproduct.ι k ↦ biproduct.ι g ⟨k - n, ...⟩ ≫ biprod.inr
+-/
+def biproductBiprodIso {n m : ℕ} (f : Fin n → C) (g : Fin m → C) :
+    (⨁ f) ⊞ (⨁ g) ≅ ⨁ (fun k : Fin (n + m) =>
+      if h : k.val < n then f ⟨k.val, h⟩ else g ⟨k.val - n, by omega⟩) := by
+  -- The explicit construction requires careful handling of dependent types
+  -- and proves hom_inv_id / inv_hom_id via biproduct.ι_π lemmas
+  sorry
+
+/-- **Krull-Schmidt Existence**: Every finite length object admits an indecomposable decomposition.
+
+The proof proceeds by well-founded induction on the subobject lattice. For a finite length object X:
+- If X is zero, use the empty decomposition
+- If X is indecomposable, use the singleton decomposition
+- If X ≅ Y ⊞ Z with both nonzero, recursively decompose Y and Z
+-/
+theorem krullSchmidt_existence (X : C) (hX : IsFiniteLengthObject X) :
+    Nonempty (IndecomposableDecomposition C X) := by
+  -- Use well-founded induction on the subobject lattice
+  by_cases hZero : IsZero X
+  · exact ⟨emptyDecomposition X hZero⟩
+  · by_cases hIndec : Indecomposable X
+    · exact ⟨singletonDecomposition X hIndec⟩
+    · -- X is decomposable: there exist Y, Z both nonzero with X ≅ Y ⊞ Z
+      simp only [Indecomposable, not_and, not_forall, not_or] at hIndec
+      obtain ⟨Y, Z, i, hY, hZ⟩ := hIndec hZero
+      -- Y and Z have finite length
+      have hYfl : IsFiniteLengthObject Y := isFiniteLengthObject_biprod_fst
+        (isFiniteLengthObject_of_iso i hX)
+      have hZfl : IsFiniteLengthObject Z := isFiniteLengthObject_biprod_snd
+        (isFiniteLengthObject_of_iso i hX)
+      -- This is where we need well-founded recursion
+      -- The recursion terminates because Y and Z are "smaller" than X
+      -- in the sense that they embed into X via proper monomorphisms
+      -- For now, we use sorry for the recursive calls - the full proof
+      -- requires setting up a well-founded relation on finite length objects
+      have ⟨dY⟩ : Nonempty (IndecomposableDecomposition C Y) := sorry
+      have ⟨dZ⟩ : Nonempty (IndecomposableDecomposition C Z) := sorry
+      -- Concatenate the decompositions
+      refine ⟨⟨dY.n + dZ.n, fun k =>
+        if h : k.val < dY.n then dY.components ⟨k.val, h⟩
+        else dZ.components ⟨k.val - dY.n, by omega⟩, ?_, ?_⟩⟩
+      · intro k
+        simp only
+        split_ifs with h
+        · exact dY.indecomposable ⟨k.val, h⟩
+        · exact dZ.indecomposable ⟨k.val - dY.n, by omega⟩
+      · -- The iso: X ≅ Y ⊞ Z ≅ (⨁ dY.components) ⊞ (⨁ dZ.components) ≅ ⨁ (concatenated)
+        exact i ≪≫ biprodMapIso dY.iso dZ.iso ≪≫ biproductBiprodIso dY.components dZ.components
+
+end KrullSchmidtExistence
+
 /-! ## Summary
 
 **Theorem 1.5.7 (Krull-Schmidt)**: Any object of finite length admits a unique

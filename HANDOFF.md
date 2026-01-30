@@ -2,7 +2,7 @@
 
 ## Project Stats
 
-- **Issues:** ~428 total, ~372 open, ~55 closed
+- **Issues:** ~428 total, ~372 open, ~56 closed
 - **Chapter 1 Files:** 33 Lean files, all building
 - **Blockers:** 4 issues currently blocked
 
@@ -16,20 +16,29 @@
 
 ---
 
-## Current Session (2026-01-30)
+## Current Session (2026-01-30 Evening)
 
-### lemmafeld-6xvp: End(X) is local ring — COMPLETE ✓
+### lemmafeld-zczy: Krull-Schmidt existence — PARTIAL (3 sorries)
 
-- **Theorem:** `isLocalRing_end_of_indecomposable_finiteLength`
-- **File:** `Chapter1/FittingLemma.lean`
-- **Status:** Proof complete, no sorries
+- **Theorem:** `krullSchmidt_existence`
+- **File:** `Chapter1/KrullSchmidt.lean` (now 307 LOC)
+- **Status:** Structure complete, 3 sorries remaining
 
-**Key insight:** Added helper lemma `eq_zero_of_isNilpotent_of_left_inv` which shows that
-if x is nilpotent and has a left inverse in a nontrivial ring, then x = 0. This enabled
-proving that if f and g are both nilpotent but f+g is a unit, we get a contradiction:
-- Apply Fitting to v*f where v = (f+g)⁻¹
-- If v*f is unit: f has left inverse → f = 0 → g is unit but nilpotent → contradiction
-- If v*f is nilpotent: v*g = 1 - v*f is unit → g has left inverse → g = 0 → f is unit but nilpotent → contradiction
+**Completed:**
+- Base cases: empty decomposition (zero object), singleton decomposition (indecomposable)
+- Recursive case structure with concatenation
+- Helper lemmas: `isFiniteLengthObject_of_iso`, `isFiniteLengthObject_biprod_fst/snd`
+- Structural lemmas: `biproduct_empty_isZero`, `biproductSingletonIso`
+
+**Remaining sorries:**
+1. `biproductBiprodIso`: (⨁ f) ⊞ (⨁ g) ≅ ⨁ (concatenated) — structural lemma
+2. Recursive decomposition of Y — needs well-founded recursion
+3. Recursive decomposition of Z — needs well-founded recursion
+
+**Key insight:** The recursion needs well-founded induction. Termination argument:
+- Y and Z embed into X via proper monomorphisms (since X ≅ Y ⊕ Z with both nonzero)
+- Artinian property ensures no infinite descending chains
+- Need to formalize: "Y ≺ X iff Y iso to proper subobject of X" is well-founded
 
 ---
 
@@ -39,7 +48,6 @@ proving that if f and g are both nilpotent but f+g is a unit, we get a contradic
 
 - **lemmafeld-6xvp**: `isLocalRing_end_of_indecomposable_finiteLength` — DONE (no sorries!)
 - **File:** `Chapter1/FittingLemma.lean` (now ~770 LOC)
-- **New lemma:** `eq_zero_of_isNilpotent_of_left_inv`
 
 ### Fitting's Lemma (§1.5.7) — COMPLETE ✓
 
@@ -50,18 +58,18 @@ proving that if f and g are both nilpotent but f+g is a unit, we get a contradic
 
 ## Immediate Next Steps
 
-### 1. lemmafeld-zczy (P2): Krull-Schmidt existence
-- Now unblocked!
-- Finite length objects decompose into indecomposables
-- Uses local ring property just proved
+### 1. Complete lemmafeld-zczy (3 sorries)
+- Fill `biproductBiprodIso` — explicit biproduct concatenation iso
+- Set up well-founded relation for recursion
+- Use `WellFounded.fix` for the recursive calls
 
 ### 2. lemmafeld-01k3 (P2): Krull-Schmidt uniqueness
-- Blocked by zczy
-- Indecomposable decompositions are unique up to permutation
+- Still blocked by zczy completion
+- Requires exchange lemma using local ring property
 
-### 3. Hygiene: FittingLemma.lean (770 LOC)
-- Exceeds 200 LOC guideline significantly
-- Consider extracting to separate files
+### 3. Hygiene: FittingLemma.lean (770 LOC), KrullSchmidt.lean (307 LOC)
+- Both exceed 200 LOC guideline
+- Consider extracting helper lemmas to separate files
 
 ---
 
@@ -69,16 +77,18 @@ proving that if f and g are both nilpotent but f+g is a unit, we get a contradic
 
 | Chain | Current State |
 |-------|---------------|
-| **Fitting → Local Ring → KS** | fitting_lemma ✓ → 6xvp ✓ → zczy (ready!) |
+| **Fitting → Local Ring → KS** | fitting_lemma ✓ → 6xvp ✓ → zczy (3 sorries) |
 | **Grothendieck Group** | Root: lemmafeld-mfs8 (JordanHolderLattice for Subobject) — deep gap |
 
 ---
 
 ## Files Modified This Session
 
-- `Chapter1/FittingLemma.lean` — Completed local ring theorem
-  - New lemma: `eq_zero_of_isNilpotent_of_left_inv` (~25 LOC)
-  - Filled sorry in `isLocalRing_end_of_indecomposable_finiteLength` (~35 LOC)
+- `Chapter1/KrullSchmidt.lean` — Added Krull-Schmidt existence proof structure
+  - New lemmas: `isFiniteLengthObject_of_iso`, `isFiniteLengthObject_biprod_fst/snd`
+  - New defs: `emptyDecomposition`, `singletonDecomposition`, `biproductBiprodIso`
+  - New theorem: `krullSchmidt_existence` (3 sorries)
+- `docs/learnings/chapter1/length_objects.md` — Documented KS existence progress
 
 ---
 

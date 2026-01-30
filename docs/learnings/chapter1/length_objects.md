@@ -253,6 +253,39 @@ def iterateComap {X : C} (f : X ⟶ X) (K : Subobject X) (n : ℕ) : Subobject X
 
 **Lean file:** `Chapter1/FittingLemma.lean`
 
+### Krull-Schmidt Existence (2026-01-30 - lemmafeld-zczy PARTIAL)
+
+**Statement:** Any finite length object admits an indecomposable decomposition.
+
+**Proof structure implemented:**
+1. **Zero case:** `emptyDecomposition` - decomposition with n=0 components
+2. **Indecomposable case:** `singletonDecomposition` - decomposition with n=1 component
+3. **Decomposable case:** X ≅ Y ⊞ Z with both nonzero, recursively decompose Y and Z
+
+**Helper lemmas proved:**
+- `isFiniteLengthObject_of_iso` - finite length preserved under iso
+- `isFiniteLengthObject_biprod_fst/snd` - biproduct components have finite length
+- `biproduct_empty_isZero` - ⨁ Fin.elim0 is zero
+- `biproductSingletonIso` - ⨁ (fun _ : Fin 1 => X) ≅ X
+
+**Remaining sorries (3):**
+1. `biproductBiprodIso` - (⨁ f) ⊞ (⨁ g) ≅ ⨁ (concatenated)
+   - Construction sketch in comments; requires careful dependent type handling
+2. Recursive decomposition of Y
+3. Recursive decomposition of Z
+
+**Key insight:** The recursive calls need well-founded recursion. The termination
+argument is that Y and Z embed into X via proper monomorphisms, and the Artinian
+property ensures well-foundedness. Setting up this well-founded relation is the
+main remaining work.
+
+**Approach for well-founded recursion:**
+- Define relation: Y ≺ X iff Y iso to proper subobject of X
+- Show this is well-founded for finite-length objects (by Artinian)
+- Use `WellFounded.fix` with this relation
+
+**Lean file:** `Chapter1/KrullSchmidt.lean`
+
 ---
 
 ## §1.5.8: Grothendieck Group
