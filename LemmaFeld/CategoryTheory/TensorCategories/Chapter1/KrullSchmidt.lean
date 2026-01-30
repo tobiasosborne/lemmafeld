@@ -845,26 +845,91 @@ def biproductSingletonIso' {n : ℕ} (hn : n = 1) (f : Fin n → C) :
     simp [biproduct.ι_π_self]
   inv_hom_id := biproduct.ι_π_self f ⟨0, by omega⟩
 
+/-- Helper: if a biproduct has a nonzero component, the biproduct is nonzero. -/
+private lemma not_isZero_biproduct_of_component {J : Type*} [Fintype J] (g : J → C)
+    [HasBiproduct g] (j : J) (h : ¬IsZero (g j)) : ¬IsZero (⨁ g) := by
+  intro hZ
+  apply h
+  rw [Limits.IsZero.iff_id_eq_zero]
+  have hι : biproduct.ι g j = 0 := hZ.eq_of_tgt _ _
+  calc 𝟙 (g j) = biproduct.ι g j ≫ biproduct.π g j := (biproduct.ι_π_self g j).symm
+    _ = 0 ≫ biproduct.π g j := by rw [hι]
+    _ = 0 := zero_comp
+
+/-- For n > 1, concatFin of singleton head and (n-1)-element tail equals f (reindexed). -/
+private lemma concatFin_eq_reindex {n : ℕ} (hn : 1 ≤ n) (f : Fin n → C) :
+    concatFin (fun _ : Fin 1 => f ⟨0, by omega⟩)
+              (fun i : Fin (n - 1) => f ⟨i.val + 1, by omega⟩) =
+    (fun k : Fin (1 + (n - 1)) => f ⟨k.val, by omega⟩) := by
+  ext k
+  simp only [concatFin]
+  by_cases hk : k.val < 1
+  · simp only [hk, ↓reduceDIte]
+    have hk0 : k.val = 0 := by omega
+    congr 1; ext; simp [hk0]
+  · simp only [hk, ↓reduceDIte]
+    have hk_ge : k.val ≥ 1 := by omega
+    congr 1; ext
+    -- k.val - 1 + 1 = k.val when k.val ≥ 1
+    exact Nat.sub_add_cancel hk_ge
+
 /-- A biproduct of indecomposables with more than one component is decomposable. -/
 lemma not_indecomposable_of_biproduct_gt_one {n : ℕ} (f : Fin n → C) (hn : 1 < n)
     (hf : ∀ i, Indecomposable (f i)) : ¬Indecomposable (⨁ f) := by
   intro ⟨hnonzero, hdecomp⟩
-  -- Split ⨁ f into f 0 ⊕ (the rest)
+  -- Split ⨁ f into f 0 ⊕ (the rest) using biproductBiprodIso
   have h0 : 0 < n := Nat.lt_trans Nat.zero_lt_one hn
   have h1 : 1 < n := hn
   -- f 0 and f 1 are both nonzero (indecomposable ⟹ nonzero)
   have hf0_nz : ¬IsZero (f ⟨0, h0⟩) := (hf ⟨0, h0⟩).1
   have hf1_nz : ¬IsZero (f ⟨1, h1⟩) := (hf ⟨1, h1⟩).1
-  -- Consider the decomposition via biproduct.ι and biproduct.π
-  -- We can form a decomposition: ⨁ f ≅ (f 0 ⊕ f 1) ⊕ rest, showing it's decomposable
-  -- Simpler: use the biproduct structure directly
-  -- biprod (f 0) (⨁ (f ∘ Fin.succ)) gives a decomposition
-  -- For the indecomposability check, we need an iso to a biprod
-  -- Actually, we can use that ⨁ f has proper nonzero summands
-  -- Use the biproduct splitting: there exist retractions f i ↪ ⨁ f ↠ f i
-  -- whose composite is the identity. For i ≠ j, the "other" component is nonzero.
-  -- This shows ⨁ f ≅ f 0 ⊕ (the kernel of projection to f 0), and both are nonzero
-  sorry  -- TODO: Complete this helper lemma
+  -- Define head and tail
+  let head : Fin 1 → C := fun _ => f ⟨0, h0⟩
+  let tail : Fin (n - 1) → C := fun i => f ⟨i.val + 1, by omega⟩
+  -- Key: 1 + (n - 1) = n
+  have hn_eq : 1 + (n - 1) = n := by omega
+  -- The concatFin of head and tail equals f (after reindexing)
+  have hconcat : concatFin head tail = (fun k : Fin (1 + (n - 1)) => f ⟨k.val, by omega⟩) :=
+    concatFin_eq_reindex (by omega : 1 ≤ n) f
+  -- Build the iso: ⨁ f ≅ (⨁ head) ⊞ (⨁ tail)
+  -- Define the equivalence Fin n ≃ Fin (1 + (n - 1))
+  have hn1 : 1 + (n - 1) = n := hn_eq
+  let e : Fin n ≃ Fin (1 + (n - 1)) := {
+    toFun := fun i => ⟨i.val, by omega⟩
+    invFun := fun k => ⟨k.val, by omega⟩
+    left_inv := fun i => by ext; simp
+    right_inv := fun k => by ext; simp
+  }
+  -- First, ⨁ f ≅ ⨁ (reindexed f) via e
+  let g := fun k : Fin (1 + (n - 1)) => f ⟨k.val, by omega⟩
+  have iso_reindex : ⨁ f ≅ ⨁ g :=
+    biproduct.whiskerEquiv e (fun i => eqToIso (by simp only [g, e]; rfl))
+  -- Then, ⨁ (reindexed f) ≅ ⨁ (concatFin head tail)
+  have iso_concat : ⨁ g ≅ ⨁ (concatFin head tail) :=
+    biproduct.whiskerEquiv (Equiv.refl _) (fun k => eqToIso (by
+      simp only [Equiv.refl_apply]
+      exact congrFun hconcat k))
+  -- Finally, biproductBiprodIso.symm : ⨁ (concatFin head tail) ≅ (⨁ head) ⊞ (⨁ tail)
+  let split_iso : ⨁ f ≅ (⨁ head) ⊞ (⨁ tail) :=
+    iso_reindex ≪≫ iso_concat ≪≫ (biproductBiprodIso head tail).symm
+  -- Now apply hdecomp to split_iso
+  have h_decomp := hdecomp (⨁ head) (⨁ tail) split_iso
+  -- Show both components are nonzero
+  have h_head_nz : ¬IsZero (⨁ head) := by
+    have : ⨁ head ≅ f ⟨0, h0⟩ := biproductSingletonIso (f ⟨0, h0⟩)
+    intro hZ
+    exact hf0_nz (hZ.of_iso this.symm)
+  have h_tail_nz : ¬IsZero (⨁ tail) := by
+    have h1' : (1 : ℕ) < n := h1
+    have hn1 : 0 < n - 1 := by omega
+    -- tail ⟨0, hn1⟩ = f ⟨1, h1⟩ which is nonzero
+    have htail0 : tail ⟨0, hn1⟩ = f ⟨1, h1⟩ := by simp [tail]
+    rw [← htail0] at hf1_nz
+    exact not_isZero_biproduct_of_component tail ⟨0, hn1⟩ hf1_nz
+  -- Contradiction: hdecomp says one is zero, but both are nonzero
+  rcases h_decomp with hZ_head | hZ_tail
+  · exact h_head_nz hZ_head
+  · exact h_tail_nz hZ_tail
 
 /-- **Krull-Schmidt Uniqueness**: Any two indecomposable decompositions of a finite
 length object are equivalent up to permutation and isomorphism.
