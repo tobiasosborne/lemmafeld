@@ -338,6 +338,98 @@ lemma isFiniteLengthObject_subobject {X : C} (hX : IsFiniteLengthObject X)
   · exact isArtinianObject_of_mono S.arrow
   · exact isNoetherianObject_of_mono S.arrow
 
+/-- When S : Subobject X and underlying.obj S ≅ Y ⊕ Z, create the subobject for Y. -/
+def subobjectOfBiprodFst_via {X : C} (S : Subobject X) {Y Z : C}
+    (iU : Subobject.underlying.obj S ≅ Y ⊞ Z) : Subobject X :=
+  Subobject.mk (biprod.inl ≫ iU.inv ≫ S.arrow)
+
+/-- When S : Subobject X and underlying.obj S ≅ Y ⊕ Z, create the subobject for Z. -/
+def subobjectOfBiprodSnd_via {X : C} (S : Subobject X) {Y Z : C}
+    (iU : Subobject.underlying.obj S ≅ Y ⊞ Z) : Subobject X :=
+  Subobject.mk (biprod.inr ≫ iU.inv ≫ S.arrow)
+
+/-- The first biproduct subobject is strictly less than S when Z is nonzero. -/
+lemma subobjectOfBiprodFst_via_lt {X : C} (S : Subobject X) {Y Z : C}
+    (iU : Subobject.underlying.obj S ≅ Y ⊞ Z) (hZ : ¬IsZero Z) :
+    subobjectOfBiprodFst_via S iU < S := by
+  rw [lt_iff_le_and_ne]
+  constructor
+  · -- subobjectOfBiprodFst_via S iU ≤ S
+    unfold subobjectOfBiprodFst_via
+    exact Subobject.mk_le_of_comm (biprod.inl ≫ iU.inv) (by simp [Category.assoc])
+  · -- subobjectOfBiprodFst_via S iU ≠ S
+    intro heq
+    unfold subobjectOfBiprodFst_via at heq
+    -- heq : mk (biprod.inl ≫ iU.inv ≫ S.arrow) = S
+    -- Use isoOfEq to get an iso between underlying objects
+    let φ := Subobject.isoOfEq _ _ heq
+    -- φ : underlying.obj (mk (biprod.inl ≫ iU.inv ≫ S.arrow)) ≅ underlying.obj S
+    let ψ := Subobject.underlyingIso (biprod.inl ≫ iU.inv ≫ S.arrow)
+    -- ψ : underlying.obj (mk (...)) ≅ Y
+    -- Compose: ψ.symm ≪≫ φ : Y ≅ underlying.obj S
+    let θ : Y ≅ Subobject.underlying.obj S := ψ.symm ≪≫ φ
+    -- Key: θ.hom ≫ S.arrow = (biprod.inl ≫ iU.inv ≫ S.arrow) by the arrow properties
+    -- ψ.hom ≫ (mk ...).arrow = biprod.inl ≫ iU.inv ≫ S.arrow (by underlyingIso property)
+    -- φ.hom ≫ S.arrow = (mk ...).arrow (by isoOfEq property)
+    -- So θ.hom ≫ S.arrow = ψ.inv ≫ φ.hom ≫ S.arrow = ψ.inv ≫ (mk ...).arrow
+    --                    = biprod.inl ≫ iU.inv ≫ S.arrow (by ψ.inv ≫ ψ.hom = 𝟙 on domain)
+    have hθ : θ.hom ≫ S.arrow = (biprod.inl ≫ iU.inv) ≫ S.arrow := by
+      -- θ = ψ.symm ≪≫ φ, where φ = isoOfEq heq, ψ = underlyingIso
+      -- Key lemma: (underlyingIso f).inv ≫ (mk f).arrow = f
+      have key : ψ.inv ≫ (Subobject.mk (biprod.inl ≫ iU.inv ≫ S.arrow)).arrow =
+                 biprod.inl ≫ iU.inv ≫ S.arrow := Subobject.underlyingIso_arrow _
+      -- (isoOfEq heq).hom ≫ S.arrow = (mk ...).arrow follows from heq and ofLE_arrow
+      have hφ : φ.hom ≫ S.arrow = (Subobject.mk (biprod.inl ≫ iU.inv ≫ S.arrow)).arrow := by
+        simp only [φ, Subobject.isoOfEq, Subobject.ofLE_arrow]
+      simp only [θ, Iso.trans_hom, Iso.symm_hom, Category.assoc, hφ, key]
+    -- Since S.arrow is mono: θ.hom = biprod.inl ≫ iU.inv
+    have hθ_val : θ.hom = biprod.inl ≫ iU.inv := (cancel_mono S.arrow).mp hθ
+    -- So biprod.inl ≫ iU.inv is an iso (equals θ.hom)
+    have hiso : IsIso (biprod.inl ≫ iU.inv) := by rw [← hθ_val]; infer_instance
+    -- Since iU.inv is an iso, biprod.inl is an iso
+    haveI : IsIso (biprod.inl : Y ⟶ Y ⊞ Z) := by
+      have h1 : biprod.inl = (biprod.inl ≫ iU.inv) ≫ iU.hom := by simp
+      rw [h1]; infer_instance
+    exact hZ (isZero_of_isIso_biprod_inl this)
+
+/-- The second biproduct subobject is strictly less than S when Y is nonzero. -/
+lemma subobjectOfBiprodSnd_via_lt {X : C} (S : Subobject X) {Y Z : C}
+    (iU : Subobject.underlying.obj S ≅ Y ⊞ Z) (hY : ¬IsZero Y) :
+    subobjectOfBiprodSnd_via S iU < S := by
+  rw [lt_iff_le_and_ne]
+  constructor
+  · unfold subobjectOfBiprodSnd_via
+    exact Subobject.mk_le_of_comm (biprod.inr ≫ iU.inv) (by simp [Category.assoc])
+  · intro heq
+    unfold subobjectOfBiprodSnd_via at heq
+    let φ := Subobject.isoOfEq _ _ heq
+    let ψ := Subobject.underlyingIso (biprod.inr ≫ iU.inv ≫ S.arrow)
+    let θ : Z ≅ Subobject.underlying.obj S := ψ.symm ≪≫ φ
+    have hθ : θ.hom ≫ S.arrow = (biprod.inr ≫ iU.inv) ≫ S.arrow := by
+      have key : ψ.inv ≫ (Subobject.mk (biprod.inr ≫ iU.inv ≫ S.arrow)).arrow =
+                 biprod.inr ≫ iU.inv ≫ S.arrow := Subobject.underlyingIso_arrow _
+      have hφ : φ.hom ≫ S.arrow = (Subobject.mk (biprod.inr ≫ iU.inv ≫ S.arrow)).arrow := by
+        simp only [φ, Subobject.isoOfEq, Subobject.ofLE_arrow]
+      simp only [θ, Iso.trans_hom, Iso.symm_hom, Category.assoc, hφ, key]
+    have hθ_val : θ.hom = biprod.inr ≫ iU.inv := (cancel_mono S.arrow).mp hθ
+    have hiso : IsIso (biprod.inr ≫ iU.inv) := by rw [← hθ_val]; infer_instance
+    haveI : IsIso (biprod.inr : Z ⟶ Y ⊞ Z) := by
+      have h1 : biprod.inr = (biprod.inr ≫ iU.inv) ≫ iU.hom := by simp
+      rw [h1]; infer_instance
+    exact hY (isZero_of_isIso_biprod_inr this)
+
+/-- The underlying object of subobjectOfBiprodFst_via is isomorphic to Y. -/
+def subobjectOfBiprodFst_via_underlyingIso {X : C} (S : Subobject X) {Y Z : C}
+    (iU : Subobject.underlying.obj S ≅ Y ⊞ Z) :
+    Subobject.underlying.obj (subobjectOfBiprodFst_via S iU) ≅ Y :=
+  Subobject.underlyingIso _
+
+/-- The underlying object of subobjectOfBiprodSnd_via is isomorphic to Z. -/
+def subobjectOfBiprodSnd_via_underlyingIso {X : C} (S : Subobject X) {Y Z : C}
+    (iU : Subobject.underlying.obj S ≅ Y ⊞ Z) :
+    Subobject.underlying.obj (subobjectOfBiprodSnd_via S iU) ≅ Z :=
+  Subobject.underlyingIso _
+
 end WellFoundedRecursion
 
 /-! ## Krull-Schmidt Existence Proof -/
@@ -461,37 +553,68 @@ The proof proceeds by well-founded induction on the subobject lattice. For a fin
 -/
 theorem krullSchmidt_existence (X : C) (hX : IsFiniteLengthObject X) :
     Nonempty (IndecomposableDecomposition C X) := by
-  -- Use well-founded induction on the subobject lattice
-  by_cases hZero : IsZero X
-  · exact ⟨emptyDecomposition X hZero⟩
-  · by_cases hIndec : Indecomposable X
-    · exact ⟨singletonDecomposition X hIndec⟩
-    · -- X is decomposable: there exist Y, Z both nonzero with X ≅ Y ⊞ Z
-      simp only [Indecomposable, not_and, not_forall, not_or] at hIndec
-      obtain ⟨Y, Z, i, hY, hZ⟩ := hIndec hZero
-      -- Y and Z have finite length
-      have hYfl : IsFiniteLengthObject Y := isFiniteLengthObject_biprod_fst
-        (isFiniteLengthObject_of_iso i hX)
-      have hZfl : IsFiniteLengthObject Z := isFiniteLengthObject_biprod_snd
-        (isFiniteLengthObject_of_iso i hX)
-      -- This is where we need well-founded recursion
-      -- The recursion terminates because Y and Z are "smaller" than X
-      -- in the sense that they embed into X via proper monomorphisms
-      -- For now, we use sorry for the recursive calls - the full proof
-      -- requires setting up a well-founded relation on finite length objects
-      have ⟨dY⟩ : Nonempty (IndecomposableDecomposition C Y) := sorry
-      have ⟨dZ⟩ : Nonempty (IndecomposableDecomposition C Z) := sorry
-      -- Concatenate the decompositions
-      refine ⟨⟨dY.n + dZ.n, fun k =>
-        if h : k.val < dY.n then dY.components ⟨k.val, h⟩
-        else dZ.components ⟨k.val - dY.n, by omega⟩, ?_, ?_⟩⟩
-      · intro k
-        simp only
-        split_ifs with h
-        · exact dY.indecomposable ⟨k.val, h⟩
-        · exact dZ.indecomposable ⟨k.val - dY.n, by omega⟩
-      · -- The iso: X ≅ Y ⊞ Z ≅ (⨁ dY.components) ⊞ (⨁ dZ.components) ≅ ⨁ (concatenated)
-        exact i ≪≫ biprodMapIso dY.iso dZ.iso ≪≫ biproductBiprodIso dY.components dZ.components
+  -- The key: use well-founded induction on Subobject X
+  -- For Artinian objects, Subobject X has WellFoundedLT
+  haveI : IsArtinianObject X := hX.artinian
+  -- Prove: for every subobject S, underlying.obj S has a decomposition
+  -- Then apply to ⊤ (which is X)
+  suffices h : ∀ S : Subobject X,
+      Nonempty (IndecomposableDecomposition C (Subobject.underlying.obj S)) by
+    obtain ⟨d⟩ := h ⊤
+    -- ⊤.arrow : underlying.obj ⊤ → X is an iso
+    haveI : IsIso (⊤ : Subobject X).arrow := by rw [Subobject.isIso_arrow_iff_eq_top]
+    let topIso : Subobject.underlying.obj (⊤ : Subobject X) ≅ X := asIso (⊤ : Subobject X).arrow
+    exact ⟨{ n := d.n
+             components := d.components
+             indecomposable := d.indecomposable
+             iso := topIso.symm ≪≫ d.iso }⟩
+  -- Well-founded induction on S : Subobject X
+  intro S
+  induction S using WellFoundedLT.induction with
+  | ind S ih =>
+    set U := Subobject.underlying.obj S with hU
+    have hUfl : IsFiniteLengthObject U := isFiniteLengthObject_subobject hX S
+    by_cases hZero : IsZero U
+    · exact ⟨emptyDecomposition U hZero⟩
+    · by_cases hIndec : Indecomposable U
+      · exact ⟨singletonDecomposition U hIndec⟩
+      · -- U is decomposable: U ≅ Y ⊕ Z with both nonzero
+        simp only [Indecomposable, not_and, not_forall, not_or] at hIndec
+        obtain ⟨Y, Z, iU, hY, hZ⟩ := hIndec hZero
+        -- Create subobjects of X for Y and Z, which are < S
+        let sY := subobjectOfBiprodFst_via S iU
+        let sZ := subobjectOfBiprodSnd_via S iU
+        have sY_lt : sY < S := subobjectOfBiprodFst_via_lt S iU hZ
+        have sZ_lt : sZ < S := subobjectOfBiprodSnd_via_lt S iU hY
+        -- Recursive calls: decompositions of underlying.obj sY and underlying.obj sZ
+        obtain ⟨dY'⟩ := ih sY sY_lt
+        obtain ⟨dZ'⟩ := ih sZ sZ_lt
+        -- Transport to Y and Z using the underlying isos
+        let iY : Subobject.underlying.obj sY ≅ Y := subobjectOfBiprodFst_via_underlyingIso S iU
+        let iZ : Subobject.underlying.obj sZ ≅ Z := subobjectOfBiprodSnd_via_underlyingIso S iU
+        -- Decomposition of Y from dY'
+        let dY : IndecomposableDecomposition C Y :=
+          { n := dY'.n
+            components := dY'.components
+            indecomposable := dY'.indecomposable
+            iso := iY.symm ≪≫ dY'.iso }
+        -- Decomposition of Z from dZ'
+        let dZ : IndecomposableDecomposition C Z :=
+          { n := dZ'.n
+            components := dZ'.components
+            indecomposable := dZ'.indecomposable
+            iso := iZ.symm ≪≫ dZ'.iso }
+        -- Concatenate the decompositions for U
+        refine ⟨⟨dY.n + dZ.n, fun k =>
+          if h : k.val < dY.n then dY.components ⟨k.val, h⟩
+          else dZ.components ⟨k.val - dY.n, by omega⟩, ?_, ?_⟩⟩
+        · intro k
+          simp only
+          split_ifs with h
+          · exact dY.indecomposable ⟨k.val, h⟩
+          · exact dZ.indecomposable ⟨k.val - dY.n, by omega⟩
+        · -- The iso: U ≅ Y ⊕ Z ≅ (⨁ dY.components) ⊕ (⨁ dZ.components) ≅ ⨁ (concatenated)
+          exact iU ≪≫ biprodMapIso dY.iso dZ.iso ≪≫ biproductBiprodIso dY.components dZ.components
 
 end KrullSchmidtExistence
 

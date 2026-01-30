@@ -1,10 +1,10 @@
-# Handoff: 2026-01-30 (Night)
+# Handoff: 2026-01-30 (Late Night)
 
 ## Project Stats
 
-- **Issues:** ~429 total, ~373 open, ~56 closed
+- **Issues:** ~429 total, ~371 open, ~58 closed
 - **Chapter 1 Files:** 33 Lean files, all building
-- **Blockers:** 5 issues currently blocked
+- **Blockers:** 4 issues currently blocked
 
 ## Book Coverage Summary
 
@@ -16,37 +16,28 @@
 
 ---
 
-## Current Session (2026-01-30 Night)
+## Current Session (2026-01-30 Late Night)
 
-### lemmafeld-4ik7: Well-founded recursion setup — PARTIAL
+### lemmafeld-4ik7: Well-founded recursion setup — COMPLETE ✓
 
-- **File:** `Chapter1/KrullSchmidt.lean` (now 582 LOC, +135 lines)
-- **Status:** Infrastructure complete, final WellFounded.fix integration pending
+- **File:** `Chapter1/KrullSchmidt.lean` (now 705 LOC)
+- **Status:** DONE
 
-**Completed (all NO SORRY):**
-- `isZero_of_isIso_biprod_inl`: If biprod.inl is iso, Z is zero
-- `isZero_of_isIso_biprod_inr`: If biprod.inr is iso, Y is zero
-- `subobjectOfBiprodFst`: Subobject of X from Y when X ≅ Y ⊕ Z
-- `subobjectOfBiprodSnd`: Subobject of X from Z when X ≅ Y ⊕ Z
-- `subobjectOfBiprodFst_lt_top`: First subobject is proper when Z ≠ 0
-- `subobjectOfBiprodSnd_lt_top`: Second subobject is proper when Y ≠ 0
-- `subobjectOfBiprodFst_underlyingIso`: Iso between underlying object and Y
-- `subobjectOfBiprodSnd_underlyingIso`: Iso between underlying object and Z
-- `isFiniteLengthObject_of_iso'`: Finite length preserved (source direction)
-- `isFiniteLengthObject_subobject`: Subobjects of FL objects are FL
+**New lemmas added (all COMPLETE):**
+- `subobjectOfBiprodFst_via`: Create subobject of X from Y via S when S.underlying ≅ Y ⊕ Z
+- `subobjectOfBiprodSnd_via`: Same for Z
+- `subobjectOfBiprodFst_via_lt`: First subobject is < S when Z ≠ 0
+- `subobjectOfBiprodSnd_via_lt`: Second subobject is < S when Y ≠ 0
+- `subobjectOfBiprodFst_via_underlyingIso`: Underlying object ≅ Y
+- `subobjectOfBiprodSnd_via_underlyingIso`: Underlying object ≅ Z
 
-**Remaining:**
-- Connect Y/Z to their subobject representations in the proof
-- Use WellFounded.fix on Subobject X lattice (Artinian gives WellFoundedLT)
-- Replace 2 sorry calls at lines 482-483
-
----
-
-### lemmafeld-zczy: Krull-Schmidt existence — PARTIAL (2 sorries)
+### lemmafeld-zczy: Krull-Schmidt existence — COMPLETE ✓
 
 - **Theorem:** `krullSchmidt_existence`
-- **Status:** Structure complete, 2 sorries for recursive calls
-- **Blocked by:** lemmafeld-4ik7 (WellFounded.fix integration)
+- **Status:** DONE - No sorries!
+- **Method:** Well-founded induction on Subobject X using WellFoundedLT
+
+---
 
 ### lemmafeld-01k3: Krull-Schmidt uniqueness — PARTIAL (1 sorry)
 
@@ -56,6 +47,12 @@
 ---
 
 ## Recent Completions (2026-01-30)
+
+### Krull-Schmidt Existence — COMPLETE ✓ (this session)
+
+- **lemmafeld-4ik7**: Well-founded recursion infrastructure — DONE
+- **lemmafeld-zczy**: `krullSchmidt_existence` theorem — DONE
+- **File:** `Chapter1/KrullSchmidt.lean`
 
 ### End(X) is Local Ring — COMPLETE ✓
 
@@ -71,16 +68,13 @@
 
 ## Immediate Next Steps
 
-### 1. Complete lemmafeld-4ik7 (~30 LOC remaining)
-- Wire subobject infrastructure into krullSchmidt_existence
-- Use WellFounded.fix or Acc.rec on Subobject X
-
-### 2. Complete lemmafeld-y9yx (exchangeLemma proof)
+### 1. Complete lemmafeld-y9yx (exchangeLemma proof)
 - Construct projection maps fⱼ : Y₀ → Zⱼ
 - Apply exists_isUnit_of_finsum_eq_one
+- Will unblock KS uniqueness (lemmafeld-01k3)
 
-### 3. Hygiene: KrullSchmidt.lean (582 LOC)
-- Exceeds 200 LOC guideline significantly
+### 2. Hygiene: KrullSchmidt.lean (705 LOC)
+- Significantly exceeds 200 LOC guideline
 - Consider extracting WellFoundedRecursion section to separate file
 
 ---
@@ -89,7 +83,7 @@
 
 | Chain | Current State |
 |-------|---------------|
-| **KS Existence** | lemmafeld-4ik7 (infrastructure ✓, WellFounded.fix pending) |
+| **KS Existence** | ✅ COMPLETE |
 | **KS Uniqueness** | lemmafeld-y9yx (exchangeLemma sorry) |
 | **Grothendieck Group** | lemmafeld-mfs8 (JordanHolderLattice for Subobject) — deep gap |
 
@@ -97,11 +91,11 @@
 
 ## Files Modified This Session
 
-- `Chapter1/KrullSchmidt.lean` — Added well-founded recursion infrastructure (+135 lines)
-  - NEW section: `WellFoundedRecursion` with 10 lemmas (all COMPLETE)
-  - Key lemmas: proper subobject construction, finite length preservation
-  - File now at 582 LOC (up from 447)
-  - 3 sorries total: 2 in existence, 1 in exchange lemma
+- `Chapter1/KrullSchmidt.lean` — Completed well-founded recursion (+123 lines)
+  - NEW: 6 helper lemmas for subobject composition (`subobjectOfBiprodFst_via_*` etc.)
+  - FIXED: `krullSchmidt_existence` uses WellFoundedLT.induction
+  - File now at 705 LOC (up from 582)
+  - 1 sorry remaining (in `exchangeLemma` for uniqueness proof)
 
 ---
 
