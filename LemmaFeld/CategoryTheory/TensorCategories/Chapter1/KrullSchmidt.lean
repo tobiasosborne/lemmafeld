@@ -819,23 +819,70 @@ lemma isFiniteLengthObject_of_biproduct_iso {n : ℕ} {X : C} (f : Fin n → C)
   · exact isArtinianObject_of_mono (biproduct.ι f i)
   · exact isNoetherianObject_of_mono (biproduct.ι f i)
 
+/-- Indecomposability transfers through isomorphisms. -/
+lemma indecomposable_of_iso_indecomposable {X Y : C} (hX : Indecomposable X) (e : X ≅ Y) :
+    Indecomposable Y := by
+  constructor
+  · intro hYz
+    -- hYz : IsZero Y, e : X ≅ Y, want: IsZero X
+    exact hX.1 (hYz.of_iso e)
+  · intro A B eAB
+    -- eAB : Y ≅ A ⊞ B, e : X ≅ Y, want X ≅ A ⊞ B
+    have eXAB : X ≅ A ⊞ B := e ≪≫ eAB
+    exact hX.2 A B eXAB
+
+/-- When n = 1, the biproduct over Fin n is isomorphic to the single component. -/
+def biproductSingletonIso' {n : ℕ} (hn : n = 1) (f : Fin n → C) :
+    ⨁ f ≅ f ⟨0, by omega⟩ where
+  hom := biproduct.π f ⟨0, by omega⟩
+  inv := biproduct.ι f ⟨0, by omega⟩
+  hom_inv_id := by
+    ext ⟨i, hi⟩ ⟨j, hj⟩
+    simp only [Category.assoc, biproduct.ι_π_assoc, Category.id_comp]
+    have hi0 : i = 0 := by omega
+    have hj0 : j = 0 := by omega
+    subst hi0 hj0
+    simp [biproduct.ι_π_self]
+  inv_hom_id := biproduct.ι_π_self f ⟨0, by omega⟩
+
+/-- A biproduct of indecomposables with more than one component is decomposable. -/
+lemma not_indecomposable_of_biproduct_gt_one {n : ℕ} (f : Fin n → C) (hn : 1 < n)
+    (hf : ∀ i, Indecomposable (f i)) : ¬Indecomposable (⨁ f) := by
+  intro ⟨hnonzero, hdecomp⟩
+  -- Split ⨁ f into f 0 ⊕ (the rest)
+  have h0 : 0 < n := Nat.lt_trans Nat.zero_lt_one hn
+  have h1 : 1 < n := hn
+  -- f 0 and f 1 are both nonzero (indecomposable ⟹ nonzero)
+  have hf0_nz : ¬IsZero (f ⟨0, h0⟩) := (hf ⟨0, h0⟩).1
+  have hf1_nz : ¬IsZero (f ⟨1, h1⟩) := (hf ⟨1, h1⟩).1
+  -- Consider the decomposition via biproduct.ι and biproduct.π
+  -- We can form a decomposition: ⨁ f ≅ (f 0 ⊕ f 1) ⊕ rest, showing it's decomposable
+  -- Simpler: use the biproduct structure directly
+  -- biprod (f 0) (⨁ (f ∘ Fin.succ)) gives a decomposition
+  -- For the indecomposability check, we need an iso to a biprod
+  -- Actually, we can use that ⨁ f has proper nonzero summands
+  -- Use the biproduct splitting: there exist retractions f i ↪ ⨁ f ↠ f i
+  -- whose composite is the identity. For i ≠ j, the "other" component is nonzero.
+  -- This shows ⨁ f ≅ f 0 ⊕ (the kernel of projection to f 0), and both are nonzero
+  sorry  -- TODO: Complete this helper lemma
+
 /-- **Krull-Schmidt Uniqueness**: Any two indecomposable decompositions of a finite
 length object are equivalent up to permutation and isomorphism.
 
 The proof uses:
 1. Base case: If d₁.n = 0, then X is zero, so d₂.n = 0 as well
-2. Inductive case: By exchange lemma, d₁.components 0 ≅ d₂.components j for some j
+2. Single component case: If d₁.n = 1, then X is indecomposable, so d₂.n = 1
+3. Inductive case: By exchange lemma, d₁.components 0 ≅ d₂.components j for some j
    Then apply cancellation and induction on the remainders
 -/
 theorem krullSchmidt_uniqueness {X : C} (hX : IsFiniteLengthObject X)
     (d₁ d₂ : IndecomposableDecomposition C X) : DecompositionsEquivalent C d₁ d₂ := by
-  -- Case split on whether d₁.n = 0
-  by_cases hn : d₁.n = 0
+  -- Case split on d₁.n
+  rcases Nat.eq_zero_or_pos d₁.n with hn | hn_pos
   · -- Base case: d₁.n = 0, so X is zero (biproduct over empty index is zero)
     have hBiprod_zero : IsZero (⨁ d₁.components) := by
       have hemp : IsEmpty (Fin d₁.n) := by rw [hn]; exact Fin.isEmpty
       haveI := hemp
-      -- When index type is empty, biproduct is initial/terminal, hence zero
       constructor
       · intro Y
         exact ⟨{ default := biproduct.desc (fun i => IsEmpty.elim hemp i)
@@ -850,8 +897,7 @@ theorem krullSchmidt_uniqueness {X : C} (hX : IsFiniteLengthObject X)
     intro i
     have : i.val < 0 := by rw [← hn]; exact i.isLt
     exact (Nat.not_lt_zero i.val this).elim
-  · -- Inductive case: d₁.n > 0
-    have hn_pos : 0 < d₁.n := Nat.pos_of_ne_zero hn
+  · -- d₁.n > 0
     have hYfl : ∀ i, IsFiniteLengthObject (d₁.components i) :=
       fun i => isFiniteLengthObject_of_biproduct_iso d₁.components d₁.iso hX i
     have hZfl : ∀ j, IsFiniteLengthObject (d₂.components j) :=
@@ -859,12 +905,46 @@ theorem krullSchmidt_uniqueness {X : C} (hX : IsFiniteLengthObject X)
     obtain ⟨j, ⟨f⟩⟩ := exchangeLemma hn_pos d₁.components d₂.components
       d₁.indecomposable d₂.indecomposable hYfl hZfl d₁.iso d₂.iso
     -- f : d₁.components ⟨0, hn_pos⟩ ≅ d₂.components j
-    -- Full proof requires:
-    -- 1. Show d₁.n = d₂.n by strong induction
-    -- 2. Construct the permutation from the matching
-    -- 3. Apply cancellation lemma for the "remainder" decompositions
-    -- 4. Combine the permutation from IH with the swap at position j
-    sorry
+    -- Case split: d₁.n = 1 or d₁.n > 1
+    by_cases hn1 : d₁.n = 1
+    · -- Single component case: d₁.n = 1
+      -- X ≅ d₁.components 0 (single indecomposable), so X is indecomposable
+      -- Hence d₂.n = 1 (otherwise X ≅ ⨁ d₂.components with >1 components is decomposable)
+      have hd2_n : d₂.n = 1 := by
+        by_contra hd2_ne1
+        have hd2_pos : 0 < d₂.n := Fin.pos j
+        have hd2_gt1 : 1 < d₂.n := Nat.lt_of_le_of_ne
+          (Nat.one_le_iff_ne_zero.mpr (Nat.pos_iff_ne_zero.mp hd2_pos)) (Ne.symm hd2_ne1)
+        -- The iso: d₁.components 0 ≅ ⨁ d₁.components ≅ X ≅ ⨁ d₂.components
+        have iso_chain : d₁.components ⟨0, hn_pos⟩ ≅ ⨁ d₂.components :=
+          (biproductSingletonIso' hn1 d₁.components).symm ≪≫ d₁.iso.symm ≪≫ d₂.iso
+        exact not_indecomposable_of_biproduct_gt_one d₂.components hd2_gt1 d₂.indecomposable
+          (indecomposable_of_iso_indecomposable (d₁.indecomposable ⟨0, hn_pos⟩) iso_chain)
+      -- Now d₁.n = 1 and d₂.n = 1
+      refine ⟨by omega, Equiv.refl _, ?_⟩
+      intro i
+      -- i : Fin d₁.n with d₁.n = 1, so i = ⟨0, _⟩
+      -- j : Fin d₂.n with d₂.n = 1, so j = ⟨0, _⟩
+      -- Both indices reduce to 0, and f gives the iso
+      have hi0 : i.val = 0 := by omega
+      have hj0 : j.val = 0 := by omega
+      -- The goal involves (Equiv.refl _) i which equals i
+      -- σ i = i, and we need d₁.components i ≅ d₂.components ⟨σ i, _⟩
+      -- Since σ = refl, this is d₁.components i ≅ d₂.components ⟨i.val, _⟩
+      -- Since i.val = 0, it's d₁.components ⟨0, _⟩ ≅ d₂.components ⟨0, _⟩
+      -- f : d₁.components ⟨0, hn_pos⟩ ≅ d₂.components j where j.val = 0
+      have heqi : i = ⟨0, hn_pos⟩ := Fin.ext hi0
+      have heqj : j = ⟨0, by omega⟩ := Fin.ext hj0
+      rw [heqi]
+      -- Goal: Nonempty (d₁.components ⟨0, hn_pos⟩ ≅ d₂.components ⟨_, _⟩)
+      simp only [Equiv.refl_apply]
+      -- Now goal is: Nonempty (d₁.components ⟨0, hn_pos⟩ ≅ d₂.components ⟨0, _⟩)
+      -- Use f after substituting j = ⟨0, _⟩
+      exact ⟨f ≪≫ eqToIso (by rw [heqj])⟩
+    · -- Inductive case: d₁.n > 1
+      -- Full proof requires strong induction + cancellation lemma
+      -- This is tracked in lemmafeld-cn3q (cancellation) and lemmafeld-vxyi (sorry fill)
+      sorry
 
 end KrullSchmidtUniqueness
 
