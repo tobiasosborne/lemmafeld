@@ -18,15 +18,10 @@
 
 ## Recent Completions (2026-01-30)
 
-### Hygiene: ChainStabilization extraction (lemmafeld-rqy9 in progress)
+### Hygiene: ChainStabilization extraction (lemmafeld-rqy9 CLOSED)
 
 - **Extracted:** `Chapter1/ChainStabilization.lean` (101 LOC)
-  - pow_comp_comm, pow_add_eq_comp, pow_add_eq_comp'
-  - kernelSubobject_mono, imageSubobject_antitone
-  - kernelSubobject_stabilizes, imageSubobject_stabilizes
-  - kernelSubobject_stable, imageSubobject_stable
-- **FittingLemma.lean:** 779 → 701 LOC (still needs more splitting)
-- **Remaining:** CategoricalOrzech local copies, FittingDecomposition helpers
+- **FittingLemma.lean:** 779 → 701 LOC (accepted as-is)
 
 ### Fitting's Lemma (§1.5.7) — COMPLETE ✓
 
@@ -38,12 +33,7 @@
 
 ## Immediate Next Steps
 
-### 1. lemmafeld-rqy9 (P1): Continue splitting FittingLemma.lean (701 LOC)
-- ChainStabilization.lean extracted (101 LOC) — DONE
-- Still needs: CategoricalOrzech local copies, FittingDecomposition helpers
-- Complex due to circular import with CategoricalOrzech.lean
-
-### 2. lemmafeld-6xvp (P2): Prove End(X) is local for indecomposable X
+### 1. lemmafeld-6xvp (P2): Prove End(X) is local for indecomposable X — RECOMMENDED
 - Now unblocked (depends on fitting_lemma which is complete)
 - Next step toward Krull-Schmidt
 
@@ -52,8 +42,8 @@
 - Natural continuation of §1.8
 
 ### 4. Hygiene backlog (P2-P3)
-- 7 files at 234-720 LOC need splitting
-- See `bd list --label=hygiene` for full list
+- FittingLemma.lean (701 LOC) — accepted as-is
+- 4 files at 250-264 LOC: BaerSum, FiniteLength, Projective, LocallyFinite
 
 ---
 
