@@ -16,34 +16,56 @@
 
 ---
 
+## Current Session (2026-01-30)
+
+### lemmafeld-6xvp: End(X) is local ring — IN PROGRESS (1 sorry)
+
+- **Theorem added:** `isLocalRing_end_of_indecomposable_finiteLength`
+- **File:** `Chapter1/FittingLemma.lean`
+- **Status:** Structure complete, 1 sorry remaining in contradiction case
+- **The sorry:** Need to prove that two nilpotent elements can't sum to a unit
+
+**Proof strategy for the sorry (next session):**
+1. If `f + g = u` (unit) and `f` is nilpotent, show `u⁻¹ * f` is nilpotent via conjugation
+2. Then `1 - u⁻¹ * f` is a unit (geometric series: `IsNilpotent.isUnit_one_sub`)
+3. So `g = u * (1 - u⁻¹ * f)` is a product of units, hence a unit
+4. But `g` was assumed nilpotent, and nilpotent units ⟹ ring is trivial
+5. `End X` is nontrivial (we proved `nontrivial_end_of_not_isZero`), contradiction
+
+**Key lemma needed:** `(u⁻¹ * f)^{n+1} = 0` when `f^n = 0`. The proof uses:
+- Conjugation: `(u⁻¹ * f * u)^n = u⁻¹ * f^n * u = 0`
+- Induction on powers to show `(f * u⁻¹)^{n+1} = f * (u⁻¹ * f * u)^n * (u⁻¹)^{n+1} = 0`
+
+---
+
 ## Recent Completions (2026-01-30)
-
-### Hygiene: ChainStabilization extraction (lemmafeld-rqy9 CLOSED)
-
-- **Extracted:** `Chapter1/ChainStabilization.lean` (101 LOC)
-- **FittingLemma.lean:** 779 → 701 LOC (accepted as-is)
 
 ### Fitting's Lemma (§1.5.7) — COMPLETE ✓
 
 - **lemmafeld-zrau**: Biproduct iso from lattice complement — DONE
 - **lemmafeld-txf9**: `fitting_lemma` theorem — DONE (no sorries)
-- **File:** `Chapter1/FittingLemma.lean` (701 LOC)
+- **File:** `Chapter1/FittingLemma.lean` (now ~735 LOC)
+
+### Added this session:
+- `nontrivial_end_of_not_isZero` — End(X) is nontrivial when X ≠ 0
+- `isLocalRing_end_of_indecomposable_finiteLength` — theorem statement with 1 sorry
 
 ---
 
 ## Immediate Next Steps
 
-### 1. lemmafeld-6xvp (P2): Prove End(X) is local for indecomposable X — RECOMMENDED
-- Now unblocked (depends on fitting_lemma which is complete)
-- Next step toward Krull-Schmidt
+### 1. Fill the sorry in `isLocalRing_end_of_indecomposable_finiteLength`
+- Add helper lemma: nilpotent preserved under unit multiplication
+- Complete the contradiction proof
+- ~20 LOC estimated
 
-### 3. TC 1.8.2-1.8.4: Artinian categories
-- Finite abelian, finite dim Hom
-- Natural continuation of §1.8
+### 2. lemmafeld-zczy (P2): Krull-Schmidt existence
+- Now unblocked once 6xvp is complete
+- Finite length objects decompose into indecomposables
 
-### 4. Hygiene backlog (P2-P3)
-- FittingLemma.lean (701 LOC) — accepted as-is
-- 4 files at 250-264 LOC: BaerSum, FiniteLength, Projective, LocallyFinite
+### 3. Hygiene: FittingLemma.lean (735 LOC)
+- Exceeds 200 LOC guideline
+- Consider extracting local ring proof to separate file
 
 ---
 
@@ -51,64 +73,17 @@
 
 | Chain | Current State |
 |-------|---------------|
-| **Fitting → Krull-Schmidt** | ✓ fitting_lemma done → 6xvp (End local) → zczy (KS existence) |
+| **Fitting → Local Ring → KS** | fitting_lemma ✓ → 6xvp (1 sorry) → zczy |
 | **Grothendieck Group** | Root: lemmafeld-mfs8 (JordanHolderLattice for Subobject) — deep gap |
 
 ---
 
-## Gap Issues (Need Implementation)
+## Files Modified This Session
 
-| Issue | Description |
-|-------|-------------|
-| lemmafeld-qr9k | Subquotient formalization |
-| lemmafeld-z5db | Finite abelian category duality |
-| lemmafeld-h43p | Yoneda Ext |
-| lemmafeld-0tar | Categorical semisimplicity class |
-| lemmafeld-mfs8 | JordanHolderLattice (Subobject X) |
-
----
-
-## Current Lean Files (Chapter 1)
-
-All 32 files build successfully:
-
-```
-Chapter1/
-├── Abelian.lean              # §1.3.1-1.3.3
-├── AbelianProperties.lean    # §1.3.4-1.3.8
-├── Additive.lean             # §1.2
-├── BaerSum.lean              # Ex 1.4.3(i)
-├── Basic.lean                # §1.1
-├── BimoduleDerivations.lean  # Ex 1.4.3(ii)
-├── CategoricalOrzech.lean    # Categorical Orzech theorem
-├── ChainStabilization.lean   # §1.5 endomorphism chain lemmas
-├── Coalgebras.lean           # §1.9
-├── DerivedFunctors.lean      # §1.7.1
-├── DirectSum.lean            # §1.2
-├── ExactSequences.lean       # §1.4
-├── ExtALinear.lean           # Ex 1.4.3(ii)
-├── ExtAsDerivations.lean     # Ex 1.4.3(ii)
-├── ExtDerivationConstruction.lean
-├── ExtDerivationIso.lean
-├── ExtGroups.lean            # §1.7.2
-├── ExternalTensorProduct.lean # §1.11.1
-├── FiniteDual.lean           # §1.12.1
-├── FiniteLength.lean         # §1.5
-├── FittingLemma.lean         # §1.5 (701 LOC, needs more splitting)
-├── GrothendieckGroup.lean    # §1.5.8
-├── HochschildH1.lean         # Ex 1.4.3(ii)
-├── InnerDerivations.lean     # Ex 1.4.3(ii)
-├── IterateComap.lean         # Subobject chain machinery
-├── JordanHolder.lean         # §1.5
-├── KrullSchmidt.lean         # §1.5
-├── LocallyFinite.lean        # §1.8.1
-├── Notation.lean             # §1.1
-├── Projective.lean           # §1.6
-├── SemidirectProduct.lean    # Ex 1.4.3(ii)
-├── Semisimple.lean           # §1.5
-├── Simple.lean               # §1.5
-└── SmallCategories.lean      # §1.1
-```
+- `Chapter1/FittingLemma.lean` — Added local ring theorem (1 sorry)
+  - New imports: `Mathlib.RingTheory.Nilpotent.Basic`, `Mathlib.RingTheory.LocalRing.Basic`
+  - New lemma: `nontrivial_end_of_not_isZero`
+  - New theorem: `isLocalRing_end_of_indecomposable_finiteLength`
 
 ---
 
@@ -118,19 +93,3 @@ Chapter1/
 2. **Find work**: `bd ready` (note: returns later chapters first — prioritize Ch 1-2)
 3. **Check blockers**: `bd blocked`
 4. **Session protocol**: See CLAUDE.md Phase 1-5
-
-## Recent Completions (2026-01-30)
-
-- **fitting_lemma structure** (lemmafeld-txf9): Main theorem skeleton complete, 2 sorries remaining
-  - I = ⊥ case (nilpotent): DONE
-  - I ≠ ⊥ case (unit via indecomposability): structure done, biproduct iso needs 2 sorries
-  - n = 0 edge case: DONE (ker(f) = ⊥, im(f) = ⊤)
-
-### Previous Session (2026-01-29)
-
-- **Categorical Orzech theorem** (lemmafeld-8sen, bl7f): `mono_of_epi_endomorphism_noetherianObject` — no sorries
-- **Fitting inf=⊥** (lemmafeld-zy7n): `kernelSubobject_inf_imageSubobject_eq_bot`
-- **Fitting sup=⊤** (lemmafeld-c5gz): `kernelSubobject_sup_imageSubobject_eq_top`
-- **iterateComap machinery** (lemmafeld-8yab, ovvv): Chain stabilization for Noetherian
-
-See `docs/learnings/chapter1/length_objects.md` for full proof strategies.

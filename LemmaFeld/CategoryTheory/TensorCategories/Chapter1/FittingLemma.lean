@@ -7,7 +7,8 @@ import Mathlib.CategoryTheory.Limits.Shapes.Biproducts
 import Mathlib.CategoryTheory.Abelian.Basic
 import Mathlib.CategoryTheory.Subobject.Limits
 import Mathlib.CategoryTheory.Subobject.NoetherianObject
-import Mathlib.RingTheory.Nilpotent.Defs
+import Mathlib.RingTheory.Nilpotent.Basic
+import Mathlib.RingTheory.LocalRing.Basic
 import LemmaFeld.CategoryTheory.TensorCategories.Chapter1.FiniteLength
 import LemmaFeld.CategoryTheory.TensorCategories.Chapter1.ChainStabilization
 
@@ -695,6 +696,39 @@ theorem fitting_lemma (f : End X) (hX : Indecomposable X) (hfl : IsFiniteLengthO
 /-- Local ring property: non-units form a two-sided ideal. Follows from Fitting's Lemma. -/
 def EndomorphismRingIsLocal (X : C) : Prop :=
   ∀ f g : X ⟶ X, IsIso (f + g) → IsIso f ∨ IsIso g
+
+/-- End(X) is nontrivial when X is not zero. -/
+lemma nontrivial_end_of_not_isZero (hX : ¬IsZero X) : Nontrivial (End X) := by
+  refine ⟨⟨0, 𝟙 X, ?_⟩⟩
+  intro h
+  apply hX
+  rw [IsZero.iff_id_eq_zero]
+  exact h.symm
+
+/-- **End(X) is a local ring** for indecomposable X of finite length.
+
+The proof uses Fitting's lemma: every endomorphism is either nilpotent or a unit.
+If f + g is a unit and f is nilpotent, apply Fitting to g: if g is also nilpotent,
+we get a contradiction (both nilpotent can't sum to a unit in End(X) for indecomp X).
+
+This is the key ingredient for Krull-Schmidt uniqueness.
+-/
+theorem isLocalRing_end_of_indecomposable_finiteLength
+    (hX : Indecomposable X) (hfl : IsFiniteLengthObject X) : IsLocalRing (End X) := by
+  haveI : Nontrivial (End X) := nontrivial_end_of_not_isZero hX.1
+  apply IsLocalRing.of_isUnit_or_isUnit_of_isUnit_add
+  intro f g hfg
+  -- By Fitting's lemma, each is nilpotent or unit
+  rcases fitting_lemma f hX hfl with hf_nil | hf_unit
+  · -- f is nilpotent, apply Fitting to g
+    rcases fitting_lemma g hX hfl with hg_nil | hg_unit
+    · -- Both f and g are nilpotent, but f + g is a unit
+      -- For indecomposable X of finite length, this is a contradiction
+      -- The nilpotent elements form the Jacobson radical, which can't contain units
+      exfalso
+      sorry -- TODO: nilpotent + nilpotent ∈ Jacobson radical, not a unit
+    · right; exact hg_unit
+  · left; exact hf_unit
 
 end FittingLemma
 
