@@ -301,6 +301,52 @@ main remaining work.
 
 **Lean file:** `Chapter1/KrullSchmidt.lean`
 
+### Krull-Schmidt Uniqueness (2026-01-30 - lemmafeld-01k3 PARTIAL, 1 sorry)
+
+**Statement:** Indecomposable decompositions are unique up to permutation and isomorphism.
+
+**Approach:** Exchange lemma + induction on number of components.
+
+**Completed lemmas (NO SORRIES):**
+
+1. `nonunits_add_of_local` — Contrapositive of local ring property:
+   ```lean
+   lemma nonunits_add_of_local {R : Type*} [Ring R] [IsLocalRing R] {a b : R}
+       (ha : ¬IsUnit a) (hb : ¬IsUnit b) : ¬IsUnit (a + b)
+   ```
+   - Uses `IsLocalRing.isUnit_or_isUnit_of_add_one` contraposed
+   - Key: scale by inverse of unit, use `Units.isUnit_units_mul`
+
+2. `exists_isUnit_of_finsum_eq_one` — Finite sum version:
+   ```lean
+   lemma exists_isUnit_of_finsum_eq_one {R : Type*} [Ring R] [IsLocalRing R] {n : ℕ}
+       (f : Fin n → R) (hf : ∑ i, f i = 1) : ∃ i, IsUnit (f i)
+   ```
+   - Induction on n using `Fin.sum_univ_succ`
+   - Base n=0: contradiction (0 ≠ 1)
+   - Inductive: if f 0 not unit, then ∑ f i.succ is unit, scale by inverse, apply IH
+
+**Exchange Lemma (lemmafeld-y9yx — SORRY):**
+```lean
+lemma exchangeLemma {X : C} {n m : ℕ} (hn : 0 < n)
+    (Y : Fin n → C) (Z : Fin m → C)
+    (hY : ∀ i, Indecomposable (Y i)) (hZ : ∀ j, Indecomposable (Z j))
+    (hYfl : ∀ i, IsFiniteLengthObject (Y i)) (hZfl : ∀ j, IsFiniteLengthObject (Z j))
+    (iso₁ : X ≅ ⨁ Y) (iso₂ : X ≅ ⨁ Z) :
+    ∃ j, Nonempty (Y ⟨0, hn⟩ ≅ Z j)
+```
+
+**Proof strategy for exchange lemma:**
+1. Define projections pⱼ = (Y₀ ↪ X → Zⱼ ↪ X → Y₀) via compositions
+2. Show ∑ⱼ pⱼ = 𝟙_{Y₀} using biproduct identities
+3. Apply `exists_isUnit_of_finsum_eq_one`: some pⱼ is unit in End(Y₀)
+4. Write pⱼ = fⱼ ≫ gⱼ where fⱼ : Y₀ → Zⱼ, gⱼ : Zⱼ → Y₀
+5. Show gⱼ ≫ fⱼ is unit in End(Zⱼ) using Fitting's lemma:
+   - If fⱼ ≫ gⱼ is unit and gⱼ ≫ fⱼ is nilpotent, derive contradiction
+6. Conclude fⱼ is iso (split mono + split epi in abelian category)
+
+**Lean file:** `Chapter1/KrullSchmidt.lean`
+
 ---
 
 ## §1.5.8: Grothendieck Group

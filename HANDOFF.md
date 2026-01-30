@@ -1,10 +1,10 @@
-# Handoff: 2026-01-30
+# Handoff: 2026-01-30 (Late Evening)
 
 ## Project Stats
 
-- **Issues:** ~428 total, ~372 open, ~56 closed
+- **Issues:** ~429 total, ~373 open, ~56 closed
 - **Chapter 1 Files:** 33 Lean files, all building
-- **Blockers:** 4 issues currently blocked
+- **Blockers:** 5 issues currently blocked
 
 ## Book Coverage Summary
 
@@ -16,7 +16,27 @@
 
 ---
 
-## Current Session (2026-01-30 Evening)
+## Current Session (2026-01-30 Late Evening)
+
+### lemmafeld-01k3: Krull-Schmidt uniqueness — PARTIAL (1 sorry)
+
+- **File:** `Chapter1/KrullSchmidt.lean` (now 447 LOC)
+- **Status:** Helper lemmas complete, exchange lemma has sorry
+
+**Completed:**
+- `nonunits_add_of_local`: In local ring, non-unit + non-unit = non-unit (NO SORRY)
+- `exists_isUnit_of_finsum_eq_one`: Sum = 1 implies some element is unit (NO SORRY)
+- `exchangeLemma` statement: Given two decompositions, Y₀ ≅ some Zⱼ (has sorry)
+
+**Remaining:**
+- `exchangeLemma` proof (lemmafeld-y9yx) — construct projection maps, apply finite sum lemma
+- Full uniqueness theorem — induction using exchange lemma
+
+**Key insight:** The finite sum lemma `exists_isUnit_of_finsum_eq_one` is the key new tool.
+It uses the local ring property iteratively: if all summands were non-units, their sum
+(being 1) couldn't be a unit. Proof by induction on n, scaling by inverse of unit sum.
+
+---
 
 ### lemmafeld-zczy: Krull-Schmidt existence — PARTIAL (2 sorries)
 
@@ -86,10 +106,12 @@
 
 ## Files Modified This Session
 
-- `Chapter1/KrullSchmidt.lean` — Completed `biproductBiprodIso` (no sorries)
-  - Added `biproduct_ι_fin_eq'` helper lemma
-  - Proved `hom_inv_id` using `biprod.hom_ext'` + `biproduct.hom_ext'`
-  - 2 sorries remain in `krullSchmidt_existence` (well-founded recursion)
+- `Chapter1/KrullSchmidt.lean` — Added uniqueness infrastructure (now 447 LOC)
+  - NEW: `nonunits_add_of_local` — local ring non-unit closure (COMPLETE)
+  - NEW: `exists_isUnit_of_finsum_eq_one` — finite sum unit existence (COMPLETE)
+  - NEW: `exchangeLemma` — statement for matching decomposition components (sorry)
+  - Added import: `Mathlib.Algebra.BigOperators.Fin`
+  - 3 sorries total: 2 in existence, 1 in exchange lemma
 
 ---
 

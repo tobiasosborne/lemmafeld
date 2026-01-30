@@ -5,6 +5,7 @@ Authors: LemmaFeld Contributors
 -/
 import Mathlib.CategoryTheory.Simple
 import Mathlib.CategoryTheory.Limits.Shapes.Biproducts
+import Mathlib.Algebra.BigOperators.Fin
 import LemmaFeld.CategoryTheory.TensorCategories.Chapter1.FittingLemma
 
 /-!
@@ -358,6 +359,77 @@ theorem krullSchmidt_existence (X : C) (hX : IsFiniteLengthObject X) :
         exact i ≪≫ biprodMapIso dY.iso dZ.iso ≪≫ biproductBiprodIso dY.components dZ.components
 
 end KrullSchmidtExistence
+
+/-! ## Krull-Schmidt Uniqueness Proof
+
+The uniqueness proof uses:
+1. **Local ring property**: End(X) is local for indecomposable finite-length X
+2. **Exchange lemma**: Given two decompositions, the first component of one matches some component of the other
+3. **Induction**: Remove matched components and recurse
+-/
+
+section KrullSchmidtUniqueness
+
+universe u v
+variable {C : Type u} [Category.{v} C] [Abelian C] [HasFiniteBiproducts C]
+
+/-- In a local ring, if a + b is a unit, then a is a unit or b is a unit.
+This is the contrapositive form of the local ring property. -/
+lemma nonunits_add_of_local {R : Type*} [Ring R] [IsLocalRing R] {a b : R}
+    (ha : ¬IsUnit a) (hb : ¬IsUnit b) : ¬IsUnit (a + b) := by
+  intro h
+  obtain ⟨u, hu⟩ := h
+  have hinv : u⁻¹ * a + u⁻¹ * b = 1 := by
+    rw [← mul_add, ← hu]; exact Units.inv_mul u
+  rcases IsLocalRing.isUnit_or_isUnit_of_add_one hinv with h | h
+  · exact ha ((Units.isUnit_units_mul u⁻¹ a).mp h)
+  · exact hb ((Units.isUnit_units_mul u⁻¹ b).mp h)
+
+/-- In a local ring, if the sum of a finite family equals 1, then some element is a unit. -/
+lemma exists_isUnit_of_finsum_eq_one {R : Type*} [Ring R] [IsLocalRing R] {n : ℕ}
+    (f : Fin n → R) (hf : ∑ i, f i = 1) : ∃ i, IsUnit (f i) := by
+  induction n with
+  | zero => simp at hf
+  | succ n ih =>
+    rw [Fin.sum_univ_succ] at hf
+    by_cases h0 : IsUnit (f 0)
+    · exact ⟨0, h0⟩
+    · -- f 0 + ∑ i, f i.succ = 1, and f 0 is not a unit
+      -- By local ring property, ∑ i, f i.succ must be a unit
+      have hrest : IsUnit (∑ i : Fin n, f i.succ) := by
+        by_contra hnu
+        have : ¬IsUnit (f 0 + ∑ i : Fin n, f i.succ) := nonunits_add_of_local h0 hnu
+        rw [hf] at this; exact this isUnit_one
+      -- Now we need: if ∑ i, g i is a unit, then some g i is a unit
+      -- This follows by induction, but requires scaling by the inverse
+      obtain ⟨u, hu⟩ := hrest
+      have hscaled : ∑ i : Fin n, (u⁻¹ * f i.succ) = 1 := by
+        rw [← Finset.mul_sum, ← hu]; exact Units.inv_mul u
+      obtain ⟨j, hj⟩ := ih (fun i => u⁻¹ * f i.succ) hscaled
+      exact ⟨j.succ, (Units.isUnit_units_mul u⁻¹ (f j.succ)).mp hj⟩
+
+/-- **Exchange Lemma**: Given two indecomposable decompositions of the same object,
+the first component of one decomposition is isomorphic to some component of the other.
+
+This is the key lemma for Krull-Schmidt uniqueness. The proof uses:
+1. The endomorphism projections Y₀ → X → Zⱼ → X → Y₀ sum to the identity
+2. By local ring property, one of these is an isomorphism
+3. Since both Y₀ and Zⱼ are indecomposable finite-length, the map Y₀ → Zⱼ is an iso
+-/
+lemma exchangeLemma {X : C} {n m : ℕ} (hn : 0 < n)
+    (Y : Fin n → C) (Z : Fin m → C)
+    (hY : ∀ i, Indecomposable (Y i)) (hZ : ∀ j, Indecomposable (Z j))
+    (hYfl : ∀ i, IsFiniteLengthObject (Y i)) (hZfl : ∀ j, IsFiniteLengthObject (Z j))
+    (iso₁ : X ≅ ⨁ Y) (iso₂ : X ≅ ⨁ Z) :
+    ∃ j, Nonempty (Y ⟨0, hn⟩ ≅ Z j) := by
+  -- The projections Y₀ → X → Zⱼ → X → Y₀ sum to identity on Y₀
+  -- Each such projection is fⱼ ≫ gⱼ where fⱼ : Y₀ → Zⱼ and gⱼ : Zⱼ → Y₀
+  -- By exists_isUnit_of_finsum_eq_one, some fⱼ ≫ gⱼ is a unit in End(Y₀)
+  -- By Fitting's lemma, gⱼ ≫ fⱼ is also a unit in End(Zⱼ)
+  -- Hence fⱼ is an isomorphism
+  sorry
+
+end KrullSchmidtUniqueness
 
 /-! ## Summary
 
