@@ -205,6 +205,141 @@ def biproductSingletonIso (X : C) : ⨁ (fun _ : Fin 1 => X) ≅ X where
 
 end AuxiliaryLemmas
 
+/-! ## Well-Founded Recursion for Krull-Schmidt
+
+The existence proof uses well-founded recursion on the subobject lattice.
+Key insight: For an Artinian object X, the subobject lattice `Subobject X` is
+well-founded (with respect to `<`). When X ≅ Y ⊕ Z with both nonzero:
+- Y embeds into X as a proper subobject (via biprod.inl ≫ iso.inv)
+- Z embeds into X as a proper subobject (via biprod.inr ≫ iso.inv)
+- These subobjects are strictly less than ⊤, enabling recursion
+-/
+
+section WellFoundedRecursion
+
+universe u v
+variable {C : Type u} [Category.{v} C] [Abelian C] [HasFiniteBiproducts C]
+
+/-- The subobject of X given by Y when X ≅ Y ⊕ Z. -/
+def subobjectOfBiprodFst {X Y Z : C} (i : X ≅ Y ⊞ Z) : Subobject X :=
+  Subobject.mk (biprod.inl ≫ i.inv)
+
+/-- The subobject of X given by Z when X ≅ Y ⊕ Z. -/
+def subobjectOfBiprodSnd {X Y Z : C} (i : X ≅ Y ⊞ Z) : Subobject X :=
+  Subobject.mk (biprod.inr ≫ i.inv)
+
+/-- If biprod.inl : Y → Y ⊕ Z is an iso, then Z is zero.
+
+Proof: When biprod.inl is iso, its inverse must equal biprod.fst (both are left inverses
+of a monomorphism). Then biprod.inr ≫ biprod.fst = 0, so biprod.inr ≫ inv inl = 0.
+This means biprod.snd factors as 0, so 𝟙_Z = biprod.inr ≫ biprod.snd = 0.
+-/
+lemma isZero_of_isIso_biprod_inl {Y Z : C} (h : IsIso (biprod.inl : Y ⟶ Y ⊞ Z)) : IsZero Z := by
+  haveI := h
+  rw [IsZero.iff_id_eq_zero]
+  -- inv biprod.inl = biprod.fst since both compose with biprod.inl to give 𝟙
+  have heq : inv (biprod.inl : Y ⟶ Y ⊞ Z) = (biprod.fst : Y ⊞ Z ⟶ Y) := by
+    apply (cancel_epi (biprod.inl : Y ⟶ Y ⊞ Z)).mp
+    simp
+  -- biprod.inr ≫ inv biprod.inl = 0
+  have hzero : (biprod.inr : Z ⟶ Y ⊞ Z) ≫ inv (biprod.inl : Y ⟶ Y ⊞ Z) = 0 := by
+    rw [heq, biprod.inr_fst]
+  -- 𝟙_Z = biprod.inr ≫ biprod.snd, and factoring shows it equals 0
+  -- biprod.inr ≫ biprod.snd = biprod.inr ≫ (inv inl ≫ inl) ≫ snd = (inr ≫ inv inl) ≫ (inl ≫ snd) = 0 ≫ 0 = 0
+  have step1 : (biprod.inr : Z ⟶ Y ⊞ Z) ≫ biprod.snd =
+               biprod.inr ≫ (inv (biprod.inl : Y ⟶ Y ⊞ Z) ≫ biprod.inl) ≫ biprod.snd := by
+    congr 1
+    rw [IsIso.inv_hom_id, Category.id_comp]
+  have step2 : biprod.inr ≫ (inv (biprod.inl : Y ⟶ Y ⊞ Z) ≫ biprod.inl) ≫ biprod.snd =
+               (biprod.inr ≫ inv (biprod.inl : Y ⟶ Y ⊞ Z)) ≫
+               ((biprod.inl : Y ⟶ Y ⊞ Z) ≫ biprod.snd) := by
+    simp only [Category.assoc]
+  have step3 : (biprod.inr ≫ inv (biprod.inl : Y ⟶ Y ⊞ Z)) ≫
+               ((biprod.inl : Y ⟶ Y ⊞ Z) ≫ biprod.snd) = 0 := by
+    rw [hzero, biprod.inl_snd, zero_comp]
+  rw [← biprod.inr_snd, step1, step2, step3]
+
+/-- If biprod.inr : Z → Y ⊕ Z is an iso, then Y is zero. -/
+lemma isZero_of_isIso_biprod_inr {Y Z : C} (h : IsIso (biprod.inr : Z ⟶ Y ⊞ Z)) : IsZero Y := by
+  haveI := h
+  rw [IsZero.iff_id_eq_zero]
+  have heq : inv (biprod.inr : Z ⟶ Y ⊞ Z) = (biprod.snd : Y ⊞ Z ⟶ Z) := by
+    apply (cancel_epi (biprod.inr : Z ⟶ Y ⊞ Z)).mp
+    simp
+  have hzero : (biprod.inl : Y ⟶ Y ⊞ Z) ≫ inv (biprod.inr : Z ⟶ Y ⊞ Z) = 0 := by
+    rw [heq, biprod.inl_snd]
+  have step1 : (biprod.inl : Y ⟶ Y ⊞ Z) ≫ biprod.fst =
+               biprod.inl ≫ (inv (biprod.inr : Z ⟶ Y ⊞ Z) ≫ biprod.inr) ≫ biprod.fst := by
+    congr 1
+    rw [IsIso.inv_hom_id, Category.id_comp]
+  have step2 : biprod.inl ≫ (inv (biprod.inr : Z ⟶ Y ⊞ Z) ≫ biprod.inr) ≫ biprod.fst =
+               (biprod.inl ≫ inv (biprod.inr : Z ⟶ Y ⊞ Z)) ≫
+               ((biprod.inr : Z ⟶ Y ⊞ Z) ≫ biprod.fst) := by
+    simp only [Category.assoc]
+  have step3 : (biprod.inl ≫ inv (biprod.inr : Z ⟶ Y ⊞ Z)) ≫
+               ((biprod.inr : Z ⟶ Y ⊞ Z) ≫ biprod.fst) = 0 := by
+    rw [hzero, biprod.inr_fst, zero_comp]
+  rw [← biprod.inl_fst, step1, step2, step3]
+
+/-- When X ≅ Y ⊕ Z with Z nonzero, the subobject from Y is proper (< ⊤).
+
+The proof: If the subobject were ⊤, the embedding Y → X would be an iso,
+forcing Z ≅ 0 (contradiction).
+-/
+lemma subobjectOfBiprodFst_lt_top {X Y Z : C} (i : X ≅ Y ⊞ Z) (hZ : ¬IsZero Z) :
+    subobjectOfBiprodFst i < ⊤ := by
+  rw [lt_top_iff_ne_top]
+  intro h
+  -- If subobjectOfBiprodFst i = ⊤, then the embedding Y → X is an iso
+  have hiso : IsIso (biprod.inl ≫ i.inv) :=
+    (Subobject.isIso_iff_mk_eq_top (biprod.inl ≫ i.inv)).mpr h
+  -- Since i.inv is an iso, biprod.inl must be an iso
+  haveI : IsIso i.inv := inferInstance
+  have hinl : IsIso (biprod.inl : Y ⟶ Y ⊞ Z) := by
+    have : biprod.inl = (biprod.inl ≫ i.inv) ≫ i.hom := by simp
+    rw [this]; infer_instance
+  -- But biprod.inl is an iso iff Z is zero
+  exact hZ (isZero_of_isIso_biprod_inl hinl)
+
+/-- When X ≅ Y ⊕ Z with Y nonzero, the subobject from Z is proper (< ⊤). -/
+lemma subobjectOfBiprodSnd_lt_top {X Y Z : C} (i : X ≅ Y ⊞ Z) (hY : ¬IsZero Y) :
+    subobjectOfBiprodSnd i < ⊤ := by
+  rw [lt_top_iff_ne_top]
+  intro h
+  have hiso : IsIso (biprod.inr ≫ i.inv) :=
+    (Subobject.isIso_iff_mk_eq_top (biprod.inr ≫ i.inv)).mpr h
+  haveI : IsIso i.inv := inferInstance
+  have hinr : IsIso (biprod.inr : Z ⟶ Y ⊞ Z) := by
+    have : biprod.inr = (biprod.inr ≫ i.inv) ≫ i.hom := by simp
+    rw [this]; infer_instance
+  exact hY (isZero_of_isIso_biprod_inr hinr)
+
+/-- The underlying object of the first biproduct subobject is isomorphic to Y. -/
+def subobjectOfBiprodFst_underlyingIso {X Y Z : C} (i : X ≅ Y ⊞ Z) :
+    Subobject.underlying.obj (subobjectOfBiprodFst i) ≅ Y :=
+  Subobject.underlyingIso _
+
+/-- The underlying object of the second biproduct subobject is isomorphic to Z. -/
+def subobjectOfBiprodSnd_underlyingIso {X Y Z : C} (i : X ≅ Y ⊞ Z) :
+    Subobject.underlying.obj (subobjectOfBiprodSnd i) ≅ Z :=
+  Subobject.underlyingIso _
+
+/-- Finite length is preserved under isomorphism (source direction). -/
+lemma isFiniteLengthObject_of_iso' {X Y : C} (i : X ≅ Y) (hY : IsFiniteLengthObject Y) :
+    IsFiniteLengthObject X :=
+  isFiniteLengthObject_of_iso i.symm hY
+
+/-- The underlying object of a subobject of a finite length object has finite length. -/
+lemma isFiniteLengthObject_subobject {X : C} (hX : IsFiniteLengthObject X)
+    (S : Subobject X) : IsFiniteLengthObject (Subobject.underlying.obj S) := by
+  have hA := hX.artinian
+  have hN := hX.noetherian
+  constructor
+  · exact isArtinianObject_of_mono S.arrow
+  · exact isNoetherianObject_of_mono S.arrow
+
+end WellFoundedRecursion
+
 /-! ## Krull-Schmidt Existence Proof -/
 
 section KrullSchmidtExistence

@@ -301,6 +301,47 @@ main remaining work.
 
 **Lean file:** `Chapter1/KrullSchmidt.lean`
 
+### Well-Founded Recursion Infrastructure (2026-01-30 - lemmafeld-4ik7 PARTIAL)
+
+For the recursion in Krull-Schmidt existence, we need to show Y and Z are "smaller"
+than X when X ≅ Y ⊕ Z with both nonzero.
+
+**Completed lemmas (NO SORRIES):**
+
+1. `isZero_of_isIso_biprod_inl` — If `biprod.inl : Y → Y ⊕ Z` is iso, then Z is zero
+   - Proof: inv biprod.inl = biprod.fst (by uniqueness of left inverse)
+   - Then biprod.inr ≫ biprod.fst = 0, and tracing through shows 𝟙_Z = 0
+
+2. `isZero_of_isIso_biprod_inr` — Symmetric for inr
+
+3. `subobjectOfBiprodFst` — Creates Subobject X from Y when X ≅ Y ⊕ Z
+   ```lean
+   def subobjectOfBiprodFst {X Y Z : C} (i : X ≅ Y ⊞ Z) : Subobject X :=
+     Subobject.mk (biprod.inl ≫ i.inv)
+   ```
+
+4. `subobjectOfBiprodFst_lt_top` — **KEY LEMMA**: This subobject is proper when Z ≠ 0
+   - If subobject = ⊤, then biprod.inl ≫ i.inv is iso
+   - Therefore biprod.inl is iso
+   - By isZero_of_isIso_biprod_inl, Z = 0, contradiction
+
+5. `subobjectOfBiprodFst_underlyingIso` — The underlying object is isomorphic to Y
+
+6. `isFiniteLengthObject_subobject` — Subobjects of finite length objects have finite length
+
+**Key insight:** The Artinian property gives `WellFoundedLT (Subobject X)`. When X ≅ Y ⊕ Z
+with both nonzero:
+- Y ≅ underlying(subobjectOfBiprodFst i) as objects
+- subobjectOfBiprodFst i < ⊤ in Subobject X (by lt_top lemma)
+- This provides the well-founded recursion measure
+
+**Remaining for WellFounded.fix integration:**
+- Connect Y (as object) to its subobject representation
+- Use `WellFounded.fix` on Subobject X lattice
+- Handle the iso transport between Y and the subobject's underlying object
+
+**Lean file:** `Chapter1/KrullSchmidt.lean`
+
 ### Krull-Schmidt Uniqueness (2026-01-30 - lemmafeld-01k3 PARTIAL, 1 sorry)
 
 **Statement:** Indecomposable decompositions are unique up to permutation and isomorphism.
