@@ -21,7 +21,7 @@
 ### lemmafeld-zczy: Krull-Schmidt existence — PARTIAL (3 sorries)
 
 - **Theorem:** `krullSchmidt_existence`
-- **File:** `Chapter1/KrullSchmidt.lean` (now 307 LOC)
+- **File:** `Chapter1/KrullSchmidt.lean` (now ~350 LOC)
 - **Status:** Structure complete, 3 sorries remaining
 
 **Completed:**
@@ -29,9 +29,13 @@
 - Recursive case structure with concatenation
 - Helper lemmas: `isFiniteLengthObject_of_iso`, `isFiniteLengthObject_biprod_fst/snd`
 - Structural lemmas: `biproduct_empty_isZero`, `biproductSingletonIso`
+- **NEW:** `biproductBiprodIso` partially complete:
+  - Full iso structure with `hom`, `inv` definitions
+  - `inv_hom_id` PROVEN (no sorry!)
+  - Helper lemmas: `concatFin`, `concatFin_left/right/right'`, `biproduct_ι_cast'`
 
 **Remaining sorries:**
-1. `biproductBiprodIso`: (⨁ f) ⊞ (⨁ g) ≅ ⨁ (concatenated) — structural lemma
+1. `biproductBiprodIso.hom_inv_id`: hom ≫ inv = 𝟙 — needs biprod/biproduct extensionality
 2. Recursive decomposition of Y — needs well-founded recursion
 3. Recursive decomposition of Z — needs well-founded recursion
 

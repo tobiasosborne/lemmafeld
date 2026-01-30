@@ -269,10 +269,16 @@ def iterateComap {X : C} (f : X ⟶ X) (K : Subobject X) (n : ℕ) : Subobject X
 - `biproductSingletonIso` - ⨁ (fun _ : Fin 1 => X) ≅ X
 
 **Remaining sorries (3):**
-1. `biproductBiprodIso` - (⨁ f) ⊞ (⨁ g) ≅ ⨁ (concatenated)
-   - Construction sketch in comments; requires careful dependent type handling
+1. `biproductBiprodIso.hom_inv_id` - hom ≫ inv = 𝟙 (partially proven - `inv_hom_id` is done!)
+   - Full iso structure implemented with `hom`, `inv`, `inv_hom_id` proven
+   - `hom_inv_id` requires careful extensionality with biproduct components
 2. Recursive decomposition of Y
 3. Recursive decomposition of Z
+
+**New helper lemmas (2026-01-30):**
+- `concatFin` - concatenated family definition
+- `concatFin_left/right/right'` - key equalities for index mapping
+- `biproduct_ι_cast'` - reindexing biproduct inclusions via eqToHom
 
 **Key insight:** The recursive calls need well-founded recursion. The termination
 argument is that Y and Z embed into X via proper monomorphisms, and the Artinian
