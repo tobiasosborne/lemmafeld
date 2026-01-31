@@ -510,47 +510,51 @@ Same setup, plus `have hj_nlt : ¬ j.val < 1` to guide the dite, then `aesop_cat
 
 **Lean file:** `Chapter1/KrullSchmidt/BiproductCancellation.lean`
 
-### biproductSwapFrontIso Simp Lemma Challenge (2026-01-31 - BLOCKED)
+### biproductSwapFrontIso Simp Lemma Challenge (2026-01-31 - COMPLETE)
 
 **Goal:** Prove `biproductSwapFrontIso.hom ≫ biproduct.π _ ⟨0, _⟩ = biproduct.π f j ≫ eqToHom _`
 
-**Issue:** lemmafeld-zpys
+**Issue:** lemmafeld-zpys ✓
 
-**Challenge:** Dependent type issues when proving the k = j case after `subst hk`.
+**Original challenge:** Dependent type issues when using `whiskerEquiv` definition.
 
-**Attempted approaches (all failed):**
+**Solution (2026-01-31):** Redefined `biproductSwapFrontIso` using direct `biproduct.desc` construction.
 
-1. **Direct simp/rw:** After `subst hk`, rewriting with `finSwapFront_apply_self` causes:
-   ```
-   Tactic `rewrite` failed: motive is not type correct
-   ```
-   The proof term `(⋯.mpr (Iso.refl (f k))).inv` has dependent types that break rewriting.
+**Key insight:**
+- `whiskerEquiv` creates complex proof terms `(hw k).inv` from simp-generated proofs
+- These proof terms cause "motive is not type correct" errors during rewriting
+- Direct `desc`-based construction avoids this by using explicit `eqToHom` with named lemmas
 
-2. **simp only / simp_all:** No progress on the goal after substitution. The dependent proof
-   terms inside `whiskerEquiv` don't match simp lemmas.
+**New definition:**
+```lean
+def biproductSwapFrontIso {n : ℕ} (f : Fin n → C) (j : Fin n) :
+    ⨁ f ≅ ⨁ (f ∘ (finSwapFront j).symm) where
+  hom := biproduct.desc fun k =>
+    eqToHom (biproductSwapFront_hom_eq f j k) ≫
+    biproduct.ι (f ∘ (finSwapFront j).symm) ((finSwapFront j) k)
+  inv := biproduct.desc fun k => biproduct.ι f ((finSwapFront j).symm k)
+  -- hom_inv_id and inv_hom_id proved via split_ifs + explicit contradiction handling
+```
 
-3. **aesop_cat:** Exhaustive search fails. Remaining goals include:
-   - `(⨁ f) = (f ∘ ⇑(finSwapFront k).symm) ((finSwapFront k) k)` (propositional equality)
-   - `biproduct.ι f k ≍ (cast ⋯ (Iso.refl (f k))).inv` (heterogeneous equality)
+**Why this works:**
+1. **inv doesn't need eqToHom** because `g k = f (symm k)` is definitional (function composition)
+2. **hom uses explicit eqToHom** with named lemma `biproductSwapFront_hom_eq`
+3. **Proofs use `split_ifs`** with explicit `exfalso` for contradiction cases
+4. **No dependent type issues** because indices are handled via if-then-else, not subst
 
-4. **convert rfl using N:** Generates subgoals that aesop_cat cannot solve.
+**Proof technique for hom_inv_id/inv_hom_id:**
+```lean
+ext i k
+simp only [Category.assoc, biproduct.ι_desc_assoc, Category.id_comp]
+simp only [biproduct.ι_π]
+split_ifs with h1 h2 h3
+· simp only [eqToHom_trans]  -- Both diagonal
+· exfalso; apply h2; simp only [finSwapFront_symm, finSwapFront_apply_apply] at h1; exact h1
+· exfalso; apply h1; simp only [finSwapFront_symm, finSwapFront_apply_apply]; exact h3
+· simp only [eqToHom_comp_iff, comp_zero]  -- Both off-diagonal
+```
 
-**Root cause:** The `whiskerEquiv` construction creates proof terms like `(hw (e j)).inv`
-where `hw` is defined via `simp only [...]; exact Iso.refl _`. This creates a complex
-proof term that is propositionally but not definitionally equal to `𝟙`.
-
-**Possible solutions (untried):**
-
-1. **Redefine biproductSwapFrontIso** using a simpler construction that avoids `whiskerEquiv`,
-   similar to how `biproductHeadTailIso` was redefined.
-
-2. **Add intermediate lemmas** that expose the definitional structure of `whiskerEquiv`
-   more directly.
-
-3. **Use conv mode** with careful targeting to avoid the dependent type issues.
-
-4. **Prove the lemma WITHOUT using biproduct extensionality** - instead prove it by
-   showing both morphisms agree on some universal property.
+**Simp lemma `biproductSwapFrontIso_hom_π_zero`:** Proved using same split_ifs technique.
 
 **Lean file:** `Chapter1/KrullSchmidt/BiproductCancellation.lean`
 

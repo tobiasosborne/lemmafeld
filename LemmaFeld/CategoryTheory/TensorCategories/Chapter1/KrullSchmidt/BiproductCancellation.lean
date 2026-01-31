@@ -38,22 +38,107 @@ lemma finSwapFront_apply_self {n : ℕ} (j : Fin n) :
 lemma finSwapFront_apply_zero {n : ℕ} (j : Fin n) :
     finSwapFront j ⟨0, j.pos⟩ = j := Equiv.swap_apply_right j ⟨0, j.pos⟩
 
+@[simp]
 lemma finSwapFront_symm {n : ℕ} (j : Fin n) : (finSwapFront j).symm = finSwapFront j := by
   unfold finSwapFront
   ext k
   simp only [Equiv.symm_swap]
 
-/-- Biproduct reindexed by swapping j to front. -/
+/-- finSwapFront is self-inverse (swap is involutive). -/
+@[simp]
+lemma finSwapFront_apply_apply {n : ℕ} (j k : Fin n) :
+    finSwapFront j (finSwapFront j k) = k := by
+  simp only [finSwapFront, Equiv.swap_apply_self]
+
+/-- The equality: f k = (f ∘ (finSwapFront j).symm) ((finSwapFront j) k).
+Used for the hom direction of biproductSwapFrontIso. -/
+@[simp]
+lemma biproductSwapFront_hom_eq {n : ℕ} (f : Fin n → C) (j k : Fin n) :
+    f k = (f ∘ (finSwapFront j).symm) ((finSwapFront j) k) := by
+  simp only [Function.comp_apply, finSwapFront_symm, finSwapFront_apply_apply]
+
+/-- Biproduct reindexed by swapping j to front.
+
+Direct construction using desc for both directions, avoiding whiskerEquiv
+which creates complex proof terms that break rewriting.
+
+Key insight:
+- inv doesn't need eqToHom because g k = f (symm k) is definitional
+- hom needs eqToHom because g (swap k) = f k is only propositional -/
 def biproductSwapFrontIso {n : ℕ} (f : Fin n → C) (j : Fin n) :
-    ⨁ f ≅ ⨁ (f ∘ (finSwapFront j).symm) := by
-  have hw : ∀ k, (f ∘ (finSwapFront j).symm) ((finSwapFront j) k) ≅ f k := fun k => by
-    simp only [Function.comp_apply, Equiv.symm_apply_apply]; exact Iso.refl _
-  exact biproduct.whiskerEquiv (finSwapFront j) hw
+    ⨁ f ≅ ⨁ (f ∘ (finSwapFront j).symm) where
+  hom := biproduct.desc fun k =>
+    eqToHom (biproductSwapFront_hom_eq f j k) ≫
+    biproduct.ι (f ∘ (finSwapFront j).symm) ((finSwapFront j) k)
+  inv := biproduct.desc fun k => biproduct.ι f ((finSwapFront j).symm k)
+  hom_inv_id := by
+    ext i k
+    simp only [Category.assoc, biproduct.ι_desc_assoc, Category.id_comp]
+    simp only [biproduct.ι_π]
+    split_ifs with h1 h2 h3
+    · -- Both true
+      simp only [eqToHom_trans]
+    · -- h1 true, h2 false: symm (swap k) = i but k ≠ i
+      -- This is impossible since symm (swap k) = k
+      exfalso
+      simp only [finSwapFront_symm, finSwapFront_apply_apply] at h1
+      exact h2 h1
+    · -- h1 false, h2 true: symm (swap k) ≠ i but k = i
+      -- This is impossible
+      exfalso
+      simp only [finSwapFront_symm, finSwapFront_apply_apply] at h1
+      exact h1 h3
+    · -- Both false
+      simp only [eqToHom_comp_iff, comp_zero]
+  inv_hom_id := by
+    ext i k
+    simp only [Function.comp_apply, Category.assoc, biproduct.ι_desc_assoc, Category.id_comp]
+    simp only [biproduct.ι_π]
+    split_ifs with h1 h2 h3
+    · simp only [eqToHom_trans]
+    · exfalso
+      simp only [finSwapFront_symm, finSwapFront_apply_apply] at h1
+      exact h2 h1
+    · exfalso
+      simp only [finSwapFront_symm, finSwapFront_apply_apply] at h1
+      exact h1 h3
+    · simp only [comp_zero, eqToHom_comp_iff]
 
 /-- After swapping j to front, component 0 is f j. -/
 lemma biproductSwapFront_zero {n : ℕ} (f : Fin n → C) (j : Fin n) :
     (f ∘ (finSwapFront j).symm) ⟨0, j.pos⟩ = f j := by
   simp only [Function.comp_apply, finSwapFront_symm, finSwapFront_apply_zero]
+
+/-- Key simp lemma: projecting at index 0 after swapping j to front extracts the j-th component.
+This enables computing the (1,1) block in Biprod.isoElim for KS uniqueness. -/
+@[simp]
+lemma biproductSwapFrontIso_hom_π_zero {n : ℕ} (f : Fin n → C) (j : Fin n) :
+    (biproductSwapFrontIso f j).hom ≫ biproduct.π (f ∘ (finSwapFront j).symm) ⟨0, j.pos⟩ =
+    biproduct.π f j ≫ eqToHom (biproductSwapFront_zero f j).symm := by
+  -- Use biproduct extensionality: show ι k ≫ LHS = ι k ≫ RHS for all k
+  apply biproduct.hom_ext'; intro k
+  -- Expand hom definition and use ι_desc, ι_π
+  simp only [Category.assoc, biproductSwapFrontIso, biproduct.ι_desc_assoc, biproduct.ι_π,
+             biproduct.ι_π_assoc]
+  -- Now split on whether k = j (and correspondingly swap k = 0)
+  split_ifs with h1 h2 h3
+  · -- h1: swap k = 0, h2: k = j
+    -- Both sides give eqToHom chains
+    simp only [eqToHom_trans]
+  · -- h1: swap k = 0, but k ≠ j
+    -- swap k = 0 implies k = j, contradiction
+    exfalso
+    apply h2
+    have : finSwapFront j k = ⟨0, j.pos⟩ := h1
+    rw [← finSwapFront_apply_self j] at this
+    exact (Equiv.injective (finSwapFront j)) this
+  · -- h1: swap k ≠ 0, but k = j
+    -- k = j implies swap k = 0, contradiction
+    exfalso
+    apply h1
+    rw [h3, finSwapFront_apply_self]
+  · -- Both conditions false: swap k ≠ 0 and k ≠ j
+    simp only [eqToHom_comp_iff, comp_zero, zero_comp]
 
 /-- Tail of a family, for head-tail splitting. -/
 def finTail {n : ℕ} (hn : 0 < n) (f : Fin n → C) : Fin (n - 1) → C :=
@@ -99,12 +184,6 @@ def biproductHeadTailIso {n : ℕ} (hn : 0 < n) (f : Fin n → C) :
       simp only [biproduct.ι_π_self, head]
     · simp [biproduct.lift_desc]
   exact iso_reindex ≪≫ iso_cast ≪≫ iso_concat ≪≫ iso_split ≪≫ biprod.mapIso iso_head (Iso.refl _)
-
-/-- finSwapFront is self-inverse (swap is involutive). -/
-@[simp]
-lemma finSwapFront_apply_apply {n : ℕ} (j k : Fin n) :
-    finSwapFront j (finSwapFront j k) = k := by
-  simp only [finSwapFront, Equiv.swap_apply_self]
 
 /-! ## Simp lemmas for biproductHeadTailIso
 
