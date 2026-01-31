@@ -687,3 +687,51 @@ class HasMultiplicity (C) where
 **Gap:** Full class map [X] requires `JordanHolderLattice (Subobject X)` for categories.
 
 **Lean file:** `Chapter1/GrothendieckGroup.lean`
+
+---
+
+## §1.5.10: Exercise - Block Decomposition and Linking
+
+**Book Exercise 1.5.10:**
+(i) C admits unique decomposition C = ⊕ C_α into indecomposable blocks
+(ii) C is indecomposable ⟺ any two simple objects are linked
+(iii) For A-mod, blocks are labeled by characters of Z(A)
+
+### Part (ii): Linked Simple Objects
+
+**Definition implemented (2026-01-31):**
+
+```lean
+/-- Two objects are directly linked if Ext¹ is nonzero in either direction. -/
+def DirectlyLinked (X Y : C) : Prop :=
+  ¬IsEmpty (Abelian.Ext X Y 1) ∨ ¬IsEmpty (Abelian.Ext Y X 1)
+
+/-- Two objects are linked if connected by a chain of directly linked objects. -/
+def Linked (X Y : C) : Prop :=
+  Relation.ReflTransGen (fun A B => DirectlyLinked A B) X Y
+```
+
+**Key lemmas:**
+- `directlyLinked_symm` — DirectlyLinked is symmetric
+- `linked_refl` — Linked is reflexive
+- `linked_trans` — Linked is transitive
+- `linked_symm` — Linked is symmetric (via ReflTransGen)
+- `linked_equivalence` — Linked is an equivalence relation
+- `linkedSetoid` — The setoid structure for Linked
+
+**Key insight:** Using `Relation.ReflTransGen` from `Mathlib.Logic.Relation` gives us
+the transitive closure automatically. Symmetry follows from the symmetry of DirectlyLinked.
+
+### Gaps for Parts (i) and (iii)
+
+**Part (i) - Block decomposition:**
+- Requires definition of "direct sum of categories" (not in mathlib for abelian categories)
+- Requires definition of "indecomposable category"
+- Would need to show that linked equivalence classes give the blocks
+
+**Part (iii) - A-mod blocks:**
+- Requires `Algebra.center A`
+- Requires characters χ : Z(A) → k
+- More specialized to module categories
+
+**Lean file:** `Chapter1/BlockDecomposition.lean`

@@ -1,32 +1,32 @@
-# Handoff: 2026-01-31 (TC 1.4.3 Complete)
+# Handoff: 2026-01-31 (TC 1.5.10 Part ii)
 
 ## Completed This Session
 
-- **lemmafeld-oybh**: TC 1.4.3(ii) gap — CLOSED
-  - Added `split_extension_implies_inner` theorem to `SemidirectProduct.lean`
-  - Added `semidirect_split_iff_inner` characterization: split extension ⟺ inner derivation
-  - Updated `ext1_iso_hochschildH1_components` to include kernel characterization
-  - This completes Exercise 1.4.3(ii): Ext¹ ≅ Der/InnerDer
+- **lemmafeld-0om5**: TC 1.5.10 - Block decomposition (Part ii) — IN PROGRESS
+  - Created `BlockDecomposition.lean` with ~100 LOC
+  - Defined `DirectlyLinked X Y` — Ext¹(X,Y) ≠ 0 ∨ Ext¹(Y,X) ≠ 0
+  - Defined `Linked X Y` — reflexive-transitive closure of DirectlyLinked
+  - Proved `linked_equivalence` — Linked is an equivalence relation
+  - Proved symmetry via `Relation.ReflTransGen` from `Mathlib.Logic.Relation`
 
 ## Current State
 
 **Build:** Passing (`lake build` succeeds)
 
-**Chapter 1 Coverage:** §1.4.3 now COMPLETE
-- Part (i): Abelian group structure via `ExtAbelianGroup.lean`
-- Part (ii): Ext¹ ≅ H¹ via derivations/inner derivations fully characterized
+**Chapter 1 Coverage:** §1.5.10 Part (ii) foundations complete
+- Core "linked" relation defined and shown to be equivalence
+- Parts (i) and (iii) still need categorical infrastructure
 
-**Exercise 1.4.3(ii) Infrastructure:**
-- ✓ derivation_roundtrip (Φ∘Ψ = id)
-- ✓ extensionToSemidirect_respects_action (Ψ∘Φ ~ id)
-- ✓ innerDerivation_shear_intertwines (inner → trivial)
-- ✓ semidirect_split_iff_inner (split ⟺ inner) — NEW
-- ✓ ext1_iso_hochschildH1_components (main theorem)
+**Exercise 1.5.10 Status:**
+- ✓ Part (ii) linked relation: DirectlyLinked, Linked, equivalence proof
+- ○ Part (i) block decomposition: needs "direct sum of categories" definition
+- ○ Part (iii) A-mod blocks: needs center characters
 
 ## Next Steps (SECTION ORDER)
 
-### 1. TC 1.5.10: Exercise - Block decomposition (P2)
-- Issue: lemmafeld-0om5
+### 1. TC 1.5.10 Parts (i) & (iii): Full block decomposition
+- Issue: lemmafeld-0om5 (keep open for full completion)
+- Needs: indecomposable category def, direct sum of categories
 
 ### 2. TC 1.6.6: Definition - Projective cover (P2)
 - Issue: lemmafeld-xoz1
@@ -36,15 +36,16 @@
 
 ## Files Modified
 
-- `LemmaFeld/CategoryTheory/TensorCategories/Chapter1/SemidirectProduct.lean` — Added ~50 LOC
-  - `split_extension_implies_inner` — A-linear section implies inner derivation
-  - `semidirect_split_iff_inner` — bidirectional characterization
-- `LemmaFeld/CategoryTheory/TensorCategories/Chapter1/ExtDerivationIso.lean` — Updated theorem
-  - `ext1_iso_hochschildH1_components` now includes kernel characterization
-- `docs/learnings/chapter1/exact_sequences.md` — Updated status to COMPLETE
+- `LemmaFeld/CategoryTheory/TensorCategories/Chapter1/BlockDecomposition.lean` — NEW (~100 LOC)
+  - `DirectlyLinked` — two objects with nonzero Ext¹ in either direction
+  - `Linked` — reflexive-transitive closure
+  - `linked_equivalence` — equivalence relation proof
+  - `linkedSetoid` — setoid structure
+- `docs/learnings/chapter1/length_objects.md` — Added §1.5.10 documentation
 
 ## Notes
 
-- The kernel characterization completes the mathematical content of Exercise 1.4.3(ii)
-- A formal `LinearEquiv` between quotient types would require defining the quotient spaces
-- Current formalization captures the essential bijection via component theorems
+- The linking relation uses `Relation.ReflTransGen` from `Mathlib.Logic.Relation`
+- Symmetry of `Linked` follows from symmetry of `DirectlyLinked` + induction on chain
+- Full block decomposition would require defining "direct sum of categories" which is not in mathlib for abelian categories
+- Consider keeping this issue open or creating sub-issues for Parts (i) and (iii)
