@@ -413,6 +413,55 @@ This gives biproduct cancellation when the (1,1) component is an iso.
 
 **Lean file:** `Chapter1/KrullSchmidt.lean`
 
+### biproductHeadTailIso Computation Challenge (2026-01-31)
+
+**Problem:** The current `biproductHeadTailIso` is a 5-way iso composition:
+```lean
+iso_reindex ≪≫ iso_cast ≪≫ iso_concat ≪≫ iso_split ≪≫ biprod.mapIso iso_head (Iso.refl _)
+```
+This makes computing `biprod.inl ≫ biproductHeadTailIso.inv` difficult.
+
+**Attempted solution:** Direct definition via universal properties:
+```lean
+def biproductHeadTailIso {n : ℕ} (hn : 0 < n) (f : Fin n → C) :
+    ⨁ f ≅ f ⟨0, hn⟩ ⊞ ⨁ (finTail hn f) where
+  hom := biprod.lift (biproduct.π f ⟨0, hn⟩)
+           (biproduct.lift fun i => biproduct.π f ⟨i.val + 1, _⟩)
+  inv := biprod.desc (biproduct.ι f ⟨0, hn⟩)
+           (biproduct.desc fun i => biproduct.ι f ⟨i.val + 1, _⟩)
+  hom_inv_id := ...
+  inv_hom_id := ...
+```
+
+**Result:** Types check correctly, but proving the inverse properties is complex:
+
+1. **Nested extensionality:** Need `biproduct.hom_ext` then `biprod.hom_ext` (or vice versa), creating 3+ nested levels
+
+2. **Index inequality proofs:** `biproduct.ι_π_ne _ h` requires `h : j ≠ k` where indices are `Fin n`. Must construct proofs like:
+   ```lean
+   have hne : (⟨k.val + 1, _⟩ : Fin n) ≠ ⟨0, hn⟩ := by simp [Fin.ext_iff]; omega
+   ```
+
+3. **No biprod.desc_comp:** To compute `biprod.desc f g ≫ h`, must use:
+   ```lean
+   biprod.desc_eq : biprod.desc f g = biprod.fst ≫ f + biprod.snd ≫ g
+   ```
+   Then expand with `Preadditive.add_comp`.
+
+4. **Key lemma signatures:**
+   - `biproduct.ι_π_ne (f : J → C) {j j' : J} (h : j ≠ j') : biproduct.ι f j ≫ biproduct.π f j' = 0`
+   - Note: first explicit arg is `f`, not the proof!
+   - `biprod.lift_desc : biprod.lift f g ≫ biprod.desc h i = f ≫ h + g ≫ i`
+   - `biprod.inl_fst : biprod.inl ≫ biprod.fst = 𝟙 X`
+   - `biprod.inl_snd : biprod.inl ≫ biprod.snd = 0`
+
+**Alternative approaches:**
+1. Use `aesop_cat` for automation
+2. Add simp lemmas to existing 5-way definition (also complex)
+3. Prove needed computation properties directly in Uniqueness.lean via `eqToHom` manipulation
+
+**Lean file:** `Chapter1/KrullSchmidt/BiproductCancellation.lean`
+
 ---
 
 ## §1.5.8: Grothendieck Group
