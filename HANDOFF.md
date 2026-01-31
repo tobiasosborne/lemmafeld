@@ -20,21 +20,18 @@
 - `LeftComodule.coact` / `RightComodule.coact` — accessor functions
 - Self-comodule instances for any coalgebra
 
-## Next Steps
+## Next Steps (SECTION ORDER)
 
-### 1. TC 1.9.5: Comodule Category is Locally Finite (P2)
-- Issue: lemmafeld-51b0 "Gap: Define comodule category C-comod"
-- Now unblocked by comodule definition
-- Need: Category structure on comodules, locally finite proof
+### 1. TC 1.4.3: Exercise - Ext¹ abelian group structure (P2)
+- Issue: lemmafeld-ff5z
+- Show Baer sum is well-defined, gives abelian group on Ext¹(Y,X)
+- Extend existing `BaerSum.lean`
 
-### 2. TC 1.10.1: Coend Reconstruction (P1)
-- Issue: lemmafeld-otew
-- Critical for reconstruction theory
-- Uses comodule infrastructure
+### 2. TC 1.5.10: Exercise - Block decomposition (P2)
+- Issue: lemmafeld-0om5
 
-### 3. TC 1.13: Coradical Filtration (P2/P3)
-- 7 items all missing
-- Some now unblocked by comodules
+### 3. TC 1.6.6: Definition - Projective cover (P2)
+- Issue: lemmafeld-xoz1
 
 ## Files Modified
 
