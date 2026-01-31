@@ -5,40 +5,28 @@ Authors: LemmaFeld Contributors
 -/
 import Mathlib.CategoryTheory.Abelian.LeftDerived
 import Mathlib.CategoryTheory.Abelian.RightDerived
-import Mathlib.CategoryTheory.Preadditive.Projective.Resolution
-import Mathlib.CategoryTheory.Preadditive.Injective.Resolution
+
+import LemmaFeld.CategoryTheory.TensorCategories.Chapter1.Resolutions
 
 /-!
-# Chapter 1, Section 1.7: Higher Ext Groups and Group Cohomology
+# Chapter 1, Section 1.7: Derived Functors, Ext, and Group Cohomology
 
-This file establishes the correspondence between Etingof et al. "Tensor Categories"
-§1.7 and mathlib's derived functor infrastructure.
+This file covers derived functors, Ext groups, and group cohomology from §1.7.
 
 ## Book Reference
 
 Etingof, Gelaki, Nikshych, Ostrik - "Tensor Categories" (AMS 2015), §1.7
 
-## §1.7 Summary
-
-The book covers:
-- **Projective resolutions**: · · · → P₂ → P₁ → P₀ → M → 0 with Pᵢ projective
-- **Ext^n(M, N)**: Defined as cohomology of Hom(P•, N) where P• resolves M
-- **Long exact sequence**: For 0 → N₁ → N₂ → N₃ → 0, get connecting morphisms
-- **Group cohomology**: H^i(G, A) = Ext^i_G(ℤ, A)
-- **Bar resolution**: Explicit resolution of ℤ as G-module
-- **Standard complex**: C^i(G, A) = Fun(G^i, A) with explicit differentials
-
 ## Mathlib Correspondence
 
 | Book Concept | Mathlib | Notes |
 |--------------|---------|-------|
-| Projective resolution | `ProjectiveResolution X` | In `Preadditive.Projective.Resolution` |
-| Injective resolution | `InjectiveResolution X` | In `Preadditive.Injective.Resolution` |
 | Left derived functor | `Functor.leftDerived F n` | Requires `F.Additive` |
 | Right derived functor | `Functor.rightDerived F n` | Requires `F.Additive` |
 | Ext^n(X, Y) | `Ext R C n` | In `Mathlib.CategoryTheory.Abelian.Ext` |
 | Group cohomology | `groupCohomology` | In `RepresentationTheory.Homological.GroupCohomology` |
-| H^n(G, A) ≅ Ext^n(k, A) | `groupCohomologyIsoExt` | Key isomorphism |
+
+**See also:** Resolutions.lean for projective/injective resolutions
 
 ## Key Insight
 
@@ -56,66 +44,6 @@ noncomputable section
 namespace LemmaFeld.TensorCategories.Chapter1
 
 open CategoryTheory CategoryTheory.Limits
-
-/-! ## Projective Resolutions
-
-Book: "A projective resolution of M is an exact sequence
-  · · · → P₂ → P₁ → P₀ → M → 0
-where Pᵢ are projective (e.g., free) R-modules."
-
-Mathlib: `ProjectiveResolution X` is a structure providing:
-- `complex : ChainComplex C ℕ` (the complex P•)
-- `π : complex ⟶ (ChainComplex.single₀ C).obj X` (augmentation)
-- `projective : ∀ n, Projective (complex.X n)` (each term is projective)
-- exactness conditions
--/
-
-section ProjectiveResolutions
-
-variable {C : Type*} [Category C] [Abelian C]
-
--- ProjectiveResolution provides a projective resolution of X
-example (X : C) [EnoughProjectives C] : ProjectiveResolution X :=
-  ProjectiveResolution.of X
-
--- Each term of the resolution is projective
-example (X : C) (P : ProjectiveResolution X) (n : ℕ) : Projective (P.complex.X n) :=
-  P.projective n
-
--- The augmentation map
-example (X : C) (P : ProjectiveResolution X) :
-    P.complex ⟶ (ChainComplex.single₀ C).obj X :=
-  P.π
-
-end ProjectiveResolutions
-
-/-! ## Injective Resolutions
-
-Dual to projective resolutions:
-  0 → X → I₀ → I₁ → I₂ → · · ·
-where Iᵢ are injective objects.
-
-Mathlib: `InjectiveResolution X` provides a cochain complex of injectives.
--/
-
-section InjectiveResolutions
-
-variable {C : Type*} [Category C] [Abelian C]
-
--- InjectiveResolution provides an injective resolution of X
-example (X : C) [EnoughInjectives C] : InjectiveResolution X :=
-  InjectiveResolution.of X
-
--- Each term of the resolution is injective
-example (X : C) (I : InjectiveResolution X) (n : ℕ) : Injective (I.cocomplex.X n) :=
-  I.injective n
-
--- The inclusion map
-example (X : C) (I : InjectiveResolution X) :
-    (CochainComplex.single₀ C).obj X ⟶ I.cocomplex :=
-  I.ι
-
-end InjectiveResolutions
 
 /-! ## Left Derived Functors
 
