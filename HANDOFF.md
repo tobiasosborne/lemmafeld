@@ -1,44 +1,58 @@
-# Handoff: 2026-01-31 (TC 1.7.3 Complete)
+# Handoff: 2026-01-31 (§1.7 Group Cohomology Progress)
 
 ## Completed This Session
 
-- **lemmafeld-wlki**: TC 1.7.3 - Non-abelian 1-cocycles remark — COMPLETE
-  - Extended `Chapter1/GroupCohomology.lean` with Remark 1.7.3
-  - Mathlib: `IsMulCocycle₁` for multiplicative cocycles
-  - Noted convention difference: mathlib `g•f(h)*f(g)` vs book `f(g)*g•f(h)`
-  - Referenced `SemidirectProduct` for classification result
+Three issues from §1.7 (Group Cohomology):
+
+1. **lemmafeld-4rdp**: TC 1.7.1 - Explicit differential formulas d₁-d₄ — COMPLETE
+   - Created `Chapter1/GroupCohomology.lean`
+   - Documented `inhomogeneousCochains.d_hom_apply` correspondence
+
+2. **lemmafeld-rm4u**: TC 1.7.2 - H⁰ and H¹ for trivial action — COMPLETE
+   - `H0Iso`, `H0IsoOfIsTrivial`, `H1IsoOfIsTrivial`
+
+3. **lemmafeld-wlki**: TC 1.7.3 - Non-abelian 1-cocycles — COMPLETE
+   - `IsMulCocycle₁` with convention note (mathlib vs book order)
 
 ## Current State
 
 **Build:** Passing (`lake build` succeeds)
 
-**Chapter 1 §1.7 Coverage:**
-- Example 1.7.1 (d₁-d₄ formulas): COMPLETE
-- Example 1.7.2 (H⁰, H¹): COMPLETE
-- Remark 1.7.3 (non-abelian 1-cocycles): COMPLETE
-- Example 1.7.4 (ℤ/nℤ cohomology): Not started
-- Exercise 1.7.5 (ring structure): Not started
+**§1.7 Coverage:** 60% (3/5 items)
+| Item | Status |
+|------|--------|
+| Example 1.7.1 (differentials) | ✓ |
+| Example 1.7.2 (H⁰, H¹) | ✓ |
+| Remark 1.7.3 (non-abelian) | ✓ |
+| Example 1.7.4 (ℤ/nℤ) | Not started |
+| Exercise 1.7.5 (ring structure) | Not started |
 
 ## Next Steps (SECTION ORDER)
 
 ### 1. TC 1.7.4: ℤ/nℤ cohomology computation
 - Issue: `lemmafeld-j2mh`
-- Book: Uses smaller resolution P_i = ℤG, ∂_i = (g-1) or (1+g+...+g^{n-1})
+- Book uses smaller resolution: ∂_i = (g-1) or Σg^k
 - Result: H^{2j+1} = 0, H^{2j} = ℤ/nℤ for j > 0
 
 ### 2. TC 1.7.5: Ring structure on H*(ℤ/nℤ, ℤ)
 - Issue: `lemmafeld-7jnu`
-- Book: H* = ℤ[x]/(nx) with x in degree 2
+- H* = ℤ[x]/(nx) with x in degree 2
 
-## Files Modified
+### 3. After §1.7: Check §1.8 gaps
+- §1.8 at 42% coverage per learnings index
 
-- `LemmaFeld/CategoryTheory/TensorCategories/Chapter1/GroupCohomology.lean` — Extended (+30 LOC)
-  - Added Remark 1.7.3: Non-abelian 1-cocycles
-  - `IsMulCocycle₁` and `cocyclesOfIsMulCocycle₁` references
-- `docs/learnings/chapter1/derived_functors.md` — Updated with Remark 1.7.3
+## Files Modified This Session
 
-## Notes
+- `LemmaFeld/CategoryTheory/TensorCategories/Chapter1/GroupCohomology.lean` — NEW (~160 LOC)
+  - Example 1.7.1: Explicit d₁-d₄ formulas
+  - Example 1.7.2: H⁰ = invariants, H¹ = Hom for trivial
+  - Remark 1.7.3: IsMulCocycle₁ for non-abelian
+- `docs/learnings/chapter1/derived_functors.md` — Updated with all three items
+- `docs/learnings/index.md` — Updated §1.7 coverage to 60%
 
-- Mathlib's multiplicative cocycle convention differs from book by multiplication order
-- Both conventions are valid; they're related by taking inverses
-- `CommGroup M` required for mathlib's `IsMulCocycle₁` (not truly non-abelian)
+## Key Learnings
+
+1. **Universe polymorphism**: `Rep k G` requires k, G in same universe
+2. **Cocycle conventions**: Mathlib uses `g•f(h)*f(g)`, book uses `f(g)*g•f(h)`
+3. **Low-degree cohomology**: Rich API in `GroupCohomology.LowDegree`
+4. **IsTrivial typeclass**: Marks representations with trivial G-action
