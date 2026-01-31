@@ -74,28 +74,9 @@ section StructuralMorphisms
 
 variable {C : Type*} [Category C] [Preadditive C] [HasBinaryBiproducts C]
 
-/-! ### Projections and Injections
+/-! ### Projections/Injections and Axiom (A3)
 
-Book notation:
-- `p₁ : X ⊕ Y → X`, `p₂ : X ⊕ Y → Y` (projections)
-- `i₁ : X → X ⊕ Y`, `i₂ : Y → X ⊕ Y` (injections)
-
-Mathlib:
-- `biprod.fst : X ⊞ Y ⟶ X`, `biprod.snd : X ⊞ Y ⟶ Y`
-- `biprod.inl : X ⟶ X ⊞ Y`, `biprod.inr : Y ⟶ X ⊞ Y`
--/
-
--- Book's p₁ = mathlib's biprod.fst
--- Book's p₂ = mathlib's biprod.snd
--- Book's i₁ = mathlib's biprod.inl
--- Book's i₂ = mathlib's biprod.inr
-
-/-! ### Axiom (A3) Conditions
-
-The biproduct axioms from Definition 1.2.1:
-- p₁i₁ = id_X
-- p₂i₂ = id_Y
-- i₁p₁ + i₂p₂ = id_{X⊕Y}
+Book notation → Mathlib: p₁ = `biprod.fst`, p₂ = `biprod.snd`, i₁ = `biprod.inl`, i₂ = `biprod.inr`
 -/
 
 -- p₁i₁ = id_X
@@ -124,27 +105,15 @@ section UniversalProperties
 
 variable {C : Type*} [Category C] [Preadditive C] [HasBinaryBiproducts C]
 
-/-! ### As a Product
-
-`biprod.lift f g : W ⟶ X ⊞ Y` is the unique morphism such that
-`biprod.lift f g ≫ biprod.fst = f` and `biprod.lift f g ≫ biprod.snd = g`.
--/
-
+-- Product: `biprod.lift f g` with `lift_fst`, `lift_snd`
 example {W X Y : C} (f : W ⟶ X) (g : W ⟶ Y) :
     biprod.lift f g ≫ biprod.fst = f := biprod.lift_fst f g
-
 example {W X Y : C} (f : W ⟶ X) (g : W ⟶ Y) :
     biprod.lift f g ≫ biprod.snd = g := biprod.lift_snd f g
 
-/-! ### As a Coproduct
-
-`biprod.desc f g : X ⊞ Y ⟶ W` is the unique morphism such that
-`biprod.inl ≫ biprod.desc f g = f` and `biprod.inr ≫ biprod.desc f g = g`.
--/
-
+-- Coproduct: `biprod.desc f g` with `inl_desc`, `inr_desc`
 example {X Y W : C} (f : X ⟶ W) (g : Y ⟶ W) :
     biprod.inl ≫ biprod.desc f g = f := biprod.inl_desc f g
-
 example {X Y W : C} (f : X ⟶ W) (g : Y ⟶ W) :
     biprod.inr ≫ biprod.desc f g = g := biprod.inr_desc f g
 
@@ -193,12 +162,7 @@ end Associativity
 
 /-! ## Zero Object as Unit
 
-The zero object is the unit for direct sum. In mathlib, this is expressed via
-`IsZero` predicates and the fact that biproducts with zero objects are isomorphic
-to the non-zero summand.
-
-Book: 0 ⊕ X ≅ X ≅ X ⊕ 0
-Mathlib: Use `IsZero` and biproduct properties.
+Book: 0 ⊕ X ≅ X ≅ X ⊕ 0. Mathlib: Use `IsZero` and biproduct properties.
 -/
 
 section ZeroUnit
