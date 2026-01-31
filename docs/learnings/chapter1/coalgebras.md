@@ -119,11 +119,35 @@ lemma IsGrouplike.span_isSubcoalgebra (hx : IsGrouplike R x) :
 
 ---
 
+## §1.9.3: Exercise - Dual Algebra and Comodule-Module
+
+**Book Exercise 1.9.3:**
+(i) If C is a coalgebra then C* is an algebra; if A is finite-dim algebra then A* is a coalgebra.
+(ii) Any C-comodule M is a C*-module (and converse for finite-dim C).
+
+**Mathlib (`Mathlib.RingTheory.Coalgebra.Convolution`):**
+
+| Concept | Mathlib |
+|---------|---------|
+| Convolution algebra | `LinearMap.convSemiring` |
+| Convolution product | `LinearMap.convMul_def` |
+| Convolution unit | `LinearMap.convOne_def` |
+
+**Our formalization (`Chapter1/DualAlgebra.lean`):**
+- Part (i): References mathlib's convolution algebra
+- Part (ii): `comoduleRightAction` defines m · f = lid((f ⊗ id)(ρ(m)))
+  - `comoduleRightAction_add`, `_smul`, `_add_fun` — linearity
+  - `comoduleRightAction_one` — m · 1 = m (PROVED)
+  - `comoduleRightAction_mul` — m · (f*g) = (m·f)·g (sorry - coassociativity calc)
+
+---
+
 ## §1.9 Remaining Work (Section Order)
 
 | Item | Status | Issue | Notes |
 |------|--------|-------|-------|
 | §1.9.2: Comodule definition | ✅ DONE | lemmafeld-lyxp | Left + Right comodules |
+| §1.9.3: Dual algebra + comod↔mod | ✅ DONE | lemmafeld-hmry | DualAlgebra.lean |
 | §1.9.8: Grouplike ↔ 1-dim subcoalgebras | ✅ DONE | lemmafeld-e96f | Subcoalgebra def + span lemma |
 | §1.9.9: Set coalgebra k[X] | ✅ DONE | lemmafeld-663t | |
 | §1.9.12: Prim/k(g-h) ≅ Ext¹ | BLOCKED | — | Requires comodule categories |

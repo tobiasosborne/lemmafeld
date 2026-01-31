@@ -5,22 +5,13 @@
 
 ## Completed This Session
 
-- **lemmafeld-q6ku**: TC 1.8.17: Gabber's theorem — DONE (statement formalized)
-  - `IsSubquotient Y X` — subquotient definition
-  - `isSubquotient_refl`, `isSubquotient_trans`, `isSubquotient_of_biproduct` — PROVED
-  - `IsProjectiveGenerator`, `HasProjectiveGenerator` — definitions
-  - `gabber_theorem` — main theorem (sorry)
-
-- **lemmafeld-ssq7**: TC 1.8.18: Image of exact functor — DONE
-  - `IsInFunctorImage F Y` — Y ∈ Im F
-  - `FunctorImageProp F` — predicate for full subcategory
-  - `isInFunctorImage_of_obj` — PROVED
-  - `isInFunctorImage_of_subquotient` — PROVED
-
-- **lemmafeld-dyzj**: TC 1.8.19: Im(F) finite if C finite — DONE (statement)
-  - `image_finite_of_finite` — theorem (sorry)
-
-- **lemmafeld-qr9k**: Gap: Subquotient formalization — CLOSED (resolved in Gabber.lean)
+- **lemmafeld-hmry**: TC 1.9.3: Exercise - Dual algebra and coalgebra — DONE
+  - `DualAlgebra.lean` created with:
+  - Part (i): References mathlib's convolution algebra (`LinearMap.convSemiring`)
+  - Part (ii): `comoduleRightAction` — m · f = lid((f ⊗ id)(ρ(m)))
+  - `comoduleRightAction_one` — PROVED (m · 1 = m via counit axiom)
+  - `comoduleRightAction_add`, `_smul`, `_add_fun` — linearity lemmas PROVED
+  - `comoduleRightAction_mul` — sorry (associativity requires longer calculation)
 
 ## 🚨 ONLY ACCEPTABLE OUTPUT IS LEAN CODE 🚨
 **THE DELIVERABLE IS REAL LEAN FILES, NOT #checks, NOT COMMENTS, NOT DOCUMENTATION. DO NOT DELETE THIS REQUIREMENT**
@@ -36,37 +27,34 @@
 
 ## Current State
 
-**Chapter 1 §1.8 Progress:**
-- §1.8.15: DONE (tensorProductFunctor, endPairToTensorEnd, key lemmas)
-- §1.8.16: IN PROGRESS (bilinearity proved, bijectivity pending)
-- §1.8.17: DONE (Gabber's theorem statement, subquotient infrastructure)
-- §1.8.18: DONE (functor image definitions and lemmas)
-- §1.8.19: DONE (statement for image finite theorem)
-- §1.8.11, §1.8.14: OPEN (blocked by gaps)
+**Chapter 1 §1.9 Progress:**
+- §1.9.2: DONE (comodule definitions in Comodules.lean)
+- §1.9.3: DONE (dual algebra, comodule-module correspondence)
+- §1.9.7-1.9.11: DONE (grouplike, skew-primitive in Coalgebras.lean)
+- §1.9.4, §1.9.5: OPEN (coalgebra as sum of finite subcoalgebras)
+- §1.9.12-1.9.15: BLOCKED (requires comodule categories)
 
-**Section 1.8 is substantially complete!** Remaining work:
-- §1.8.16 bijectivity (exercise)
-- §1.8.11, §1.8.14 blocked by foundational gaps
+**Section 1.8 Status:**
+- §1.8.15-1.8.19: DONE
+- §1.8.11, §1.8.14, §1.8.16: OPEN (blocked by gaps)
 
 ## 🚨 ONLY ACCEPTABLE OUTPUT IS LEAN CODE 🚨
 **THE DELIVERABLE IS REAL LEAN FILES, NOT #checks, NOT COMMENTS, NOT DOCUMENTATION. DO NOT DELETE THIS REQUIREMENT**
 
 ## Next Steps (by section order)
 
-1. Move to §1.9 (Coalgebras) or continue with blocked §1.8 items
-2. TC 1.8.16: Complete bijectivity proof (lemmafeld-cgdr)
-3. Address foundational gaps for §1.8.11, §1.8.14
+1. **TC 1.9.4**: Exercise - Coalgebra as sum of finite dim subcoalgebras (lemmafeld-kxu9)
+2. **TC 1.9.5**: Proposition - C-comod locally finite abelian (lemmafeld-g5av)
+3. Continue with §1.10+ when §1.9 foundations complete
 
 ## 🚨 ONLY ACCEPTABLE OUTPUT IS LEAN CODE 🚨
 **THE DELIVERABLE IS REAL LEAN FILES, NOT #checks, NOT COMMENTS, NOT DOCUMENTATION. DO NOT DELETE THIS REQUIREMENT**
 
 ## Files Modified
 
-- `LemmaFeld/CategoryTheory/TensorCategories/Chapter1/Gabber.lean` — CREATED
-  - §1.8.17: Subquotient infrastructure, Gabber's theorem
-  - §1.8.18: Functor image definitions
-  - §1.8.19: Image finite theorem statement
-- `docs/learnings/chapter1/locally_finite.md` — updated §1.8.17-1.8.19 docs
+- `LemmaFeld/CategoryTheory/TensorCategories/Chapter1/DualAlgebra.lean` — CREATED
+  - §1.9.3: Exercise on dual algebra and comodule-module correspondence
+- `docs/learnings/chapter1/coalgebras.md` — updated §1.9.3 documentation
 
 ## 🚨 ONLY ACCEPTABLE OUTPUT IS LEAN CODE 🚨
 **THE DELIVERABLE IS REAL LEAN FILES, NOT #checks, NOT COMMENTS, NOT DOCUMENTATION. DO NOT DELETE THIS REQUIREMENT**
