@@ -31,11 +31,13 @@ open CategoryTheory CategoryTheory.Limits
 universe u v
 variable {C : Type u} [Category.{v} C] [Abelian C] [HasFiniteBiproducts C]
 
-/-- **Krull-Schmidt Uniqueness**: Any two indecomposable decompositions of a finite
-length object are equivalent up to permutation and isomorphism.
--/
-theorem krullSchmidt_uniqueness {X : C} (hX : IsFiniteLengthObject X)
-    (d₁ d₂ : IndecomposableDecomposition C X) : DecompositionsEquivalent C d₁ d₂ := by
+/-- Auxiliary lemma with explicit induction hypothesis for strong induction. -/
+private theorem krullSchmidt_uniqueness_aux {X : C} (hX : IsFiniteLengthObject X)
+    (d₁ d₂ : IndecomposableDecomposition C X)
+    (ih : ∀ m, m < d₁.n → ∀ (Y : C) (hY : IsFiniteLengthObject Y)
+         (e₁ e₂ : IndecomposableDecomposition C Y),
+         e₁.n = m → DecompositionsEquivalent C e₁ e₂) :
+    DecompositionsEquivalent C d₁ d₂ := by
   rcases Nat.eq_zero_or_pos d₁.n with hn | hn_pos
   · -- Base case: d₁.n = 0
     have hBiprod_zero : IsZero (⨁ d₁.components) := by
@@ -203,12 +205,43 @@ theorem krullSchmidt_uniqueness {X : C} (hX : IsFiniteLengthObject X)
         iso := iso_remainder
       }
 
-      -- The remaining work requires:
-      -- d) Apply strong induction hypothesis to get DecompositionsEquivalent d1_tail d2_tail
-      -- e) Combine permutations (j :: σ_tail) to get full equivalence
-      --
-      -- This requires restructuring the proof to use Nat.strong_induction_on.
-      -- Tracked in: lemmafeld-3ber (restructure for strong induction)
+      -- Apply IH on the remainders
+      have h_lt : d₁.n - 1 < d₁.n := Nat.sub_lt hn_pos Nat.one_pos
+      -- ⨁ d₁.components ≅ head ⊞ tail, so tail has finite length
+      have hBiprod_fl : IsFiniteLengthObject (⨁ d₁.components) :=
+        isFiniteLengthObject_of_iso d₁.iso hX
+      have hSplit_fl : IsFiniteLengthObject
+          (d₁.components ⟨0, hn_pos⟩ ⊞ ⨁ (finTail hn_pos d₁.components)) :=
+        isFiniteLengthObject_of_iso iso_d1_split hBiprod_fl
+      have hY_fl : IsFiniteLengthObject (⨁ (finTail hn_pos d₁.components)) :=
+        isFiniteLengthObject_biprod_snd hSplit_fl
+      have ih_tail := ih (d₁.n - 1) h_lt (⨁ (finTail hn_pos d₁.components))
+        hY_fl d1_tail d2_tail rfl
+
+      -- ih_tail gives us:
+      -- - ih_tail.n_eq : d₁.n - 1 = d₂.n - 1
+      -- - ih_tail.perm : Equiv (Fin (d₁.n - 1)) (Fin (d₂.n - 1))
+      -- - ih_tail.iso_components : component isomorphisms for tail
+
+      -- Now combine: the full permutation sends 0 ↦ j, and i+1 ↦ adjusted(perm(i))
+      -- Tracked in: lemmafeld-45lt (construct full permutation)
       sorry
+
+/-- **Krull-Schmidt Uniqueness**: Any two indecomposable decompositions of a finite
+length object are equivalent up to permutation and isomorphism.
+-/
+theorem krullSchmidt_uniqueness {X : C} (hX : IsFiniteLengthObject X)
+    (d₁ d₂ : IndecomposableDecomposition C X) : DecompositionsEquivalent C d₁ d₂ := by
+  -- Strong induction on d₁.n
+  have H : ∀ n, ∀ (Y : C) (hY : IsFiniteLengthObject Y)
+      (e₁ e₂ : IndecomposableDecomposition C Y),
+      e₁.n = n → DecompositionsEquivalent C e₁ e₂ := by
+    intro n
+    induction n using Nat.strong_induction_on with
+    | _ n ih =>
+      intro Y hY e₁ e₂ hn
+      subst hn
+      exact krullSchmidt_uniqueness_aux hY e₁ e₂ ih
+  exact H d₁.n X hX d₁ d₂ rfl
 
 end LemmaFeld.TensorCategories.Chapter1
