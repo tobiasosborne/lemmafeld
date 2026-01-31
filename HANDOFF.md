@@ -2,42 +2,37 @@
 
 ## Completed This Session
 
-- **lemmafeld-vnku**: TC 1.5.10(i): Define indecomposable category
-  - Added `TrivialCategory` class — category where every object is zero
-  - Added `NontrivialCategory` definition — has at least one non-zero object
-  - Added `IndecomposableCategory` class — cannot be decomposed into product of nontrivial categories
+- **lemmafeld-8xv7**: TC 1.8.11: Corollary - Yoneda for left exact functors
+  - Added `IsLeftExactCorepresentable` definition
+  - Documented mathlib correspondence: `IsCorepresentable`, `PreservesFiniteLimits`, `coyoneda`
+  - Added example for Remark 1.8.12 using `coyonedaEquiv`
 
-- **lemmafeld-r7fn**: TC 1.5.10(i): Define direct sum of abelian categories
-  - Documented: mathlib's `CategoryTheory.prod` IS the direct sum for abelian categories
+- **lemmafeld-tgqo**: TC 1.8.13: Definition - Virtual projective objects K₀(C)⊗k
+  - Added `IsIndecompProjective`, `IndecompProjectiveObject`, `IsoClassIndecompProjective`
+  - Added `K0` (free abelian group on iso classes of indecomposable projectives)
+  - Added `VirtualProjective` = K₀(C) ⊗_ℤ k
 
-- **lemmafeld-vbf5**: TC 1.6.7: Definition - Injective hull
-  - Already implemented in `Chapter1/Projective.lean` — closed as complete
-
-- **lemmafeld-4si7**: TC 1.8.10: Proposition - Representable iff right exact
-  - Created `Chapter1/RepresentableFunctors.lean` with `IsTensorRepresentable` structure
-  - Documented mathlib correspondence and gaps for full Eilenberg-Watts proof
+- **lemmafeld-296g**: TC 1.8.14: Definition - Cartan matrix [P(X):Y]
+  - Added `CartanMatrixData` structure (simples, projective covers, multiplicities)
+  - Added `CartanMatrixData.toMatrix` to `Matrix (Fin n) (Fin n) ℕ`
 
 ## Current State
 
 **Chapter 1 Progress:**
-- §1.5.10(i): Key definitions complete (TrivialCategory, IndecomposableCategory)
-- §1.6.7: InjectiveHull already exists
-- §1.8.10: Documentation created, full proof is future work
+- §1.8.11-1.8.14: Complete (corepresentability, virtual projectives, Cartan matrix)
 
 ## Next Steps (by section order)
 
-1. **TC 1.8.11**: Corollary - Yoneda for left exact functors (lemmafeld-8xv7)
-2. **TC 1.8.13+**: Continue through §1.8
-3. **TC 1.9.x**: Coalgebras section
+1. **TC 1.8.15+**: Continue through §1.8 (Prop 1.8.15 onwards)
+2. **TC 1.9.x**: Coalgebras section
 
 ## Known Issues / Gotchas
 
-- Eilenberg-Watts theorem (Prop 1.8.10) requires significant infrastructure for full formalization
-- Many §1.8 items relate to finite abelian categories and representability
+- `Indecomposable` requires `HasBinaryBiproducts C`
+- K₀(C) vs Gr(C): different groups (projectives vs simples)
+- CartanMatrixData requires HasMultiplicity (from GrothendieckGroup.lean)
 
 ## Files Modified
 
-- `LemmaFeld/CategoryTheory/TensorCategories/Chapter1/BlockDecomposition.lean` — TrivialCategory, IndecomposableCategory
-- `LemmaFeld/CategoryTheory/TensorCategories/Chapter1/RepresentableFunctors.lean` — NEW file for §1.8.8-1.8.10
-- `docs/learnings/chapter1/length_objects.md` — §1.5.10(i) definitions
-- `docs/learnings/chapter1/locally_finite.md` — §1.8.10 documentation
+- `LemmaFeld/CategoryTheory/TensorCategories/Chapter1/RepresentableFunctors.lean` — Added §1.8.11-1.8.14
+- `docs/learnings/chapter1/locally_finite.md` — Updated with §1.8.11-1.8.14 documentation
