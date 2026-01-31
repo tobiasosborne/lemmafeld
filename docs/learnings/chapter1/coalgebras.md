@@ -50,11 +50,23 @@ structure IsTrivialSkewPrimitive (R : Type*) [CommRing R] {A : Type*}
 
 ---
 
+## §1.9 Remaining Work (Section Order)
+
+| Item | Status | Issue | Notes |
+|------|--------|-------|-------|
+| §1.9.8: Grouplike ↔ 1-dim subcoalgebras | TODO | lemmafeld-e96f | Needs subcoalgebra def |
+| §1.9.9: Set coalgebra k[X] | TODO | lemmafeld-663t | Self-contained, ~25 LOC |
+| §1.9.12: Prim/k(g-h) ≅ Ext¹ | BLOCKED | — | Requires comodule categories |
+| §1.9.13: Pointed coalgebra | BLOCKED | — | Requires "simple comodule" |
+| §1.9.15: LocallyFinite ≃ C-comod | BLOCKED | lemmafeld-cwxw | Requires comodule cat (~500 LOC) |
+
+**Recommendation:** Work on §1.9.9 (set coalgebra) first — self-contained, uses `MonoidAlgebra`.
+
+---
+
 ## §1.13: Coradical Filtration
 
-**Remaining work:**
-- Proposition 1.9.12: Prim_{g,h}(C)/k(g-h) ≅ Ext¹(h,g) (requires comodule categories)
-- Bijection: grouplike ↔ 1-dim subcoalgebras
+**All blocked on comodule infrastructure:**
 - Definition 1.13.1-1.13.2: Coradical filtration
 - Exercise 1.13.3(iii): Linear independence of grouplike elements
 
