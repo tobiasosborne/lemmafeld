@@ -602,6 +602,63 @@ let iso_remainder : ⨁ (finTail hn_pos d₁.components) ≅ ⨁ (finTail hd2_po
 
 **Result:** `iso_remainder` gives the isomorphism between the (n-1)-component and (m-1)-component remainder biproducts. Next: build `IndecomposableDecomposition` for each remainder, apply IH.
 
+### Remainder decompositions (2026-01-31)
+
+Built `IndecomposableDecomposition` for both remainder biproducts:
+
+```lean
+let d1_tail : IndecomposableDecomposition C (⨁ (finTail hn_pos d₁.components)) := {
+  n := d₁.n - 1
+  components := finTail hn_pos d₁.components
+  indecomposable := fun i => d₁.indecomposable ⟨i.val + 1, by omega⟩
+  iso := Iso.refl _
+}
+
+let d2_tail : IndecomposableDecomposition C (⨁ (finTail hn_pos d₁.components)) := {
+  n := d₂.n - 1
+  components := finTail hd2_pos d2_swapped
+  indecomposable := fun i => d₂.indecomposable ((finSwapFront j).symm ⟨i.val + 1, by omega⟩)
+  iso := iso_remainder  -- Key: uses iso_remainder to share base object!
+}
+```
+
+**Key insight:** Both decompositions use the same base object `⨁ (finTail hn_pos d₁.components)` by having d2_tail use `iso_remainder` as its iso. This enables applying `DecompositionsEquivalent` via induction hypothesis.
+
+### Strong induction restructure challenge (2026-01-31)
+
+**Problem:** Need to apply IH on remainder decompositions, but current proof structure doesn't support recursion.
+
+**Attempted approach:**
+```lean
+private theorem uniqueness_aux : ∀ n : ℕ, ∀ {X : C} (hX : IsFiniteLengthObject X)
+    (d₁ d₂ : IndecomposableDecomposition C X), d₁.n = n → DecompositionsEquivalent C d₁ d₂ := by
+  intro n
+  induction n using Nat.strong_induction_on with
+  | h m ih =>
+    intro hX d₁ d₂ hm_eq
+    rcases Nat.eq_zero_or_pos d₁.n with hn | hn_pos
+    · -- base case
+    · -- inductive case with nested by_cases
+      by_cases hn1 : d₁.n = 1
+      · -- n=1 case
+      · -- n>1 case (uses ih)
+```
+
+**Issue encountered:** Parser errors with deeply nested bullet structure. Error: `Invalid field 'n': The environment does not contain 'And.n'` - the `d₁` variable was misinterpreted in nested scopes after `by_cases` inside `rcases` inside strong induction.
+
+**What DOESN'T work:**
+- `| h m ih =>` followed by `intro` followed by nested `rcases`/`by_cases` with bullets
+- The bullet scoping seems to break variable resolution in deeply nested cases
+
+**Possible solutions (not yet tried):**
+1. Use `case` syntax instead of `·` bullets for outer cases
+2. Extract the inductive case body (lines 89-211) into a separate lemma
+3. Use term-mode with explicit pattern matching instead of tactic bullets
+4. Try `termination_by d₁.n` with a recursive function definition
+5. Use explicit `match` instead of `rcases`/`by_cases`
+
+**Recommendation:** Extract the inductive case to a helper lemma that takes `ih` as an explicit parameter.
+
 ---
 
 ## §1.5.8: Grothendieck Group
