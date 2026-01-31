@@ -225,6 +225,77 @@ lifts to an algebra homomorphism from End(F₁) ⊗_k End(F₂) to End(F₁ ⊗ 
 
 ---
 
+## §1.8.17: Gabber's Theorem — ✓ DONE (statement)
+
+**Lean file:** `Chapter1/Gabber.lean`
+
+**Issue:** lemmafeld-q6ku
+
+**Book Proposition 1.8.17 (Gabber):** Let C be a locally finite abelian category.
+Suppose that there exists X ∈ C such that any object of C is a subquotient of
+a direct sum of finitely many copies of X. Then C has a projective generator,
+i.e., is a finite abelian category.
+
+**Original source:** Deligne, "Catégories tannakiennes", Proposition 2.14 [De1]
+
+**Our formalization:**
+- `IsSubquotient Y X` — Y is a subquotient of X (∃ Z with Z ↪ X mono and Z ↠ Y epi)
+- `isSubquotient_refl` — reflexivity (proved)
+- `isSubquotient_trans` — transitivity (proved)
+- `isSubquotient_of_biproduct` — subquotient of summand is subquotient of biproduct (proved)
+- `HasSubquotientGenerator C` — ∃ X such that ∀ Y, Y is subquotient of X^n
+- `IsProjectiveGenerator P` — P is projective and a separator
+- `HasProjectiveGenerator C` — ∃ P projective generator
+- `gabber_theorem` — main theorem (sorry — proof is non-trivial)
+- `finite_of_subquotient_generator` — corollary for finite abelian (sorry)
+
+**Mathlib correspondence:**
+- Separator/Generator: `IsSeparator` in `Mathlib.CategoryTheory.Generator.Basic`
+- Projective: `Projective` in `Mathlib.CategoryTheory.Preadditive.Projective.Basic`
+- Biproducts: `HasFiniteBiproducts` in `Mathlib.CategoryTheory.Limits.Shapes.Biproducts`
+
+**Note:** Full proof requires detailed analysis showing:
+1. Every simple is a subquotient of the generator X
+2. Finitely many simples (X has finite length)
+3. Construction via projective covers of simples
+
+---
+
+## §1.8.18: Image of Exact Functor — ✓ DONE
+
+**Lean file:** `Chapter1/Gabber.lean`
+
+**Issue:** lemmafeld-ssq7
+
+**Book Definition 1.8.18:** Let F : C → D be an exact functor between two locally finite
+abelian categories. The image of F is the full subcategory Im F ⊂ D consisting of all
+objects contained as subquotients in F(X) for some X ∈ C.
+
+**Our formalization:**
+- `IsInFunctorImage F Y` — Y is in Im F (∃ X, Y is subquotient of F(X))
+- `FunctorImageProp F` — the predicate for the full subcategory
+- `isInFunctorImage_of_obj` — F(X) is in Im F (proved)
+- `isInFunctorImage_of_subquotient` — subquotients of Im F objects are in Im F (proved)
+
+---
+
+## §1.8.19: Im(F) Finite if C Finite — ✓ DONE (statement)
+
+**Lean file:** `Chapter1/Gabber.lean`
+
+**Issue:** lemmafeld-dyzj
+
+**Book Proposition 1.8.19:** If C in Definition 1.8.18 is finite then Im F is a finite
+abelian category.
+
+**Book proof idea:** Let P be a projective generator of C. Then any object of Im F is
+a subquotient of F(P)^n. By Gabber's theorem (1.8.17), Im F is finite.
+
+**Our formalization:**
+- `image_finite_of_finite` — main theorem (sorry)
+
+---
+
 ## 🚨 ONLY ACCEPTABLE OUTPUT IS LEAN CODE 🚨
 **THE DELIVERABLE IS REAL LEAN FILES, NOT #checks, NOT COMMENTS, NOT DOCUMENTATION. DO NOT DELETE THIS REQUIREMENT**
 
@@ -233,7 +304,7 @@ lifts to an algebra homomorphism from End(F₁) ⊗_k End(F₂) to End(F₁ ⊗ 
 | Gap | Description | Issue |
 |-----|-------------|-------|
 | ~~Division algebra~~ | ~~fin dim over alg closed k = k~~ | **RESOLVED** via mathlib |
-| Subquotients | Proper subquotient formalization | lemmafeld-qr9k |
+| ~~Subquotients~~ | ~~Proper subquotient formalization~~ | **RESOLVED** in Gabber.lean |
 | Duality | Finite category duality C ↔ A^op-mod | lemmafeld-z5db |
 | Eilenberg-Watts | Full proof of Prop 1.8.10 | lemmafeld-g437 |
 | HasMultiplicity | JH multiplicities for categories | lemmafeld-k1y1 |
