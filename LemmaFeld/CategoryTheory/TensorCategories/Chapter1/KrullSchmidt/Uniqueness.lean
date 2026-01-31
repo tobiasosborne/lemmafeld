@@ -232,13 +232,88 @@ private theorem krullSchmidt_uniqueness_aux {X : C} (hX : IsFiniteLengthObject X
         have h2 : 1 ≤ d₂.n := Nat.one_le_of_lt hd2_gt1
         omega
 
-      -- The full permutation sends:
-      -- - 0 ↦ j (matched via exchange lemma)
-      -- - (i+1) ↦ (finSwapFront j).symm (σ_tail(i) + 1) (matched via IH)
-      --
-      -- Construction requires careful index bookkeeping.
-      -- Tracked in: lemmafeld-45lt (construct full permutation)
-      sorry
+      -- Build the full permutation using prependSwapPerm
+      let σ : Equiv.Perm (Fin d₁.n) := prependSwapPerm hn_pos hd2_pos hn_eq j σ_tail
+
+      refine ⟨hn_eq, σ, ?_⟩
+      intro i
+      -- Case split on whether i = 0 or i > 0
+      by_cases hi : i.val = 0
+      · -- Case i = 0: use exchange lemma iso f
+        have hi0 : i = ⟨0, hn_pos⟩ := Fin.ext hi
+        subst hi0
+        -- σ 0 = ⟨j.val, _⟩ by prependSwapPerm_zero
+        have hσ0 : σ ⟨0, hn_pos⟩ = ⟨j.val, by omega⟩ := prependSwapPerm_zero hn_pos hd2_pos hn_eq j σ_tail
+        -- f : d₁.components 0 ≅ d₂.components j
+        -- Need: d₁.components 0 ≅ d₂.components ⟨(σ 0).val, _⟩
+        have hj_eq : d₂.components j = d₂.components ⟨(σ ⟨0, hn_pos⟩).val, hn_eq ▸ (σ ⟨0, hn_pos⟩).isLt⟩ := by
+          congr 1
+          ext
+          rw [hσ0]
+        exact ⟨f ≪≫ eqToIso hj_eq⟩
+      · -- Case i > 0: use IH iso_tail
+        -- Write i = ⟨k+1, _⟩ for some k : Fin (d₁.n - 1)
+        have hi_pos : 0 < i.val := Nat.pos_of_ne_zero hi
+        let k : Fin (d₁.n - 1) := ⟨i.val - 1, by omega⟩
+
+        -- Explicit bounds for omega
+        have hσk_lt_d1 : (σ_tail k).val < d₁.n - 1 := (σ_tail k).isLt
+        have hσk_succ_lt_d1 : (σ_tail k).val + 1 < d₁.n := Nat.add_lt_of_lt_sub hσk_lt_d1
+        have hσk_succ_lt_d2 : (σ_tail k).val + 1 < d₂.n := hn_eq ▸ hσk_succ_lt_d1
+
+        have hik : i = ⟨k.val + 1, Nat.add_lt_of_lt_sub k.isLt⟩ := by
+          ext; simp only [k]; omega
+
+        -- σ (k+1) = finSwapFront ⟨j.val, _⟩ ⟨(σ_tail k).val + 1, _⟩
+        have hσ_succ : σ ⟨k.val + 1, Nat.add_lt_of_lt_sub k.isLt⟩ =
+            finSwapFront ⟨j.val, by omega⟩ ⟨(σ_tail k).val + 1, hσk_succ_lt_d1⟩ :=
+          prependSwapPerm_succ hn_pos hd2_pos hn_eq j σ_tail k
+
+        -- From IH: d1_tail.components k ≅ d2_tail.components ⟨σ_tail k, h_tail ▸ ...⟩
+        obtain ⟨iso_k⟩ := iso_tail k
+
+        -- Index in d2_tail from IH
+        have hσk_lt_d2tail : (σ_tail k).val < d2_tail.n := h_tail ▸ (σ_tail k).isLt
+        let σk_idx : Fin d2_tail.n := ⟨(σ_tail k).val, hσk_lt_d2tail⟩
+
+        -- Key: (finSwapFront j).symm = finSwapFront j (swaps are involutions)
+        have hswap_self_inv : (finSwapFront j).symm = finSwapFront j := by
+          simp only [finSwapFront, Equiv.symm_swap]
+
+        -- The key value equality: swap(v) gives same .val regardless of Fin type
+        -- Both finSwapFront compute: if v = 0 then j.val else if v = j.val then 0 else v
+        have hswap_val_eq : ∀ (v : ℕ) (hv1 : v < d₁.n) (hv2 : v < d₂.n),
+            (finSwapFront ⟨j.val, by omega⟩ ⟨v, hv1⟩ : Fin d₁.n).val =
+            (finSwapFront j ⟨v, hv2⟩ : Fin d₂.n).val := by
+          intro v hv1 hv2
+          unfold finSwapFront
+          simp only [Equiv.swap_apply_def, Fin.ext_iff, Fin.val_mk]
+          -- After unfolding, both sides have the same structure on Nat
+          split_ifs <;> rfl
+
+        -- σ i value calculation
+        have hσ_val : (σ i).val = (finSwapFront j ⟨(σ_tail k).val + 1, hσk_succ_lt_d2⟩).val := by
+          calc (σ i).val
+              = (σ ⟨k.val + 1, Nat.add_lt_of_lt_sub k.isLt⟩).val := by rw [hik]
+            _ = (finSwapFront ⟨j.val, by omega⟩ ⟨(σ_tail k).val + 1, hσk_succ_lt_d1⟩).val := by
+                  rw [hσ_succ]
+            _ = (finSwapFront j ⟨(σ_tail k).val + 1, hσk_succ_lt_d2⟩).val :=
+                  hswap_val_eq _ _ _
+
+        -- d2_tail.components σk_idx = d₂.components (finSwapFront j ⟨σk+1, _⟩)
+        have hd2_tail_comp : d2_tail.components σk_idx =
+            d₂.components (finSwapFront j ⟨(σ_tail k).val + 1, hσk_succ_lt_d2⟩) := by
+          simp only [d2_tail, finTail, d2_swapped, Function.comp_apply, hswap_self_inv, σk_idx]
+
+        -- Target equality for d₂.components
+        have hd2_target_eq : d₂.components ⟨(σ i).val, hn_eq ▸ (σ i).isLt⟩ =
+            d₂.components (finSwapFront j ⟨(σ_tail k).val + 1, hσk_succ_lt_d2⟩) := by
+          congr 1; ext; exact hσ_val
+
+        -- Build the iso chain: d₁.components i ≅ d₁.components ⟨k+1,_⟩ ≅ d2_tail... ≅ d₂...
+        have heq1 : d₁.components i = d₁.components ⟨k.val + 1, Nat.add_lt_of_lt_sub k.isLt⟩ := by
+          rw [hik]
+        exact ⟨eqToIso heq1 ≪≫ iso_k ≪≫ eqToIso hd2_tail_comp ≪≫ eqToIso hd2_target_eq.symm⟩
 
 /-- **Krull-Schmidt Uniqueness**: Any two indecomposable decompositions of a finite
 length object are equivalent up to permutation and isomorphism.
