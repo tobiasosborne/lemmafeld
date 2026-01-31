@@ -55,34 +55,48 @@ The `(eqToIso _).inv ≫` prefix **blocks pattern matching**.
 ## KS Uniqueness Dependency Chain (updated)
 
 ```
-lemmafeld-valb  ←── IN PROGRESS (2 sorries)
-    ↓ biproductHeadTailIso_inl_inv simp lemma
-lemmafeld-g167
-    ↓ biproductHeadTailIso_hom_fst simp lemma
-lemmafeld-zpys
-    ↓ biproductSwapFrontIso_π_zero simp lemma
+lemmafeld-9ekl  ←── 🚨 READY (sorry at line 132)
+    ↓ Fill ι_zero_hom eqToHom threading
+lemmafeld-wneu  ←── 🚨 READY (sorry at line 159)
+    ↓ Fill hom_fst j≠0 branch
+lemmafeld-valb  (depends on 9ekl)
+    ↓ biproductHeadTailIso_inl_inv
+lemmafeld-g167  (depends on 9ekl, wneu)
+    ↓ biproductHeadTailIso_hom_fst
+lemmafeld-zpys  ←── READY (independent)
+    ↓ biproductSwapFrontIso_π_zero
 lemmafeld-dlgr
     ↓ Prove (1,1) component equals f
-lemmafeld-bh5d
-    ↓ Apply Biprod.isoElim
-... (rest of chain)
-lemmafeld-01k3 (KS uniqueness complete)
+... (rest of chain to KS uniqueness)
 ```
 
 ---
 
-## Next Steps (Priority Order)
+## 🚨 IMMEDIATE NEXT STEPS 🚨
 
-1. **Complete lemmafeld-valb** - Fill the 2 sorries in BiproductCancellation.lean
-   - Approach: Use calc proofs with explicit eqToHom threading
-   - Or: Use conv to target nested subterms more precisely
-   - Or: Create helper lemmas for eqToHom ≫ biproduct.ι ≫ biproduct.map patterns
+### Priority 1: Fill the 2 sorries (both P1, ready to work)
 
-2. **lemmafeld-g167**: biproductHeadTailIso_hom_fst
-   - Blocked by valb, but j=0 case already compiles
+| Issue | File:Line | Goal | Approach |
+|-------|-----------|------|----------|
+| **lemmafeld-9ekl** | BiproductCancellation.lean:132 | `biproduct.ι f 0 ≫ hom = biprod.inl` | calc proof with eqToHom threading |
+| **lemmafeld-wneu** | BiproductCancellation.lean:159 | `ι j ≫ hom ≫ fst = 0` for j≠0 | Similar, but uses inr_fst = 0 |
 
-3. **lemmafeld-zpys**: biproductSwapFrontIso_π_zero
-   - Independent of valb, can work in parallel
+**Key insight:** Both sorries have the same root cause - `(eqToIso _).inv ≫` prefix blocks `biproduct.ι_map` pattern matching.
+
+**Concrete approach to try:**
+```lean
+-- Instead of: rw [biproduct.ι_map]
+-- Try:
+calc (eqToIso h).inv ≫ biproduct.ι g (e j) ≫ biproduct.map p
+    = (eqToIso h).inv ≫ (p (e j) ≫ biproduct.ι _ (e j)) := by rw [biproduct.ι_map]
+  _ = ... := by simp [eqToHom_comp, Category.assoc]
+```
+
+### Priority 2: Downstream issues (blocked until above complete)
+
+3. **lemmafeld-valb**: biproductHeadTailIso_inl_inv (depends on 9ekl)
+4. **lemmafeld-g167**: biproductHeadTailIso_hom_fst (depends on 9ekl, wneu)
+5. **lemmafeld-zpys**: biproductSwapFrontIso_π_zero (independent, can work in parallel)
 
 ---
 
