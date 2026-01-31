@@ -1,26 +1,25 @@
-# Handoff: 2026-01-31 (Night Session - Part 6)
+# Handoff: 2026-01-31 (Night Session - Final)
 
 ## Project Stats
 
-- **Issues:** ~469 total, ~380 open, ~66 closed
+- **Issues:** ~470 total, ~381 open, ~66 closed
 - **Chapter 1 Files:** 43+ Lean files, all building
-- **KS Uniqueness:** IH extracted; permutation construction remains
+- **KS Uniqueness:** IH extracted; permutation helper needed
 
 ---
 
 ## Completed This Session
 
-### lemmafeld-45lt: Partial progress on permutation construction
+### lemmafeld-3ber: Restructure for strong induction (CLOSED)
+- Extracted `krullSchmidt_uniqueness_aux` with explicit IH
+- Main theorem uses `Nat.strong_induction_on`
 
-**Done:**
+### lemmafeld-45lt: Partial progress
 - Extracted IH components: `h_tail`, `σ_tail`, `iso_tail`
-- Derived `hn_eq : d₁.n = d₂.n` from `h_tail` + positivity of both
+- Derived `hn_eq : d₁.n = d₂.n`
 
-**Remaining sorry at line 239:**
-- Construct `σ : Equiv.Perm (Fin d₁.n)` where:
-  - `σ 0 = j` (matched via exchange lemma)
-  - `σ (i+1) = (finSwapFront j).symm (σ_tail(i) + 1)` (matched via IH)
-- Provide `iso_components : ∀ i, Nonempty (d₁.components i ≅ d₂.components (σ i))`
+### Created: lemmafeld-ss6l
+- Helper `prependSwapPerm` to clean up permutation construction
 
 ---
 
@@ -33,42 +32,62 @@
     ↓
 ✓ lemmafeld-3ber  ←── DONE (strong induction restructure)
     ↓
-◐ lemmafeld-45lt  ←── IN PROGRESS (IH extracted, permutation remains)
+○ lemmafeld-ss6l  ←── NEW (prependSwapPerm helper)
+    ↓
+◐ lemmafeld-45lt  ←── BLOCKED (waiting for helper)
     ↓
 ... → KS uniqueness complete
 ```
 
 ---
 
-## Current State
+## Recommended Next Step
 
-- **Uniqueness.lean:239** — One sorry remains
-- IH gives: `h_tail`, `σ_tail`, `iso_tail`
-- Have: `hn_eq : d₁.n = d₂.n`
-- Need: Full permutation + component isomorphisms
+**Work on lemmafeld-ss6l: Define prependSwapPerm helper**
+
+Location: `Chapter1/KrullSchmidt/BiproductCancellation.lean` (near `finSwapFront`)
+
+```lean
+/-- Combine "0 ↦ j" with "tail ↦ lifted through swap" into a single permutation. -/
+def prependSwapPerm {n m : ℕ} (hn : 0 < n) (hm : 0 < m) (hn_eq : n = m)
+    (j : Fin m) (σ_tail : Equiv.Perm (Fin (n - 1))) :
+    Equiv.Perm (Fin n) := ...
+```
+
+Key insight: The bijectivity proofs need to show:
+1. If `i = 0`, then `σ 0 = j`, and inverse of j under swap gives 0
+2. If `i > 0`, the lifted tail value never equals j (since tail indices are ≥ 1 after lifting)
+
+Once helper is defined, 45lt becomes straightforward: just apply `prependSwapPerm` and prove component isos.
 
 ---
 
-## Next Steps
+## Current State
 
-1. **Continue lemmafeld-45lt:** Construct `Equiv.Perm (Fin d₁.n)`
-   - Define `toFun` and `invFun` with case split on `i.val = 0`
-   - Prove `left_inv` and `right_inv` (tricky due to swap composition)
-   - Prove component isomorphisms (straightforward once permutation defined)
-
-2. **Alternative approach:** Could define helper `prependSwapPerm` in BiproductCancellation.lean
-   that combines "send 0 to j" with "lift tail permutation through swap"
+- **Uniqueness.lean:239** — One sorry remains
+- Has: `hn_eq`, `h_tail`, `σ_tail`, `iso_tail`
+- Needs: `prependSwapPerm` helper, then apply it
 
 ---
 
 ## Files Modified This Session
 
-- `LemmaFeld/CategoryTheory/TensorCategories/Chapter1/KrullSchmidt/Uniqueness.lean` — extracted IH, derived hn_eq
+- `LemmaFeld/CategoryTheory/TensorCategories/Chapter1/KrullSchmidt/Uniqueness.lean`
 
 ---
 
 ## Key Learnings
 
-1. **omega limitations:** Can't prove `n = m` from `n - 1 = m - 1` without positivity witnesses
-2. **Permutation construction:** Inline Equiv definition is complex; consider helper lemmas
-3. **Index bookkeeping:** Composing `finSwapFront` with tail lifting requires careful type management
+1. **omega + subtraction:** Can't prove `n = m` from `n - 1 = m - 1` without explicit positivity witnesses (`1 ≤ n`, `1 ≤ m`)
+
+2. **Inline Equiv complexity:** Defining `Equiv.Perm` inline with complex case splits leads to:
+   - Syntax errors with anonymous constructors
+   - Difficult-to-read proofs
+   - Better to extract to named helper with simp lemmas
+
+3. **Strong induction pattern:** Use `suffices H : ∀ n, P n` then `intro n; induction n using Nat.strong_induction_on` with `subst` to match types
+
+4. **finSwapFront composition:** When composing swap with tail lifting:
+   - Tail indices `i+1` may or may not equal `j`
+   - Need case analysis on whether lifted value hits `j`
+   - Swap sends `j ↦ 0` and `0 ↦ j`, others unchanged
