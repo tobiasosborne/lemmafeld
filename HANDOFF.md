@@ -45,8 +45,10 @@ Refactored the monolithic `KrullSchmidt.lean` into a modular directory structure
 ## KS Uniqueness Dependency Chain
 
 ```
-lemmafeld-dlgr  ←── READY TO WORK (no blockers)
-    ↓ Prove (1,1) component equals f (~20 LOC)
+lemmafeld-plu1  ←── READY TO WORK (no blockers)
+    ↓ Redefine biproductHeadTailIso using universal property (~30 LOC)
+lemmafeld-dlgr
+    ↓ Prove (1,1) component equals f (~20 LOC, now trivial after plu1)
 lemmafeld-bh5d
     ↓ Apply Biprod.isoElim (~10 LOC)
 lemmafeld-u2wc
@@ -84,18 +86,22 @@ lemmafeld-01k3 (KS uniqueness complete)
 
 ## Next Steps (Priority Order)
 
-1. **lemmafeld-dlgr (IN PROGRESS)**: Complete the (1,1) component proof
-   - **Goal**: Show `comp_11 = f_transported` (i.e., `biprod.inl ≫ iso_full.hom ≫ biprod.fst = f.hom ≫ eqToHom ...`)
-   - **Approach**: Need helper lemmas for biproductHeadTailIso:
-     1. `biprod.inl ≫ biproductHeadTailIso.inv = biproduct.ι f ⟨0, hn⟩ ≫ (some eqToHom)`
-     2. `biproductHeadTailIso.hom ≫ biprod.fst = (some eqToHom) ≫ biproduct.π f ⟨0, hn⟩`
-     3. The swap correctly routes: `iso_d2_swap.hom ≫ proj_to_0 = proj_to_j ≫ eqToHom`
-   - The definition of `biproductHeadTailIso` involves 5 chained isos, so these lemmas are nontrivial
+1. **lemmafeld-plu1 (READY)**: Redefine biproductHeadTailIso using universal property
+   - Replace the 5-way iso composition with a direct definition
+   - Use `biprod.lift`/`biprod.desc` and `biproduct.π`/`biproduct.ι`
+   - This makes computation lemmas trivial
+   - ~30 LOC in BiproductCancellation.lean
 
-2. **lemmafeld-bh5d**: Apply `Biprod.isoElim` (depends on dlgr)
+2. **lemmafeld-dlgr (BLOCKED by plu1)**: Complete the (1,1) component proof
+   - After plu1, the computation becomes:
+     - `biprod.inl ≫ biproductHeadTailIso.inv = biproduct.ι f ⟨0, hn⟩` (no eqToHom!)
+     - `biproductHeadTailIso.hom ≫ biprod.fst = biproduct.π f ⟨0, hn⟩`
+   - The proof of `comp_11 = f_transported` should then be straightforward
+
+3. **lemmafeld-bh5d**: Apply `Biprod.isoElim` (depends on dlgr)
    - Once `IsIso comp_11` is proved, use `Biprod.isoElim iso_full` to get remainder iso
 
-3. **FittingLemma.lean refactoring** (optional, 797 LOC)
+4. **FittingLemma.lean refactoring** (optional, 797 LOC)
    - Similar split into ~5 files
 
 ---
