@@ -101,4 +101,32 @@ lemma dualComulAux_vanishes_right {f : Module.Dual k A} {I : TwoSidedIdeal A}
   simp only [dualComulAux_apply_tmul]
   exact hf (a * b) (I.mul_mem_left a b hb)
 
+/-! ## Coalgebra Axioms on Pre-Comultiplication
+
+The coalgebra axioms (coassociativity, counitality) can be verified at the level
+of the pre-comultiplication. These hold for all of A*, not just the finite dual.
+-/
+
+/-- Left counit axiom: Δ(f)(1 ⊗ b) = f(b).
+
+Book Proposition 1.12.2 counit axiom: (ε ⊗ id) ∘ Δ = id at the element level. -/
+@[simp]
+lemma dualComulAux_one_left (f : Module.Dual k A) (b : A) :
+    dualComulAux f (1 ⊗ₜ[k] b) = f b := by simp [one_mul]
+
+/-- Right counit axiom: Δ(f)(a ⊗ 1) = f(a).
+
+Book Proposition 1.12.2 counit axiom: (id ⊗ ε) ∘ Δ = id at the element level. -/
+@[simp]
+lemma dualComulAux_one_right (f : Module.Dual k A) (a : A) :
+    dualComulAux f (a ⊗ₜ[k] 1) = f a := by simp [mul_one]
+
+/-- Coassociativity: Δ(f)((ab) ⊗ c) = Δ(f)(a ⊗ (bc)).
+
+This verifies: (Δ ⊗ id) ∘ Δ = (id ⊗ Δ) ∘ Δ at the element level.
+Both sides equal f(abc) when evaluated on a ⊗ b ⊗ c. -/
+lemma dualComulAux_assoc (f : Module.Dual k A) (a b c : A) :
+    dualComulAux f ((a * b) ⊗ₜ[k] c) = dualComulAux f (a ⊗ₜ[k] (b * c)) := by
+  simp only [dualComulAux_apply_tmul, mul_assoc]
+
 end LemmaFeld.TensorCategories.Chapter1

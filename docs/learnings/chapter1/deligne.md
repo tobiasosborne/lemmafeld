@@ -112,7 +112,7 @@ def dualCounit : Module.Dual k A →ₗ[k] k
 
 ---
 
-### Pre-Comultiplication (NEW)
+### Pre-Comultiplication
 
 ```lean
 /-- Multiplication as a linear map A ⊗ A → A -/
@@ -124,6 +124,11 @@ noncomputable def dualComulAux : Module.Dual k A →ₗ[k] Module.Dual k (A ⊗[
 /-- Δ(f) vanishes on I ⊗ A when f vanishes on I -/
 lemma dualComulAux_vanishes_left
 lemma dualComulAux_vanishes_right
+
+/-- Coalgebra axioms (counit and coassociativity) -/
+lemma dualComulAux_one_left (f) (b) : dualComulAux f (1 ⊗ₜ b) = f b
+lemma dualComulAux_one_right (f) (a) : dualComulAux f (a ⊗ₜ 1) = f a
+lemma dualComulAux_assoc (f) (a b c) : dualComulAux f ((a*b) ⊗ₜ c) = dualComulAux f (a ⊗ₜ (b*c))
 ```
 
 **Lean file:** `Chapter1/FiniteDualCoalgebra.lean`

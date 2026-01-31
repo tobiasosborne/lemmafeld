@@ -1,4 +1,4 @@
-# Handoff: 2026-01-31 (TC 1.12.3 Progress)
+# Handoff: 2026-01-31 (TC 1.12.3 Coalgebra Axioms)
 
 ## Project Stats
 
@@ -9,40 +9,40 @@
 
 ## Completed This Session
 
-### TC 1.12.3 Progress - Pre-Comultiplication (IN PROGRESS)
-- Created `FiniteDualCoalgebra.lean` (104 LOC)
-- Defined `mulBilin` and `mulLinear`: multiplication A ⊗ A → A
-- Defined `dualComulAux`: pre-comultiplication Δ : A* → (A ⊗ A)*
-- Proved `dualComulAux_vanishes_left/right`: key for showing Δ preserves finite dual
+### TC 1.12.3 Progress - Coalgebra Axioms Verified
+- Added counit axioms: `dualComulAux_one_left`, `dualComulAux_one_right`
+- Added coassociativity: `dualComulAux_assoc`
+- These verify Proposition 1.12.2 coalgebra axioms at the pre-comultiplication level
 
 **Remaining for TC 1.12.3:**
-- Show Δ(f) ∈ A*_fin ⊗ A*_fin when f ∈ A*_fin (requires tensor product of finite duals)
-- Prove coalgebra axioms (coassociativity, counitality)
+- Show Δ(f) ∈ A*_fin ⊗ A*_fin when f ∈ A*_fin (requires `TensorProduct.dualDistrib` machinery)
+- Create Coalgebra instance on FiniteDual
 
 ---
 
 ## Current State
 
 **Chapter 1 §1.9:** 1.9.7-1.9.11 complete; 1.9.12+ blocked on comodules
-**Chapter 1 §1.12:** Partial - FiniteDual submodule + pre-comultiplication done
+**Chapter 1 §1.12:** Pre-comultiplication + axioms done; restriction to finite dual pending
 
 ---
 
 ## Recommended Next Steps
 
-### 1. Continue TC 1.12.3 (lemmafeld-oedl)
-- Need tensor product theory for A*_fin ⊗ A*_fin
-- May need to define finite dual tensor product embedding
+### 1. Continue TC 1.12.3 - Finite Dual Restriction (lemmafeld-oedl)
+- Import `Mathlib.LinearAlgebra.Dual.Lemmas` for `TensorProduct.dualDistrib`
+- Define embedding: `FiniteDual k A ⊗ FiniteDual k A → (A ⊗ A)*` via dualDistrib
+- Show Δ(f) factors through this embedding for f ∈ FiniteDual
+- Key: For f vanishing on I (finite codim), Δ(f) ∈ I⊥ ⊗ I⊥ since (A/I) is finite-dim
 
-### 2. Hygiene: Trim FiniteDual.lean (lemmafeld-3mtz)
-- Currently 262 LOC (over 200 limit)
-- Now split: FiniteDual.lean (definitions) + FiniteDualCoalgebra.lean (coalgebra)
+### 2. Alternative: Proceed to §1.13 (Coradical Filtration)
+- If 1.12.3 tensor machinery is too complex, move to next section
 
-### 3. Other §1.9 items requiring comodule infrastructure
+### 3. Hygiene issues available if needed
 
 ---
 
 ## Files Modified This Session
 
-- `LemmaFeld/CategoryTheory/TensorCategories/Chapter1/FiniteDualCoalgebra.lean` — NEW (104 LOC)
+- `LemmaFeld/CategoryTheory/TensorCategories/Chapter1/FiniteDualCoalgebra.lean` — Added counit + coassociativity (132 LOC)
 - `docs/learnings/chapter1/deligne.md` — Updated §1.12 progress
