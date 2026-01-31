@@ -6,13 +6,10 @@ Authors: LemmaFeld Contributors
 import Mathlib.Algebra.Category.ModuleCat.Basic
 import Mathlib.Algebra.Category.ModuleCat.Monoidal.Basic
 import Mathlib.CategoryTheory.Abelian.Basic
-import Mathlib.CategoryTheory.Simple
-import Mathlib.CategoryTheory.Yoneda
-import Mathlib.CategoryTheory.Limits.Preserves.Finite
 import Mathlib.CategoryTheory.Preadditive.Projective.Basic
+import Mathlib.CategoryTheory.Limits.Shapes.BinaryBiproducts
 import Mathlib.GroupTheory.FreeAbelianGroup
 import Mathlib.RingTheory.TensorProduct.Basic
-import Mathlib.Data.Matrix.Basic
 
 /-!
 # Chapter 1, §1.8.8-1.8.10: Representable Functors
@@ -141,43 +138,13 @@ right exact functors on C^op, and the Yoneda embedding.
 - `Functor.IsCorepresentable.mk'`: construct from iso with coyoneda
 -/
 
-section Corollary_1_8_11
-
-open Opposite
-
-variable {C : Type*} [Category C]
-
-/-- Corollary 1.8.11: Characterization of left exact functors to Type.
-
-Book: "Let C be a finite abelian k-linear category, and let F: C → Vec be an
-additive k-linear left exact functor. Then F = Hom_C(V, -) for some V ∈ C."
-
-In mathlib terms: a corepresentable functor is one that is naturally isomorphic
-to `coyoneda.obj (op V)` = Hom(V, -) for some object V.
+/-! ### §1.8.11 Status: OPEN (requires Eilenberg-Watts, issue lemmafeld-gti0)
 
 The "only if" direction is immediate: Hom(V, -) preserves all limits.
-The "if" direction requires the assumption that C is a finite abelian category,
-and uses duality with Prop 1.8.10 (Eilenberg-Watts). -/
-def IsLeftExactCorepresentable (F : C ⥤ Type*) : Prop :=
-  F.IsCorepresentable ∧ PreservesFiniteLimits F
+The "if" direction requires duality with Prop 1.8.10 (Eilenberg-Watts).
 
-/-- Remark 1.8.12 (Yoneda Lemma): Morphisms between representable functors
-correspond to morphisms between representing objects.
-
-Book: "The Yoneda Lemma states that morphisms between functors in Corollary 1.8.11
-are precisely morphisms between the representing objects in C. That is, a morphism
-between functors Hom_C(V, -) and Hom_C(W, -) is given by the right composition
-with a morphism φ: W → V in C."
-
-Mathlib: This is `coyonedaEquiv`:
-  `(coyoneda.obj (op X) ⟶ F) ≃ F.obj X`
-
-In particular, for F = coyoneda.obj (op Y):
-  `(coyoneda.obj (op X) ⟶ coyoneda.obj (op Y)) ≃ (Y ⟶ X)` -/
-example (X Y : C) : (coyoneda.obj (op X) ⟶ coyoneda.obj (op Y)) ≃ (Y ⟶ X) :=
-  coyonedaEquiv
-
-end Corollary_1_8_11
+Mathlib has: `coyonedaEquiv : (coyoneda.obj (op X) ⟶ F) ≃ F.obj X` (Remark 1.8.12)
+-/
 
 /-! ## §1.8.13: Virtual Projective Objects
 
@@ -292,39 +259,15 @@ This shows the Cartan matrix encodes Hom dimensions from projective covers.
 | Matrix | `Matrix` | `Mathlib.Data.Matrix.Basic` |
 -/
 
-section CartanMatrix
+/-! ### §1.8.14 Status: OPEN (requires HasMultiplicity, issue lemmafeld-296g)
 
-variable (C : Type*) [Category C] [Abelian C]
-
-/-- The Cartan matrix of a finite abelian category.
-
-Book Definition 1.8.14: The Cartan matrix C has entries C_{X,Y} = [P(X) : Y]
-where X, Y range over iso classes of simple objects, and [P(X) : Y] is the
-Jordan-Hölder multiplicity of Y in the projective cover P(X) of X.
-
-Note: Full definition requires:
+Proper definition requires:
 1. Finitely many simple iso classes (index set)
 2. Projective covers exist (EnoughProjectives)
-3. Jordan-Hölder multiplicities -/
-structure CartanMatrixData (n : ℕ) where
-  /-- The simple objects (indexed 0 to n-1) -/
-  simples : Fin n → C
-  /-- Each indexed object is simple -/
-  simples_simple : ∀ i, Simple (simples i)
-  /-- The projective covers of the simple objects -/
-  projectiveCovers : Fin n → C
-  /-- Each cover is projective -/
-  covers_projective : ∀ i, Projective (projectiveCovers i)
-  /-- JH multiplicity function [P(i) : j] -/
-  multiplicity : Fin n → Fin n → ℕ
+3. Jordan-Hölder multiplicities (HasMultiplicity from GrothendieckGroup.lean)
 
-/-- The Cartan matrix as an n×n matrix of natural numbers.
-
-Book: "the matrix with entries [P(X) : Y]" -/
-def CartanMatrixData.toMatrix {n : ℕ} (data : CartanMatrixData C n) :
-    Matrix (Fin n) (Fin n) ℕ :=
-  Matrix.of fun i j => data.multiplicity i j
-
-end CartanMatrix
+Then: `cartanMatrix C : Matrix (SimpleClasses C) (SimpleClasses C) ℕ`
+where entry (X,Y) = mult(P(X), Y)
+-/
 
 end LemmaFeld.TensorCategories.Chapter1

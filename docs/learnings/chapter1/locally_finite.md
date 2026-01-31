@@ -87,9 +87,9 @@
 
 ---
 
-## §1.8.11: Left Exact Functors are Corepresentable
+## §1.8.11: Left Exact Functors are Corepresentable — **OPEN**
 
-**Lean file:** `Chapter1/RepresentableFunctors.lean`
+**Issue:** lemmafeld-8xv7, lemmafeld-gti0 (gap)
 
 **Book Corollary 1.8.11:** Let C be a finite abelian k-linear category, and let
 F: C → Vec be an additive k-linear left exact functor. Then F = Hom_C(V, -)
@@ -101,22 +101,22 @@ for some object V ∈ C.
 - The Hom functor: `coyoneda.obj (op V)`
 - Yoneda lemma: `coyonedaEquiv`
 
-**Key theorem:** `Functor.corepresentable_preservesLimit` — corepresentable functors preserve all limits.
+**Key facts:**
+- `Functor.corepresentable_preservesLimit`: corepresentable ⇒ preserves limits (only-if direction)
+- The "if" direction (left exact ⇒ corepresentable) requires Eilenberg-Watts (Prop 1.8.10)
 
-**Our formalization:** Documented the correspondence; defined `IsLeftExactCorepresentable`.
-The full proof (that every left exact functor in a finite abelian category is corepresentable)
-follows from duality with Eilenberg-Watts (Prop 1.8.10).
+**Status:** THEOREM NEEDED. Requires duality with Eilenberg-Watts.
 
 ---
 
-## §1.8.12: Yoneda Lemma for Corepresentable Functors
+## §1.8.12: Yoneda Lemma for Corepresentable Functors — mathlib
 
 **Book Remark 1.8.12:** Morphisms between functors Hom_C(V, -) and Hom_C(W, -)
 are precisely morphisms W → V in C.
 
 **Mathlib:** `coyonedaEquiv : (coyoneda.obj (op X) ⟶ F) ≃ F.obj X`
 
-**Our formalization:** Documented in `Chapter1/RepresentableFunctors.lean` with example.
+**Status:** Fully covered by mathlib. No implementation needed.
 
 ---
 
@@ -149,9 +149,9 @@ K₀(C) ⊗_ℤ k will be called virtual projective objects of C."
 
 ---
 
-## §1.8.14: Cartan Matrix
+## §1.8.14: Cartan Matrix — **OPEN**
 
-**Lean file:** `Chapter1/RepresentableFunctors.lean`
+**Issue:** lemmafeld-296g
 
 **Book Definition 1.8.14:** "The matrix C of γ in the natural bases (i.e., the matrix
 with entries [P(X) : Y], where X, Y run through isomorphism classes of simple objects
@@ -159,14 +159,17 @@ of C) will be called the Cartan matrix of C."
 
 **Key property (Equation 1.7):** dim_k Hom_C(P(X), Y) = [Y : X]
 
-**Our formalization:**
-- `CartanMatrixData C n` — data for Cartan matrix (simples, projective covers, multiplicities)
-- `CartanMatrixData.toMatrix` — converts to `Matrix (Fin n) (Fin n) ℕ`
+**Required for implementation:**
+1. Projective covers P(X) for simple X — needs `EnoughProjectives`
+2. Jordan-Hölder multiplicities [P(X) : Y] — needs `HasMultiplicity` (issue lemmafeld-k1y1)
+3. Finite set of simple iso classes — needs `Finite (SimpleClasses C)`
 
-**Dependencies:**
-- Projective covers (P(X) for simple X)
-- Jordan-Hölder multiplicities [P(X) : Y]
-- Finite set of simple iso classes
+**Status:** BLOCKED by HasMultiplicity gap. Definition needs:
+```lean
+def cartanMatrix [HasMultiplicity C] [Finite (SimpleClasses C)] [EnoughProjectives C] :
+    Matrix (SimpleClasses C) (SimpleClasses C) ℕ :=
+  Matrix.of fun X Y => mult (P X) Y
+```
 
 ---
 
