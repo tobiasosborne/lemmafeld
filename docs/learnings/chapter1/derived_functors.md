@@ -124,6 +124,40 @@ The bar resolution is `Rep.barResolution k G : ProjectiveResolution (Rep.trivial
 
 ---
 
+## Example 1.7.2: Low-Degree Group Cohomology
+
+**Lean file:** `Chapter1/GroupCohomology.lean`
+
+### Part (i): H⁰(G, A) = A^G
+
+**Book:** H⁰(G, A) = A^G (G-invariants). For trivial action, H⁰(G, A) = A.
+
+**Mathlib:**
+```lean
+groupCohomology.H0Iso : H0 A ≅ ModuleCat.of k ↥A.ρ.invariants
+groupCohomology.H0IsoOfIsTrivial : H0 A ≅ A.V  -- when [A.IsTrivial]
+```
+
+### Part (ii): H¹(G, A) = Hom(G, A) for trivial action
+
+**Book:** If G acts trivially on A then H¹(G, A) = Hom(G, A).
+
+**Mathlib:**
+```lean
+groupCohomology.H1IsoOfIsTrivial : H1 A ≅ ModuleCat.of k (Additive G →+ ↑A.V)
+```
+
+Note: Uses `Additive G →+ A.V` (additive homomorphisms) rather than multiplicative.
+
+### Part (iii): H²(G, A) classifies extensions
+
+**Book:** H²(G, A) classifies abelian extensions of G by A.
+
+**Mathlib:** Partially formalized. `groupCohomology.H2` exists but explicit
+classification theorem needs development. See `Mathlib.GroupTheory.GroupExtension`.
+
+---
+
 ## §1.7.2: Ext^n(X, Y) Definition
 
 **Lean file:** `Chapter1/ExtGroups.lean`

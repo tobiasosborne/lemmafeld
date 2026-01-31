@@ -136,13 +136,50 @@ Mathlib: `groupCohomology A n : ModuleCat k`
 
 #check groupCohomology
 
-/-! ## Key Low-Degree Results (§1.7 Example 1.7.2)
+/-! ## Example 1.7.2: Low-Degree Group Cohomology
 
-- H⁰(G, A) = A^G (G-invariants): `groupCohomology.H0Iso`
-- For trivial action: H¹(G, A) = Hom(G, A): special case via LowDegree module
+### Part (i): H⁰(G, A) = A^G
+
+**Book:** "H⁰(G, A) = A^G, the G-invariants in A. So if the action of G on A
+is trivial, H⁰(G, A) = A."
+
+**Mathlib:** `groupCohomology.H0Iso` gives:
+  `H0 A ≅ ModuleCat.of k ↥A.ρ.invariants`
+
+For trivial action, `groupCohomology.H0IsoOfIsTrivial` gives:
+  `H0 A ≅ A.V`
 -/
 
 #check @groupCohomology.H0Iso
+#check @groupCohomology.H0IsoOfIsTrivial
+
+/-! ### Part (ii): H¹(G, A) = Hom(G, A) for trivial action
+
+**Book:** "If G acts trivially on A then H¹(G, A) = Hom(G, A)."
+
+**Mathlib:** `groupCohomology.H1IsoOfIsTrivial` gives:
+  `H1 A ≅ ModuleCat.of k (Additive G →+ ↑A.V)`
+
+Note: Mathlib uses `Additive G →+ A.V` (additive group homomorphisms from the
+additive version of G) rather than `G →* A` (multiplicative). Since A is a
+k-module, `Additive G →+ A.V` is equivalent to group homomorphisms G → A
+where A is viewed additively.
+-/
+
+variable [A.IsTrivial]
+
+#check @groupCohomology.H1IsoOfIsTrivial
+
+/-! ### Part (iii): H²(G, A) classifies extensions
+
+**Book:** "H²(G, A) classifies abelian extensions of G by A."
+
+**Mathlib:** The classification of extensions via H² is partially formalized.
+`groupCohomology.H2` is defined but the explicit classification theorem
+relating it to group extensions requires additional development.
+
+See also: `Mathlib.GroupTheory.GroupExtension` for extension theory.
+-/
 
 /-! ## The Bar Resolution
 
