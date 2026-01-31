@@ -115,8 +115,8 @@ def dualCounit : Module.Dual k A →ₗ[k] k
 ## Gaps for §1.12 Full Implementation
 
 1. **Module structure on quotients** — show k-algebra structure descends
-2. **Finite codimension intersection** — if I, J have finite codim, so does I ⊓ J
-3. **Coalgebra structure** — define Δ : A*_fin → A*_fin ⊗ A*_fin
-4. **FiniteDual submodule** — construct as `Submodule k (Module.Dual k A)`
+2. ~~**Finite codimension intersection**~~ — **RESOLVED**: `fintypeQuotientInf` proved
+3. **Coalgebra structure** — define Δ : A*_fin → A*_fin ⊗ A*_fin (lemmafeld-oedl)
+4. ~~**FiniteDual submodule**~~ — **RESOLVED**: `FiniteDual` submodule with closure proofs
 
 **Lean file:** `Chapter1/FiniteDual.lean`

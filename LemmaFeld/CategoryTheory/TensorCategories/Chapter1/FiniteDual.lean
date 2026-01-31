@@ -169,6 +169,67 @@ finite dimensional module would give trace(∂x - x∂) = trace(1), but trace of
 a commutator is 0 while trace(1) = dim ≠ 0).
 -/
 
+/-! ## §1.12 Construction: FiniteDual as a Submodule
+
+Book: "Note that A*_fin is a subspace of A*."
+
+We construct FiniteDual as a Submodule, proving closure under 0, +, and scalar mult.
+-/
+
+section FiniteDualSubmodule
+
+variable (k : Type*) (A : Type*) [Field k] [Ring A] [Algebra k A]
+
+/-- A/⊤ is a subsingleton: the RingCon ⊤ relates all pairs. -/
+instance instSubsingletonQuotientTop : Subsingleton (⊤ : TwoSidedIdeal A).ringCon.Quotient := by
+  constructor
+  intro a b
+  induction a using Quotient.ind
+  induction b using Quotient.ind
+  apply Quotient.sound
+  -- ⊤.ringCon relates all pairs
+  change (⊤ : TwoSidedIdeal A).ringCon _ _
+  rw [TwoSidedIdeal.top_ringCon]
+  trivial
+
+/-- A/⊤ is finite (it's a subsingleton). -/
+noncomputable instance instFintypeQuotientTop : Fintype (⊤ : TwoSidedIdeal A).ringCon.Quotient :=
+  Fintype.ofSubsingleton (⟦0⟧ : (⊤ : TwoSidedIdeal A).ringCon.Quotient)
+
+/-- The zero functional is in the finite dual: it vanishes on A itself. -/
+lemma isFiniteDualElem_zero : IsFiniteDualElem (0 : Module.Dual k A) :=
+  ⟨⊤, ⟨instFintypeQuotientTop A, trivial⟩, fun _ _ => rfl⟩
+
+/-- Scalar multiples preserve finite dual membership. -/
+lemma isFiniteDualElem_smul' (f : Module.Dual k A) (hf : IsFiniteDualElem f) (r : k) :
+    IsFiniteDualElem (r • f) := by
+  obtain ⟨I, ⟨⟨finI, _⟩, hI⟩⟩ := hf
+  exact ⟨I, ⟨finI, trivial⟩, fun x hx => by simp [hI x hx]⟩
+
+/-- Addition preserves finite dual membership (uses the intersection lemma). -/
+lemma isFiniteDualElem_add' (f g : Module.Dual k A)
+    (hf : IsFiniteDualElem f) (hg : IsFiniteDualElem g) :
+    IsFiniteDualElem (f + g) := by
+  obtain ⟨I, ⟨⟨finI, _⟩, hfI⟩⟩ := hf
+  obtain ⟨J, ⟨⟨finJ, _⟩, hgJ⟩⟩ := hg
+  refine ⟨I ⊓ J, ⟨@fintypeQuotientInf A _ I J finI finJ, trivial⟩, ?_⟩
+  intro x hx
+  simp only [LinearMap.add_apply]
+  rw [TwoSidedIdeal.mem_inf] at hx
+  rw [hfI x hx.1, hgJ x hx.2, add_zero]
+
+/-- The finite dual A°_fin as a submodule of A*.
+
+Book Definition 1.12.1: The collection of all f ∈ A* that vanish on a
+two-sided ideal of finite codimension. -/
+def FiniteDual : Submodule k (Module.Dual k A) where
+  carrier := {f | IsFiniteDualElem f}
+  zero_mem' := isFiniteDualElem_zero k A
+  add_mem' hf hg := isFiniteDualElem_add' k A _ _ hf hg
+  smul_mem' r f hf := isFiniteDualElem_smul' k A f hf r
+
+end FiniteDualSubmodule
+
 /-! ## Gaps Requiring Follow-up Issues
 
 ### Gap 1: Module Structure on Quotient
@@ -194,11 +255,8 @@ the explicit formula Δ(f)(a ⊗ b) = f(ab) and showing this lands in the right 
 
 **Follow-up:** Create issue for coalgebra structure on finite dual.
 
-### Gap 4: Full Submodule Construction
-To properly work with FiniteDual as a mathematical object, construct it as
-`Submodule k (Module.Dual k A)` with carrier `{f | IsFiniteDualElem f}`.
-
-**Follow-up:** Create issue for FiniteDual submodule.
+### Gap 4: Full Submodule Construction — RESOLVED
+**PROVED** via `FiniteDual` submodule definition above with closure proofs.
 -/
 
 end LemmaFeld.TensorCategories.Chapter1
