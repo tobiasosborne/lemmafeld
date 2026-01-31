@@ -106,4 +106,67 @@ lemma finSwapFront_apply_apply {n : ℕ} (j k : Fin n) :
     finSwapFront j (finSwapFront j k) = k := by
   simp only [finSwapFront, Equiv.swap_apply_self]
 
+/-! ## Simp lemmas for biproductHeadTailIso
+
+The key insight is to use `Iso.comp_inv_eq` and `Iso.eq_inv_comp`:
+- To prove `biprod.inl ≫ inv = X`, show that `X ≫ hom = biprod.inl`
+- To prove `hom ≫ biprod.fst = Y`, show directly by unfolding
+
+We first establish the "hom direction" lemmas, then derive the "inv direction" from them.
+-/
+
+/-- Index 0 injection composed with biproductHeadTailIso.hom gives biprod.inl.
+
+**Proof sketch:** Trace through the 5-way iso composition:
+1. biproduct.ι f 0 ≫ whiskerEquiv.hom → eqToHom _ ≫ biproduct.ι (f ∘ e.symm) (e 0)
+2. ... ≫ mapIso (iso_cast).hom → eqToHom _ ≫ biproduct.ι _ _
+3. ... ≫ mapIso (iso_concat).hom → eqToHom _ ≫ biproduct.ι (concatFin head tail) ⟨0, _⟩
+4. ... ≫ biproductBiprodIso.inv → (since 0 < 1) eqToHom _ ≫ biproduct.ι head 0 ≫ biprod.inl
+5. ... ≫ biprod.mapIso.hom → (by inl_map) iso_head.hom ≫ biprod.inl
+6. biproduct.ι head 0 ≫ iso_head.hom = 𝟙 (since iso_head.hom = biproduct.desc (fun _ => 𝟙))
+7. Collapse eqToHom chain to 𝟙 ≫ biprod.inl = biprod.inl
+
+**Blocking issue:** The nested composition structure blocks `biproduct.ι_map` rewriting
+due to `eqToIso.inv` prefix terms. Need more sophisticated conv targeting or manual calc.
+-/
+lemma biproductHeadTailIso_ι_zero_hom {n : ℕ} (hn : 0 < n) (f : Fin n → C) :
+    biproduct.ι f ⟨0, hn⟩ ≫ (biproductHeadTailIso hn f).hom = biprod.inl := by
+  unfold biproductHeadTailIso
+  simp only [Iso.trans_hom]
+  rw [biproduct.whiskerEquiv_hom]
+  simp only [biproduct.ι_desc_assoc, biproduct.mapIso_hom, Category.assoc]
+  -- The proof requires threading through nested eqToHom terms carefully.
+  -- The structure is: (eqToIso _).inv ≫ biproduct.ι _ _ ≫ biproduct.map _ ≫ biproduct.map _ ≫ ...
+  -- Each biproduct.ι_map rewrite adds an eqToIso.hom at the front.
+  -- After all rewrites, the eqToHom chain should collapse to 𝟙.
+  sorry
+
+/-- The (1,1) component of biproductHeadTailIso.hom projects to index 0. -/
+@[simp]
+lemma biproductHeadTailIso_hom_fst {n : ℕ} (hn : 0 < n) (f : Fin n → C) :
+    (biproductHeadTailIso hn f).hom ≫ biprod.fst = biproduct.π f ⟨0, hn⟩ := by
+  -- Use biproduct extensionality for morphisms FROM biproducts:
+  -- Two morphisms g, h : ⨁ f ⟶ X are equal iff ι j ≫ g = ι j ≫ h for all j
+  apply biproduct.hom_ext'; intro j
+  by_cases hj : j = ⟨0, hn⟩
+  · -- j = 0: use ι_zero_hom
+    subst hj
+    rw [← Category.assoc, biproductHeadTailIso_ι_zero_hom, biprod.inl_fst, biproduct.ι_π_self]
+  · -- j ≠ 0: both sides are zero
+    -- RHS: ι j ≫ π 0 = 0 since j ≠ 0
+    rw [biproduct.ι_π_ne _ hj]
+    -- For LHS, we need to show ι j ≫ hom ≫ fst = 0
+    -- Since j ≠ 0, ι j ≫ hom goes to the "tail" part via biprod.inr, then inr ≫ fst = 0
+    -- The proof requires threading through nested eqToHom terms, similar to ι_zero_hom
+    sorry
+
+/-- Injection composed with biproductHeadTailIso.inv gives the head inclusion.
+This is the key simp lemma for computing through head-tail decompositions. -/
+@[simp]
+lemma biproductHeadTailIso_inl_inv {n : ℕ} (hn : 0 < n) (f : Fin n → C) :
+    biprod.inl ≫ (biproductHeadTailIso hn f).inv = biproduct.ι f ⟨0, hn⟩ := by
+  -- Use Iso.comp_inv_eq: X ≫ inv = Y ↔ X = Y ≫ hom
+  rw [Iso.comp_inv_eq]
+  exact (biproductHeadTailIso_ι_zero_hom hn f).symm
+
 end LemmaFeld.TensorCategories.Chapter1

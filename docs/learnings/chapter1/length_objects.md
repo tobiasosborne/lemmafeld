@@ -462,6 +462,45 @@ def biproductHeadTailIso {n : ℕ} (hn : 0 < n) (f : Fin n → C) :
 
 **Lean file:** `Chapter1/KrullSchmidt/BiproductCancellation.lean`
 
+### Simp Lemma Strategy (2026-01-31 - PARTIAL PROGRESS)
+
+**New strategy:** Instead of redefining biproductHeadTailIso, add simp lemmas to the existing definition.
+
+**Key simp lemmas (in progress - 2 sorries):**
+```lean
+lemma biproductHeadTailIso_ι_zero_hom {n : ℕ} (hn : 0 < n) (f : Fin n → C) :
+    biproduct.ι f ⟨0, hn⟩ ≫ (biproductHeadTailIso hn f).hom = biprod.inl
+
+@[simp]
+lemma biproductHeadTailIso_hom_fst {n : ℕ} (hn : 0 < n) (f : Fin n → C) :
+    (biproductHeadTailIso hn f).hom ≫ biprod.fst = biproduct.π f ⟨0, hn⟩
+
+@[simp]
+lemma biproductHeadTailIso_inl_inv {n : ℕ} (hn : 0 < n) (f : Fin n → C) :
+    biprod.inl ≫ (biproductHeadTailIso hn f).inv = biproduct.ι f ⟨0, hn⟩
+```
+
+**Proof structure (biproductHeadTailIso_ι_zero_hom):**
+1. Unfold 5-way composition and trace ι f 0 through each step
+2. whiskerEquiv.hom: `biproduct.ι_desc` gives `(eqToIso _).inv ≫ biproduct.ι _ (e 0)`
+3. Two mapIso.hom steps: `biproduct.ι_map` gives `(eqToIso _).hom ≫ biproduct.ι _ _`
+4. biproductBiprodIso.inv: Since 0 < 1, takes left branch → `... ≫ biprod.inl`
+5. biprod.mapIso.hom: `biprod.inl_map` gives `iso_head.hom ≫ biprod.inl`
+6. iso_head.hom: `biproduct.ι_desc` gives `𝟙`
+7. eqToHom chain collapses to `𝟙 ≫ biprod.inl = biprod.inl`
+
+**Blocking issue:** Step 2-3 fail because `biproduct.ι_map` expects `biproduct.ι _ _ ≫ biproduct.map _` pattern, but the goal has `(eqToIso _).inv ≫ biproduct.ι _ _ ≫ biproduct.map _`. The eqToIso.inv prefix blocks the pattern match.
+
+**Workarounds being explored:**
+1. Use `conv` to target the `ι ≫ map` subterm specifically
+2. Use `slice_lhs` or manual composition manipulation
+3. Create helper lemmas that explicitly handle eqToHom threading
+
+**Related issues:**
+- lemmafeld-valb: biproductHeadTailIso_inl_inv
+- lemmafeld-g167: biproductHeadTailIso_hom_fst
+- lemmafeld-zpys: biproductSwapFrontIso_π_zero
+
 ---
 
 ## §1.5.8: Grothendieck Group
