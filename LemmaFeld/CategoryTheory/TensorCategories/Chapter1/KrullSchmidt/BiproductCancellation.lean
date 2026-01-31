@@ -135,11 +135,17 @@ lemma biproductHeadTailIso_ι_zero_hom {n : ℕ} (hn : 0 < n) (f : Fin n → C) 
   simp only [Iso.trans_hom]
   rw [biproduct.whiskerEquiv_hom]
   simp only [biproduct.ι_desc_assoc, biproduct.mapIso_hom, Category.assoc]
-  -- The proof requires threading through nested eqToHom terms carefully.
-  -- The structure is: (eqToIso _).inv ≫ biproduct.ι _ _ ≫ biproduct.map _ ≫ biproduct.map _ ≫ ...
-  -- Each biproduct.ι_map rewrite adds an eqToIso.hom at the front.
-  -- After all rewrites, the eqToHom chain should collapse to 𝟙.
-  sorry
+  -- Goal: (eqToIso _).inv ≫ biproduct.ι _ (e 0) ≫ biproduct.map _ ≫ biproduct.map _ ≫ ...
+  -- Strategy: rewrite ι ≫ map ≫ map to _ ≫ _ ≫ ι using ι_map twice (with reassoc form)
+  rw [biproduct.ι_map_assoc, biproduct.ι_map_assoc]
+  -- Now: (eqToIso _).inv ≫ (eqToIso _).hom ≫ ... ≫ biproduct.ι (concatFin _ _) ⟨0, _⟩ ≫ ...
+  simp only [Iso.inv_hom_id_assoc]
+  -- Thread through biproductBiprodIso.symm.hom
+  simp only [Iso.symm_hom, biproductBiprodIso]
+  -- 0 < 1, so take the left branch
+  simp only [Nat.lt_one_iff]
+  -- Use aesop_cat to close the remaining goal
+  aesop_cat
 
 /-- The (1,1) component of biproductHeadTailIso.hom projects to index 0. -/
 @[simp]
@@ -155,10 +161,19 @@ lemma biproductHeadTailIso_hom_fst {n : ℕ} (hn : 0 < n) (f : Fin n → C) :
   · -- j ≠ 0: both sides are zero
     -- RHS: ι j ≫ π 0 = 0 since j ≠ 0
     rw [biproduct.ι_π_ne _ hj]
-    -- For LHS, we need to show ι j ≫ hom ≫ fst = 0
-    -- Since j ≠ 0, ι j ≫ hom goes to the "tail" part via biprod.inr, then inr ≫ fst = 0
-    -- The proof requires threading through nested eqToHom terms, similar to ι_zero_hom
-    sorry
+    -- For LHS: thread through the composition like in ι_zero_hom
+    unfold biproductHeadTailIso
+    simp only [Iso.trans_hom, Category.assoc]
+    rw [biproduct.whiskerEquiv_hom]
+    simp only [biproduct.ι_desc_assoc, biproduct.mapIso_hom, Category.assoc]
+    rw [biproduct.ι_map_assoc, biproduct.ι_map_assoc]
+    simp only [Iso.inv_hom_id_assoc]
+    simp only [Iso.symm_hom, biproductBiprodIso]
+    -- j.val ≥ 1 since j ≠ ⟨0, hn⟩
+    have hj_nlt : ¬ j.val < 1 := by
+      intro h
+      exact hj (Fin.ext (Nat.lt_one_iff.mp h))
+    aesop_cat
 
 /-- Injection composed with biproductHeadTailIso.inv gives the head inclusion.
 This is the key simp lemma for computing through head-tail decompositions. -/

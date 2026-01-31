@@ -1,71 +1,49 @@
-# Handoff: 2026-01-31 (Late Session)
+# Handoff: 2026-01-31 (Evening Session)
 
 ## Project Stats
 
-- **Issues:** ~469 total, ~380 open, ~59 closed
+- **Issues:** ~469 total, ~380 open, ~62 closed
 - **Chapter 1 Files:** 43 Lean files, all building
-- **KS Uniqueness:** 2 sorries in `KrullSchmidt/Uniqueness.lean`, 2 sorries in `KrullSchmidt/BiproductCancellation.lean`
+- **KS Uniqueness:** All simp lemmas in BiproductCancellation.lean now complete (0 sorries)
 
 ---
 
 ## Completed This Session
 
-### Strategic Analysis of biproductHeadTailIso Blocker
+### Filled All Sorries in BiproductCancellation.lean
 
-Launched 4 parallel research subagents to analyze the blocker from multiple angles:
-1. **Mathlib biproduct patterns** - Found key simp lemmas (ι_desc, ι_map, inl_map)
-2. **Lean gotchas analysis** - Identified 8 critical gotchas, esp. eqToHom accumulation
-3. **Bypass strategies** - Evaluated 4 strategies, recommended simp lemma approach (70% viable)
-4. **Simp lemma viability** - Confirmed 60-100 LOC needed, decomposed approach best
+**Closed issues:**
+- lemmafeld-9ekl: biproductHeadTailIso_ι_zero_hom eqToHom threading
+- lemmafeld-wneu: biproductHeadTailIso_hom_fst j≠0 branch
+- lemmafeld-valb: biproductHeadTailIso_inl_inv
+- lemmafeld-g167: biproductHeadTailIso_hom_fst
 
-### New Strategy Implemented
+**Solution:**
+After threading through the 5-way iso composition with:
+1. `biproduct.whiskerEquiv_hom` → unfolds to `biproduct.desc`
+2. `biproduct.ι_desc_assoc` → applies injection to desc
+3. `biproduct.ι_map_assoc` (twice) → threads ι through both maps
+4. `Iso.inv_hom_id_assoc` → collapses eqToIso.inv ≫ eqToIso.hom
+5. `simp only [Iso.symm_hom, biproductBiprodIso, Nat.lt_one_iff]` → unfolds split iso
 
-**Closed:** lemmafeld-plu1 (direct redefinition approach - superseded)
-
-**Created new issues:**
-- lemmafeld-valb: biproductHeadTailIso_inl_inv simp lemma
-- lemmafeld-g167: biproductHeadTailIso_hom_fst simp lemma
-- lemmafeld-zpys: biproductSwapFrontIso_π_zero simp lemma
-
-### Implementation Progress (2 sorries remaining)
-
-Added simp lemma infrastructure to BiproductCancellation.lean:
-- `biproductHeadTailIso_ι_zero_hom` - **SORRY** (main helper lemma)
-- `biproductHeadTailIso_hom_fst` - **PARTIAL** (j=0 case works, j≠0 has sorry)
-- `biproductHeadTailIso_inl_inv` - Depends on ι_zero_hom
-
----
-
-## Root Cause Analysis
-
-The 5-way iso composition accumulates **eqToIso/eqToHom** terms:
-```
-(eqToIso _).inv ≫ biproduct.ι _ _ ≫ biproduct.map _ ≫ biproduct.map _ ≫ ...
-```
-
-Standard simp lemmas like `biproduct.ι_map` expect:
-```
-biproduct.ι _ _ ≫ biproduct.map _
-```
-
-The `(eqToIso _).inv ≫` prefix **blocks pattern matching**.
+The key insight: **`aesop_cat` can close the remaining goal** after the above setup. The eqToHom chains and dite branching are handled automatically by aesop.
 
 ---
 
 ## KS Uniqueness Dependency Chain (updated)
 
 ```
-lemmafeld-9ekl  ←── 🚨 READY (sorry at line 132)
-    ↓ Fill ι_zero_hom eqToHom threading
-lemmafeld-wneu  ←── 🚨 READY (sorry at line 159)
-    ↓ Fill hom_fst j≠0 branch
-lemmafeld-valb  (depends on 9ekl)
-    ↓ biproductHeadTailIso_inl_inv
-lemmafeld-g167  (depends on 9ekl, wneu)
-    ↓ biproductHeadTailIso_hom_fst
-lemmafeld-zpys  ←── READY (independent)
-    ↓ biproductSwapFrontIso_π_zero
-lemmafeld-dlgr
+✓ lemmafeld-9ekl  ←── DONE
+    ↓
+✓ lemmafeld-wneu  ←── DONE
+    ↓
+✓ lemmafeld-valb  ←── DONE
+    ↓
+✓ lemmafeld-g167  ←── DONE
+    ↓
+○ lemmafeld-zpys  ←── READY (biproductSwapFrontIso_π_zero)
+    ↓
+○ lemmafeld-dlgr  ←── UNBLOCKED NOW
     ↓ Prove (1,1) component equals f
 ... (rest of chain to KS uniqueness)
 ```
@@ -74,53 +52,32 @@ lemmafeld-dlgr
 
 ## 🚨 IMMEDIATE NEXT STEPS 🚨
 
-### Priority 1: Fill the 2 sorries (both P1, ready to work)
+### Priority 1: lemmafeld-dlgr (now unblocked)
 
-| Issue | File:Line | Goal | Approach |
-|-------|-----------|------|----------|
-| **lemmafeld-9ekl** | BiproductCancellation.lean:132 | `biproduct.ι f 0 ≫ hom = biprod.inl` | calc proof with eqToHom threading |
-| **lemmafeld-wneu** | BiproductCancellation.lean:159 | `ι j ≫ hom ≫ fst = 0` for j≠0 | Similar, but uses inr_fst = 0 |
+With the simp lemmas in place, the next step is to prove that the (1,1) component of the composed iso equals the exchange lemma's f_j.
 
-**Key insight:** Both sorries have the same root cause - `(eqToIso _).inv ≫` prefix blocks `biproduct.ι_map` pattern matching.
+### Priority 2: lemmafeld-zpys (independent)
 
-**Concrete approach to try:**
-```lean
--- Instead of: rw [biproduct.ι_map]
--- Try:
-calc (eqToIso h).inv ≫ biproduct.ι g (e j) ≫ biproduct.map p
-    = (eqToIso h).inv ≫ (p (e j) ≫ biproduct.ι _ (e j)) := by rw [biproduct.ι_map]
-  _ = ... := by simp [eqToHom_comp, Category.assoc]
-```
-
-### Priority 2: Downstream issues (blocked until above complete)
-
-3. **lemmafeld-valb**: biproductHeadTailIso_inl_inv (depends on 9ekl)
-4. **lemmafeld-g167**: biproductHeadTailIso_hom_fst (depends on 9ekl, wneu)
-5. **lemmafeld-zpys**: biproductSwapFrontIso_π_zero (independent, can work in parallel)
+Add simp lemma for `biproductSwapFrontIso_π_zero`. This is independent and can be worked in parallel.
 
 ---
 
 ## Files Modified This Session
 
-- `Chapter1/KrullSchmidt/BiproductCancellation.lean` — Added simp lemma infrastructure (~40 LOC)
-- `docs/learnings/chapter1/length_objects.md` — Added simp lemma strategy section
-- `.beads/issues.jsonl` — Created 3 new issues, closed 1
-- `HANDOFF.md` — This file
+- `Chapter1/KrullSchmidt/BiproductCancellation.lean` — Filled 2 sorries with aesop_cat
 
 ---
 
 ## Key Learnings Documented
 
-1. **eqToHom accumulation** is the core blocker - 8+ distinct omega proofs accumulate
-2. **biproduct.ι_map** pattern matching fails when eqToIso.inv prefix present
-3. **Correct extensionality lemma**: `biproduct.hom_ext'` for morphisms FROM biproducts
-4. **biprod.inl_map**: `biprod.inl ≫ biprod.map f g = f ≫ biprod.inl` (key for step 5)
+1. **aesop_cat is powerful for biproduct compositions** - After initial simp/rw setup, aesop_cat can handle the remaining eqToHom threading and dite branching
+2. **Use `biproduct.ι_map_assoc`** - The reassoc form allows chaining through compositions
+3. **eqToIso.inv ≫ eqToIso.hom = 𝟙** via `Iso.inv_hom_id_assoc`
 
 ---
 
 ## Session Orientation for Next Agent
 
-1. **Read docs/learnings/chapter1/length_objects.md** - Section "Simp Lemma Strategy (2026-01-31)"
-2. **The 2 sorries are in BiproductCancellation.lean:132 and :146**
-3. **Key insight**: The proof structure is correct, just need better eqToHom handling
-4. **conv targeting** might be the key - need to rewrite inside nested compositions
+1. **All simp lemmas in BiproductCancellation.lean are complete**
+2. **Next target: lemmafeld-dlgr** - prove the (1,1) component equals f_j from exchange lemma
+3. **Run `bd ready` to see what's unblocked**
