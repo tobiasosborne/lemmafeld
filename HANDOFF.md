@@ -1,51 +1,48 @@
-# Handoff: 2026-01-31 (Night Session - Part 3)
+# Handoff: 2026-01-31 (Night Session - Part 4)
 
 ## Project Stats
 
-- **Issues:** ~469 total, ~380 open, ~64 closed
+- **Issues:** ~469 total, ~380 open, ~65 closed
 - **Chapter 1 Files:** 43+ Lean files, all building
-- **KS Uniqueness:** Remainder iso COMPLETE; next step is build decompositions
+- **KS Uniqueness:** Remainder decompositions COMPLETE; next is strong induction restructure
 
 ---
 
 ## Completed This Session
 
-### lemmafeld-bh5d: Apply Biprod.isoElim to get remainder iso (COMPLETE)
+### lemmafeld-u2wc: Build IndecomposableDecomposition for remainder biproducts (COMPLETE)
 
-**Goal:** Given `iso_full` with `IsIso comp_11`, derive `rest₁ ≅ rest₂`
+**Goal:** Construct decompositions for `finTail` components
 
 **Key changes:**
-1. Added `haveI := hcomp_11_iso` to make IsIso instance available
-2. Applied `Biprod.isoElim iso_full` to get `iso_remainder`
+1. Added `d1_tail : IndecomposableDecomposition C (⨁ (finTail hn_pos d₁.components))`
+   - n = d₁.n - 1
+   - components = finTail hn_pos d₁.components
+   - indecomposable = inherited via index shift
+   - iso = Iso.refl _
 
-**Result:**
-```lean
-let iso_remainder : ⨁ (finTail hn_pos d₁.components) ≅ ⨁ (finTail hd2_pos d2_swapped) :=
-  Biprod.isoElim iso_full
-```
+2. Added `d2_tail : IndecomposableDecomposition C (⨁ (finTail hn_pos d₁.components))`
+   - n = d₂.n - 1
+   - components = finTail hd2_pos d2_swapped
+   - indecomposable = inherited via (finSwapFront j).symm
+   - iso = iso_remainder (connects to same base object as d1_tail!)
+
+**Key insight:** Both decompositions use the same base object `⨁ (finTail hn_pos d₁.components)`, enabling IH application via `DecompositionsEquivalent d1_tail d2_tail`.
 
 ---
 
 ## KS Uniqueness Dependency Chain (updated)
 
 ```
-✓ lemmafeld-9ekl  ←── DONE
+✓ lemmafeld-bh5d  ←── DONE
     ↓
-✓ lemmafeld-wneu  ←── DONE
+✓ lemmafeld-u2wc  ←── DONE (this session)
     ↓
-✓ lemmafeld-valb  ←── DONE
+○ lemmafeld-3ber  ←── READY (restructure for strong induction)
     ↓
-✓ lemmafeld-g167  ←── DONE
+○ lemmafeld-45lt  ←── construct full permutation
     ↓
-✓ lemmafeld-zpys  ←── DONE
-    ↓
-✓ lemmafeld-dlgr  ←── DONE
-    ↓
-✓ lemmafeld-bh5d  ←── DONE (this session)
-    ↓
-○ lemmafeld-u2wc  ←── READY (no blockers!)
-    ↓ Build IndecomposableDecomposition for remainders
-... (rest of chain to KS uniqueness)
+... → KS uniqueness complete
 ```
 
 ---
@@ -53,27 +50,23 @@ let iso_remainder : ⨁ (finTail hn_pos d₁.components) ≅ ⨁ (finTail hd2_po
 ## Current State
 
 - **Uniqueness.lean:**
-  - `hcomp_11_iso : IsIso comp_11` PROVED
-  - `iso_remainder` defined via `Biprod.isoElim` ✓
-  - Remaining sorry: build decompositions for remainders + strong induction
+  - `iso_remainder` via `Biprod.isoElim` ✓
+  - `d1_tail` decomposition ✓
+  - `d2_tail` decomposition ✓
+  - Remaining sorry: apply IH + combine permutations (needs strong induction restructure)
 
 ---
 
 ## Immediate Next Steps
 
-### Issue u2wc (P2): Build IndecomposableDecomposition for remainder biproducts
+### Issue 3ber (P2): Restructure for strong induction on n
 
-**Goal:** Construct `IndecomposableDecomposition` structures for:
-- `finTail hn_pos d₁.components` (n-1 components)
-- `finTail hd2_pos d2_swapped` (m-1 components)
+**Problem:** Current proof structure doesn't support recursive calls.
 
-**Approach:**
-1. For d₁ remainder:
-   - components: `finTail hn_pos d₁.components`
-   - indecomposable: inherited from `d₁.indecomposable`
-   - iso: compose `biproductHeadTailIso.symm` with `d₁.iso`
-2. For d₂ remainder:
-   - More complex due to swap - needs careful composition
+**Approach (Option A - recommended):**
+1. Define `uniqueness_aux (n : ℕ) : ∀ X d₁ d₂, d₁.n = n → DecompositionsEquivalent C d₁ d₂`
+2. Prove via `Nat.strong_induction_on n`
+3. Wrapper: `krullSchmidt_uniqueness` calls `uniqueness_aux d₁.n`
 
 **File:** Chapter1/KrullSchmidt/Uniqueness.lean
 
@@ -82,23 +75,20 @@ let iso_remainder : ⨁ (finTail hn_pos d₁.components) ≅ ⨁ (finTail hd2_po
 ## Files Modified This Session
 
 - `LemmaFeld/CategoryTheory/TensorCategories/Chapter1/KrullSchmidt/Uniqueness.lean`
-  - Added `iso_remainder` via `Biprod.isoElim`
-
-- `docs/learnings/chapter1/length_objects.md`
-  - Added Biprod.isoElim application documentation
+  - Added `d1_tail` and `d2_tail` decompositions
 
 ---
 
 ## Key Learnings
 
-1. **Biprod.isoElim:** Takes `(f : X₁ ⊞ X₂ ≅ Y₁ ⊞ Y₂)` with `[IsIso (biprod.inl ≫ f.hom ≫ biprod.fst)]` and produces `X₂ ≅ Y₂`
-2. **haveI pattern:** Use `haveI := hcomp_11_iso` to make instance available for typeclass inference
+1. **Shared base object:** d2_tail uses `iso_remainder` as its iso, making both decompositions over the same object
+2. **Indecomposability inheritance:** For d2_tail, use `(finSwapFront j).symm ⟨i.val + 1, ...⟩` to access correct index
 
 ---
 
 ## Session Orientation for Next Agent
 
-1. **Issue u2wc is ready** - build decompositions for remainder biproducts
-2. **Need IndecomposableDecomposition** for both finTail'd components
-3. **Indecomposability inheritance:** `d₁.indecomposable (Fin.succ i)` works for tail
-4. **Iso composition:** head-tail inverse composed with original iso
+1. **Issue 3ber is ready** - restructure proof for strong induction
+2. **Current proof has all pieces** but can't recurse
+3. **Option A is recommended:** use `Nat.strong_induction_on` with auxiliary lemma
+4. **After restructure:** IH gives `DecompositionsEquivalent d1_tail d2_tail`, then combine permutations

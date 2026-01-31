@@ -187,13 +187,28 @@ theorem krullSchmidt_uniqueness {X : C} (hX : IsFiniteLengthObject X)
       let iso_remainder : ⨁ (finTail hn_pos d₁.components) ≅ ⨁ (finTail hd2_pos d2_swapped) :=
         Biprod.isoElim iso_full
 
+      -- Build IndecomposableDecomposition for d₁ remainder
+      let d1_tail : IndecomposableDecomposition C (⨁ (finTail hn_pos d₁.components)) := {
+        n := d₁.n - 1
+        components := finTail hn_pos d₁.components
+        indecomposable := fun i => d₁.indecomposable ⟨i.val + 1, by omega⟩
+        iso := Iso.refl _
+      }
+
+      -- Build IndecomposableDecomposition for d₂ remainder (same base object via iso_remainder)
+      let d2_tail : IndecomposableDecomposition C (⨁ (finTail hn_pos d₁.components)) := {
+        n := d₂.n - 1
+        components := finTail hd2_pos d2_swapped
+        indecomposable := fun i => d₂.indecomposable ((finSwapFront j).symm ⟨i.val + 1, by omega⟩)
+        iso := iso_remainder
+      }
+
       -- The remaining work requires:
-      -- c) Build IndecomposableDecomposition for remainders (n-1 components each)
-      -- d) Apply strong induction hypothesis
-      -- e) Combine permutations
+      -- d) Apply strong induction hypothesis to get DecompositionsEquivalent d1_tail d2_tail
+      -- e) Combine permutations (j :: σ_tail) to get full equivalence
       --
       -- This requires restructuring the proof to use Nat.strong_induction_on.
-      -- Tracked in: lemmafeld-u2wc (build decompositions for remainders)
+      -- Tracked in: lemmafeld-3ber (restructure for strong induction)
       sorry
 
 end LemmaFeld.TensorCategories.Chapter1
