@@ -87,7 +87,8 @@ def biproductHeadTailIso {n : ℕ} (hn : 0 < n) (f : Fin n → C) :
     biproduct.mapIso hw2
   let iso_concat : ⨁ (fun k : Fin (1 + (n - 1)) => f ⟨k.val, by omega⟩) ≅ ⨁ (concatFin head tail) :=
     biproduct.mapIso (fun k => eqToIso (heq k).symm)
-  let iso_split : ⨁ (concatFin head tail) ≅ (⨁ head) ⊞ (⨁ tail) := (biproductBiprodIso head tail).symm
+  let iso_split : ⨁ (concatFin head tail) ≅ (⨁ head) ⊞ (⨁ tail) :=
+    (biproductBiprodIso head tail).symm
   let iso_head : ⨁ head ≅ f ⟨0, hn⟩ := by
     refine ⟨biproduct.desc (fun _ => 𝟙 _), biproduct.lift (fun _ => 𝟙 _), ?_, ?_⟩
     · ext ⟨i, hi⟩ ⟨j, hj⟩

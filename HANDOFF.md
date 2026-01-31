@@ -1,62 +1,54 @@
-# Handoff: 2026-01-31 (Evening Session)
+# Handoff: 2026-01-31 (Night Session)
 
 ## Project Stats
 
-- **Issues:** ~468 total, ~380 open, ~59 closed
+- **Issues:** ~469 total, ~380 open, ~59 closed
 - **Chapter 1 Files:** 43 Lean files, all building
-- **KS Uniqueness:** 2 sorries in `KrullSchmidt/Uniqueness.lean` (was 1)
-  - Original sorry at line 163 (inductive case)
-  - New sorry at line 158 (proving `comp_11 = f_transported`)
+- **KS Uniqueness:** 2 sorries in `KrullSchmidt/Uniqueness.lean`
 
 ---
 
 ## Completed This Session
 
-### 1. Structural Progress on lemmafeld-dlgr (1,1) Component
+### Attempted: lemmafeld-plu1 — Redefine biproductHeadTailIso
 
-Set up the framework for proving the (1,1) component of iso_full equals f:
+**Goal:** Replace the 5-way iso composition with a direct universal property definition.
 
-- Defined `comp_11 : d₁.components 0 ⟶ d2_swapped 0` as `biprod.inl ≫ iso_full.hom ≫ biprod.fst`
-- Defined `f_transported` as `f.hom ≫ eqToHom hd2_swapped_0.symm`
-- Reduced the proof of `IsIso comp_11` to showing `comp_11 = f_transported`
-- Added helper lemmas to `BiproductCancellation.lean`:
-  - `finSwapFront_apply_apply` - swap is involutive
+**Attempted approach:**
+```lean
+def biproductHeadTailIso {n : ℕ} (hn : 0 < n) (f : Fin n → C) :
+    ⨁ f ≅ f ⟨0, hn⟩ ⊞ ⨁ (finTail hn f) where
+  hom := biprod.lift (biproduct.π f ⟨0, hn⟩) (biproduct.lift fun i => biproduct.π f ⟨i+1, _⟩)
+  inv := biprod.desc (biproduct.ι f ⟨0, hn⟩) (biproduct.desc fun i => biproduct.ι f ⟨i+1, _⟩)
+  hom_inv_id := ...  -- COMPLEX
+  inv_hom_id := ...  -- COMPLEX
+```
 
-### 2. Prior Session: KrullSchmidt.lean Refactoring (1165 LOC → 10 files, all ≤200 LOC)
+**Result:** Types check, but proving `hom_inv_id` and `inv_hom_id` is complex:
+1. Nested biproduct/biprod extensionality (3+ levels)
+2. `biproduct.ι_π_ne _ h` requires careful inequality proofs for Fin indices
+3. `biprod.desc ≫ h` needs manual expansion via `biprod.desc_eq`
+4. No `biprod.desc_comp` lemma exists
 
-Refactored the monolithic `KrullSchmidt.lean` into a modular directory structure:
-
-| File | LOC | Content |
-|------|-----|---------|
-| `KrullSchmidt/Defs.lean` | 65 | Core definitions |
-| `KrullSchmidt/Auxiliary.lean` | 81 | Finite length lemmas |
-| `KrullSchmidt/SubobjectBiprod.lean` | 200 | Subobject infrastructure |
-| `KrullSchmidt/BiproductHelpers.lean` | 118 | Concatenation lemmas |
-| `KrullSchmidt/Existence.lean` | 101 | `krullSchmidt_existence` |
-| `KrullSchmidt/LocalRing.lean` | 50 | Local ring lemmas |
-| `KrullSchmidt/Exchange.lean` | 124 | `exchangeLemma` |
-| `KrullSchmidt/BiproductCancellation.lean` | 102 | Head-tail split |
-| `KrullSchmidt/UniquenessHelpers.lean` | 155 | Helper lemmas |
-| `KrullSchmidt/Uniqueness.lean` | 137 | `krullSchmidt_uniqueness` |
-| `KrullSchmidt.lean` (root) | 45 | Re-exports |
+**Outcome:** Reverted to original 5-way composition (which works). Issue lemmafeld-plu1 remains open with detailed notes for future attempts.
 
 ---
 
-## KS Uniqueness Dependency Chain
+## KS Uniqueness Dependency Chain (unchanged)
 
 ```
-lemmafeld-plu1  ←── READY TO WORK (no blockers)
-    ↓ Redefine biproductHeadTailIso using universal property (~30 LOC)
+lemmafeld-plu1  ←── STILL READY (attempted but not completed)
+    ↓ Redefine biproductHeadTailIso using universal property
 lemmafeld-dlgr
-    ↓ Prove (1,1) component equals f (~20 LOC, now trivial after plu1)
+    ↓ Prove (1,1) component equals f
 lemmafeld-bh5d
-    ↓ Apply Biprod.isoElim (~10 LOC)
+    ↓ Apply Biprod.isoElim
 lemmafeld-u2wc
-    ↓ Build remainder decompositions (~30 LOC)
+    ↓ Build remainder decompositions
 lemmafeld-3ber
-    ↓ Restructure for strong induction (~30 LOC)
+    ↓ Restructure for strong induction
 lemmafeld-45lt
-    ↓ Construct full permutation (~25 LOC)
+    ↓ Construct full permutation
 lemmafeld-vxyi
     ↓ Fill the sorry
 lemmafeld-01k3 (KS uniqueness complete)
@@ -64,65 +56,43 @@ lemmafeld-01k3 (KS uniqueness complete)
 
 ---
 
-## Remaining Sorries
+## Key Insight from This Session
 
-| File | Line | Issue | Description |
-|------|------|-------|-------------|
-| KrullSchmidt/Uniqueness.lean | 137 | lemmafeld-vxyi | Inductive case (n > 1) |
+The 5-way iso composition in `biproductHeadTailIso` is hard to compute through, but the direct definition has complex inverse proofs. Two possible paths forward:
 
----
-
-## Files Still Over 200 LOC (Candidates for Future Refactoring)
-
-| File | LOC |
-|------|-----|
-| FittingLemma.lean | 797 |
-| Case2FixedPointLemmas.lean | 702 |
-| Case1FixedPointProofs.lean | 582 |
-| Lemma11_5_Case2.lean | 433 |
-| ThreeCycleSymmetric.lean | 400 |
+1. **Better automation**: Try `aesop_cat` or custom tactics for the inverse proofs
+2. **Simp lemmas**: Add computation lemmas to the existing 5-way definition (also proved hard)
+3. **Alternative approach**: Directly prove the computation properties needed in Uniqueness.lean without changing the definition
 
 ---
 
 ## Next Steps (Priority Order)
 
-1. **lemmafeld-plu1 (READY)**: Redefine biproductHeadTailIso using universal property
-   - Replace the 5-way iso composition with a direct definition
-   - Use `biprod.lift`/`biprod.desc` and `biproduct.π`/`biproduct.ι`
-   - This makes computation lemmas trivial
-   - ~30 LOC in BiproductCancellation.lean
+1. **lemmafeld-plu1 (READY)**: Continue attempts to simplify biproductHeadTailIso
+   - Try using `aesop_cat` for the inverse proofs
+   - Or: add simp lemmas to existing definition
+   - Or: bypass by proving computation properties directly in Uniqueness.lean
 
-2. **lemmafeld-dlgr (BLOCKED by plu1)**: Complete the (1,1) component proof
-   - After plu1, the computation becomes:
-     - `biprod.inl ≫ biproductHeadTailIso.inv = biproduct.ι f ⟨0, hn⟩` (no eqToHom!)
-     - `biproductHeadTailIso.hom ≫ biprod.fst = biproduct.π f ⟨0, hn⟩`
-   - The proof of `comp_11 = f_transported` should then be straightforward
+2. **lemmafeld-dlgr**: Prove (1,1) component equals f
+   - May be possible without completing plu1 by careful eqToHom manipulation
 
-3. **lemmafeld-bh5d**: Apply `Biprod.isoElim` (depends on dlgr)
-   - Once `IsIso comp_11` is proved, use `Biprod.isoElim iso_full` to get remainder iso
-
-4. **FittingLemma.lean refactoring** (optional, 797 LOC)
-   - Similar split into ~5 files
+3. **Remaining chain**: bh5d → u2wc → 3ber → 45lt → vxyi → 01k3
 
 ---
 
 ## Files Modified This Session
 
-- `Chapter1/KrullSchmidt/BiproductCancellation.lean` — Added `finSwapFront_apply_apply`
-- `Chapter1/KrullSchmidt/Uniqueness.lean` — Structured the (1,1) component proof
+- `Chapter1/KrullSchmidt/BiproductCancellation.lean` — Attempted redefinition (reverted)
+- `.beads/issues.jsonl` — Updated plu1 with attempt notes
 - `HANDOFF.md` — This file
 
 ---
 
 ## Session Orientation for Next Agent
 
-1. **KrullSchmidt is now modular**: All code is in `Chapter1/KrullSchmidt/`
-2. **Current work**: `KrullSchmidt/Uniqueness.lean:158` - proving `comp_11 = f_transported`
-3. **The final sorry**: `KrullSchmidt/Uniqueness.lean:163` - inductive case
-4. **Key insight**: The exchange lemma's `f.hom` is defined as:
-   ```lean
-   biproduct.ι Y ⟨0, hn⟩ ≫ iso₁.inv ≫ iso₂.hom ≫ biproduct.π Z j
-   ```
-   And `comp_11` should equal this with an `eqToHom` for the swap.
-5. **Challenge**: `biproductHeadTailIso` is a 5-way composition, making it hard to compute through
-6. **Learnings doc**: `docs/learnings/chapter1/length_objects.md`
+1. **KrullSchmidt is modular**: All code in `Chapter1/KrullSchmidt/`
+2. **biproductHeadTailIso challenge**: 5-way composition is ugly but works; direct definition has complex proofs
+3. **Key blockers for KS uniqueness**:
+   - Proving the (1,1) component of the composed iso equals the exchange lemma's `f`
+   - This requires computing through `biproductHeadTailIso` which is difficult
+4. **Learnings doc**: `docs/learnings/chapter1/length_objects.md`
