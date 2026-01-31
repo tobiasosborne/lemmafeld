@@ -218,12 +218,25 @@ private theorem krullSchmidt_uniqueness_aux {X : C} (hX : IsFiniteLengthObject X
       have ih_tail := ih (d₁.n - 1) h_lt (⨁ (finTail hn_pos d₁.components))
         hY_fl d1_tail d2_tail rfl
 
-      -- ih_tail gives us:
-      -- - ih_tail.n_eq : d₁.n - 1 = d₂.n - 1
-      -- - ih_tail.perm : Equiv (Fin (d₁.n - 1)) (Fin (d₂.n - 1))
-      -- - ih_tail.iso_components : component isomorphisms for tail
+      -- Extract IH components
+      obtain ⟨h_tail, σ_tail, iso_tail⟩ := ih_tail
+      -- h_tail : d₁.n - 1 = d₂.n - 1
+      -- σ_tail : Equiv.Perm (Fin (d₁.n - 1))
+      -- iso_tail : ∀ i, Nonempty (d1_tail.components i ≅ d2_tail.components ⟨σ_tail i, ...⟩)
 
-      -- Now combine: the full permutation sends 0 ↦ j, and i+1 ↦ adjusted(perm(i))
+      -- Derive n equality (from h_tail and positivity)
+      -- h_tail : d1_tail.n = d2_tail.n, i.e., (d₁.n - 1) = (d₂.n - 1)
+      have hn_eq : d₁.n = d₂.n := by
+        simp only [d1_tail, d2_tail] at h_tail
+        have h1 : 1 ≤ d₁.n := Nat.one_le_of_lt hn_gt1
+        have h2 : 1 ≤ d₂.n := Nat.one_le_of_lt hd2_gt1
+        omega
+
+      -- The full permutation sends:
+      -- - 0 ↦ j (matched via exchange lemma)
+      -- - (i+1) ↦ (finSwapFront j).symm (σ_tail(i) + 1) (matched via IH)
+      --
+      -- Construction requires careful index bookkeeping.
       -- Tracked in: lemmafeld-45lt (construct full permutation)
       sorry
 
