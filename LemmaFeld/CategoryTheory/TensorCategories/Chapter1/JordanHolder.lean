@@ -109,24 +109,10 @@ end AbstractFramework
 
 /-! ## §1.5.6 Multiplicity Independence (TC 1.5.6)
 
-Book Theorem 1.5.4 states that "any two Jordan-Hölder series of X contain any simple
-object with the same multiplicity."
+Book Theorem 1.5.4: "any two Jordan-Hölder series contain any simple with the same multiplicity."
 
-In mathlib, `CompositionSeries.Equivalent` captures this:
-```
-def Equivalent s₁ s₂ :=
-  ∃ f : Fin s₁.length ≃ Fin s₂.length, ∀ i,
-    JordanHolderLattice.Iso (s₁[i], s₁[i+1]) (s₂[f i], s₂[f i + 1])
-```
-
-The bijection `f` between indices means:
-- For each factor (Xᵢ₊₁/Xᵢ) of s₁, there's a corresponding factor of s₂
-- The `Iso` relation means these factors are "the same" (isomorphic quotients for modules)
-- Hence if Y appears m times in s₁, it appears exactly m times in s₂
-
-The multiplicity of a simple Y in a series s can be defined as:
-  `{i : Fin s.length | Iso (s[i], s[i+1]) (⊥, Y)}.card`
-where the Iso relates the factor to the "standard" form of Y.
+Mathlib's `CompositionSeries.Equivalent` gives a bijection f between factors with `Iso`
+on corresponding pairs, hence equal multiplicities.
 -/
 
 section MultiplicityIndependence
@@ -194,25 +180,8 @@ on objects. This would require:
 
 /-! ## Categorical Jordan-Hölder Gap
 
-The key missing piece for categorical Jordan-Hölder is:
-
-```
-instance : JordanHolderLattice (Subobject X) where
-  IsMaximal Y Z := Y < Z ∧ Simple (quotient of Z by Y)
-  Iso := λ ⟨a, b⟩ ⟨c, d⟩ => (quotient b/a) ≅ (quotient d/c)
-  iso_symm := ...
-  iso_refl := ...
-  second_iso := ...  -- Second isomorphism theorem
-```
-
-This requires the categorical second isomorphism theorem:
-If Y, Z ⊆ X with Y maximal in Y ∨ Z and Z maximal in Y ∨ Z,
-then (Y ∨ Z)/Y ≅ Z/(Y ∧ Z).
-
-In an abelian category, this follows from:
-- `CategoryTheory.Abelian` provides kernels/cokernels
-- Quotients = cokernels of inclusions
-- Second isomorphism theorem from abelian category properties
+Missing: `JordanHolderLattice (Subobject X)` instance requiring categorical second isomorphism
+theorem. In abelian categories this follows from kernel/cokernel properties.
 -/
 
 end LemmaFeld.TensorCategories.Chapter1
