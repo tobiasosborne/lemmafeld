@@ -2,24 +2,18 @@
 
 ## Project Stats
 
-- **Issues:** ~470 total, ~381 open, ~66 closed
+- **Issues:** ~470 total, ~380 open, ~67 closed
 - **Chapter 1 Files:** 43+ Lean files, all building
-- **KS Uniqueness:** IH extracted; permutation helper needed
+- **KS Uniqueness:** prependSwapPerm helper complete; ready for final permutation construction
 
 ---
 
 ## Completed This Session
 
-### lemmafeld-3ber: Restructure for strong induction (CLOSED)
-- Extracted `krullSchmidt_uniqueness_aux` with explicit IH
-- Main theorem uses `Nat.strong_induction_on`
-
-### lemmafeld-45lt: Partial progress
-- Extracted IH components: `h_tail`, `σ_tail`, `iso_tail`
-- Derived `hn_eq : d₁.n = d₂.n`
-
-### Created: lemmafeld-ss6l
-- Helper `prependSwapPerm` to clean up permutation construction
+### lemmafeld-ss6l: prependSwapPerm helper (CLOSED)
+- Implemented `liftTailPerm` and `prependSwapPerm` in BiproductCancellation.lean
+- Added simp lemmas: `liftTailPerm_zero`, `liftTailPerm_succ`, `prependSwapPerm_zero`, `prependSwapPerm_succ`
+- All builds pass
 
 ---
 
@@ -32,9 +26,9 @@
     ↓
 ✓ lemmafeld-3ber  ←── DONE (strong induction restructure)
     ↓
-○ lemmafeld-ss6l  ←── NEW (prependSwapPerm helper)
+✓ lemmafeld-ss6l  ←── DONE (prependSwapPerm helper)
     ↓
-◐ lemmafeld-45lt  ←── BLOCKED (waiting for helper)
+○ lemmafeld-45lt  ←── UNBLOCKED (construct full permutation + component isos)
     ↓
 ... → KS uniqueness complete
 ```
@@ -43,51 +37,44 @@
 
 ## Recommended Next Step
 
-**Work on lemmafeld-ss6l: Define prependSwapPerm helper**
+**Work on lemmafeld-45lt: Construct full permutation from j and remainder permutation**
 
-Location: `Chapter1/KrullSchmidt/BiproductCancellation.lean` (near `finSwapFront`)
+Location: `Chapter1/KrullSchmidt/Uniqueness.lean:241` (the sorry)
 
-```lean
-/-- Combine "0 ↦ j" with "tail ↦ lifted through swap" into a single permutation. -/
-def prependSwapPerm {n m : ℕ} (hn : 0 < n) (hm : 0 < m) (hn_eq : n = m)
-    (j : Fin m) (σ_tail : Equiv.Perm (Fin (n - 1))) :
-    Equiv.Perm (Fin n) := ...
-```
+Available ingredients:
+- `hn_eq : d₁.n = d₂.n`
+- `j : Fin d₂.n` (from exchange lemma)
+- `f : d₁.components 0 ≅ d₂.components j`
+- `σ_tail : Equiv.Perm (Fin (d₁.n - 1))` (from IH)
+- `iso_tail : ∀ i, Nonempty (d1_tail.components i ≅ d2_tail.components (σ_tail i))`
 
-Key insight: The bijectivity proofs need to show:
-1. If `i = 0`, then `σ 0 = j`, and inverse of j under swap gives 0
-2. If `i > 0`, the lifted tail value never equals j (since tail indices are ≥ 1 after lifting)
-
-Once helper is defined, 45lt becomes straightforward: just apply `prependSwapPerm` and prove component isos.
+Steps to complete:
+1. Define `σ := prependSwapPerm hn_pos hd2_pos hn_eq j σ_tail`
+2. Prove `DecompositionsEquivalent`:
+   - n equality: `hn_eq`
+   - Permutation: `σ`
+   - Component isos: for i = 0 use `f`, for i+1 use `iso_tail` with casting
 
 ---
 
 ## Current State
 
-- **Uniqueness.lean:239** — One sorry remains
-- Has: `hn_eq`, `h_tail`, `σ_tail`, `iso_tail`
-- Needs: `prependSwapPerm` helper, then apply it
+- **Uniqueness.lean:241** — One sorry remains
+- prependSwapPerm is ready for use
+- Simp lemmas should simplify the permutation construction
 
 ---
 
 ## Files Modified This Session
 
-- `LemmaFeld/CategoryTheory/TensorCategories/Chapter1/KrullSchmidt/Uniqueness.lean`
+- `LemmaFeld/CategoryTheory/TensorCategories/Chapter1/KrullSchmidt/BiproductCancellation.lean` — Added liftTailPerm, prependSwapPerm
 
 ---
 
 ## Key Learnings
 
-1. **omega + subtraction:** Can't prove `n = m` from `n - 1 = m - 1` without explicit positivity witnesses (`1 ≤ n`, `1 ≤ m`)
+1. **Fin proof terms matter:** When using `Equiv.symm_apply_apply`, the Fin terms must have exactly the same structure. Use `Fin.ext rfl` to convert between Fins with same `.val` but different proof terms.
 
-2. **Inline Equiv complexity:** Defining `Equiv.Perm` inline with complex case splits leads to:
-   - Syntax errors with anonymous constructors
-   - Difficult-to-read proofs
-   - Better to extract to named helper with simp lemmas
+2. **Nat.add_sub_cancel:** Key lemma for simplifying `x + 1 - 1 = x` before applying Equiv lemmas.
 
-3. **Strong induction pattern:** Use `suffices H : ∀ n, P n` then `intro n; induction n using Nat.strong_induction_on` with `subst` to match types
-
-4. **finSwapFront composition:** When composing swap with tail lifting:
-   - Tail indices `i+1` may or may not equal `j`
-   - Need case analysis on whether lifted value hits `j`
-   - Swap sends `j ↦ 0` and `0 ↦ j`, others unchanged
+3. **dif vs if:** When the condition is a decidable proposition (like `h : i.val = 0`), use `dif_pos h` and `dif_neg h` for rewriting, not `↓reduceIte`.

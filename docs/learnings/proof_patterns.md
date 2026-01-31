@@ -82,3 +82,46 @@ Submodule.mkQ_surjective : Function.Surjective S.mkQ
 | Module associativity | `mul_smul` (unqualified) |
 
 **Note:** `ring` and `linarith` don't work on module elements!
+
+## Fin Proof Term Handling
+
+When two `Fin n` values have the same `.val` but different proof terms:
+
+```lean
+-- Convert between Fins with same .val but different proofs
+have heq : (⟨i.val, proof1⟩ : Fin n) = ⟨i.val, proof2⟩ := Fin.ext rfl
+```
+
+For `Equiv.symm_apply_apply` to fire, the types must match exactly:
+
+```lean
+-- Won't work: proof terms differ
+simp only [Equiv.symm_apply_apply]  -- may not simplify
+
+-- Fix: construct explicit equality first
+have heq : (⟨(σ x).val, new_proof⟩ : Fin n) = σ x := Fin.ext rfl
+rw [heq, Equiv.symm_apply_apply]
+```
+
+For arithmetic involving Fin subtraction:
+
+```lean
+-- Key lemma: x + 1 - 1 = x
+simp only [Nat.add_sub_cancel]
+
+-- For i.val - 1 + 1 = i.val (when i.val ≥ 1)
+exact Nat.sub_add_cancel (Nat.one_le_iff_ne_zero.mpr hi)
+```
+
+## dif vs ↓reduceIte
+
+When branching on decidable propositions, use `dif_pos`/`dif_neg`:
+
+```lean
+-- With: if h : cond then ... else ...
+-- Use:
+simp only [dif_pos hcond]   -- when hcond : cond
+simp only [dif_neg hcond]   -- when hcond : ¬cond
+
+-- NOT: simp only [↓reduceIte]  -- may not simplify dif correctly
+```

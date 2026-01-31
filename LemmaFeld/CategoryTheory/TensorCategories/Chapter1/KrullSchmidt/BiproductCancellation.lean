@@ -50,6 +50,87 @@ lemma finSwapFront_apply_apply {n : ℕ} (j k : Fin n) :
     finSwapFront j (finSwapFront j k) = k := by
   simp only [finSwapFront, Equiv.swap_apply_self]
 
+/-! ## Tail Permutation Lifting
+
+Helper for constructing the full permutation in KS uniqueness from a tail permutation.
+-/
+
+/-- Lift a tail permutation to Fin n by fixing 0. -/
+def liftTailPerm {n : ℕ} (hn : 0 < n) (σ : Equiv.Perm (Fin (n - 1))) : Equiv.Perm (Fin n) where
+  toFun i := if hi : i.val = 0 then ⟨0, hn⟩ else
+    have hi_lt : i.val - 1 < n - 1 :=
+      Nat.sub_lt_sub_right (Nat.one_le_iff_ne_zero.mpr hi) i.isLt
+    ⟨(σ ⟨i.val - 1, hi_lt⟩).val + 1, Nat.add_lt_of_lt_sub (σ ⟨i.val - 1, hi_lt⟩).isLt⟩
+  invFun k := if hk : k.val = 0 then ⟨0, hn⟩ else
+    have hk_lt : k.val - 1 < n - 1 :=
+      Nat.sub_lt_sub_right (Nat.one_le_iff_ne_zero.mpr hk) k.isLt
+    ⟨(σ.symm ⟨k.val - 1, hk_lt⟩).val + 1, Nat.add_lt_of_lt_sub (σ.symm ⟨k.val - 1, hk_lt⟩).isLt⟩
+  left_inv i := by
+    by_cases hi : i.val = 0
+    · simp only [dif_pos hi]
+      ext; exact hi.symm
+    · simp only [dif_neg hi]
+      have hi_lt : i.val - 1 < n - 1 := Nat.sub_lt_sub_right (Nat.one_le_iff_ne_zero.mpr hi) i.isLt
+      have hi' : ¬ ((σ ⟨i.val - 1, hi_lt⟩).val + 1) = 0 := by omega
+      simp only [dif_neg hi']
+      -- Goal: ⟨(σ.symm ⟨(σ ⟨i.val - 1, _⟩).val + 1 - 1, _⟩).val + 1, _⟩ = i
+      ext
+      simp only [Nat.add_sub_cancel]
+      -- Goal: (σ.symm ⟨(σ ⟨i.val - 1, _⟩).val, _⟩).val + 1 = i.val
+      -- The inner Fin has same .val as (σ ⟨i.val - 1, hi_lt⟩)
+      have heq : (⟨(σ ⟨i.val - 1, hi_lt⟩).val, _⟩ : Fin (n - 1)) = σ ⟨i.val - 1, hi_lt⟩ :=
+        Fin.ext rfl
+      rw [heq, Equiv.symm_apply_apply]
+      exact Nat.sub_add_cancel (Nat.one_le_iff_ne_zero.mpr hi)
+  right_inv k := by
+    by_cases hk : k.val = 0
+    · simp only [dif_pos hk]
+      ext; exact hk.symm
+    · simp only [dif_neg hk]
+      have hk_lt : k.val - 1 < n - 1 := Nat.sub_lt_sub_right (Nat.one_le_iff_ne_zero.mpr hk) k.isLt
+      have hk' : ¬ ((σ.symm ⟨k.val - 1, hk_lt⟩).val + 1) = 0 := by omega
+      simp only [dif_neg hk']
+      ext
+      simp only [Nat.add_sub_cancel]
+      have heq : (⟨(σ.symm ⟨k.val - 1, hk_lt⟩).val, _⟩ : Fin (n - 1)) = σ.symm ⟨k.val - 1, hk_lt⟩ :=
+        Fin.ext rfl
+      rw [heq, Equiv.apply_symm_apply]
+      exact Nat.sub_add_cancel (Nat.one_le_iff_ne_zero.mpr hk)
+
+@[simp]
+lemma liftTailPerm_zero {n : ℕ} (hn : 0 < n) (σ : Equiv.Perm (Fin (n - 1))) :
+    liftTailPerm hn σ ⟨0, hn⟩ = ⟨0, hn⟩ := by simp [liftTailPerm]
+
+@[simp]
+lemma liftTailPerm_succ {n : ℕ} (hn : 0 < n) (σ : Equiv.Perm (Fin (n - 1))) (i : Fin (n - 1)) :
+    liftTailPerm hn σ ⟨i.val + 1, Nat.add_lt_of_lt_sub i.isLt⟩ =
+    ⟨(σ i).val + 1, Nat.add_lt_of_lt_sub (σ i).isLt⟩ := by
+  simp only [liftTailPerm, Equiv.coe_fn_mk]
+  have h : ¬(i.val + 1 = 0) := by omega
+  simp only [dif_neg h, Nat.add_sub_cancel]
+
+/-- Combine "0 ↦ j" with "tail ↦ lifted through swap" into a single permutation.
+
+For KS uniqueness: builds the full permutation from the exchange lemma match (0 ↦ j)
+and the IH-derived tail permutation. -/
+def prependSwapPerm {n m : ℕ} (hn : 0 < n) (_hm : 0 < m) (hn_eq : n = m)
+    (j : Fin m) (σ_tail : Equiv.Perm (Fin (n - 1))) : Equiv.Perm (Fin n) :=
+  (liftTailPerm hn σ_tail).trans (finSwapFront ⟨j.val, by omega⟩)
+
+@[simp]
+lemma prependSwapPerm_zero {n m : ℕ} (hn : 0 < n) (hm : 0 < m) (hn_eq : n = m)
+    (j : Fin m) (σ_tail : Equiv.Perm (Fin (n - 1))) :
+    prependSwapPerm hn hm hn_eq j σ_tail ⟨0, hn⟩ = ⟨j.val, by omega⟩ := by
+  simp only [prependSwapPerm, Equiv.trans_apply, liftTailPerm_zero]
+  simp only [finSwapFront, Equiv.swap_apply_right]
+
+@[simp]
+lemma prependSwapPerm_succ {n m : ℕ} (hn : 0 < n) (hm : 0 < m) (hn_eq : n = m)
+    (j : Fin m) (σ_tail : Equiv.Perm (Fin (n - 1))) (i : Fin (n - 1)) :
+    prependSwapPerm hn hm hn_eq j σ_tail ⟨i.val + 1, Nat.add_lt_of_lt_sub i.isLt⟩ =
+    finSwapFront ⟨j.val, by omega⟩ ⟨(σ_tail i).val + 1, Nat.add_lt_of_lt_sub (σ_tail i).isLt⟩ := by
+  simp only [prependSwapPerm, Equiv.trans_apply, liftTailPerm_succ]
+
 /-- The equality: f k = (f ∘ (finSwapFront j).symm) ((finSwapFront j) k).
 Used for the hom direction of biproductSwapFrontIso. -/
 @[simp]
