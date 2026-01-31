@@ -1,18 +1,18 @@
-# Handoff: 2026-01-31 (Hygiene - FiniteLength Split)
+# Handoff: 2026-01-31 (Hygiene - Projective Split)
 
 ## Project Stats
 
-- **Issues:** ~475 total, ~377 open, ~75 closed
-- **Chapter 1 Files:** 48+ Lean files, all building
+- **Issues:** ~475 total, ~376 open, ~76 closed
+- **Chapter 1 Files:** 49+ Lean files, all building
 
 ---
 
 ## Completed This Session
 
-### lemmafeld-el7c: Hygiene - Split FiniteLength.lean (CLOSED)
-- Split `FiniteLength.lean` (261 LOC) into two files:
-  - `ArtinianNoetherian.lean` (89 LOC): Artinian/Noetherian object definitions
-  - `FiniteLength.lean` (143 LOC): Finite length, simple objects, Jordan-Hölder
+### lemmafeld-9cfk: Hygiene - Split Projective.lean (CLOSED)
+- Split `Projective.lean` (255 LOC) into two files:
+  - `ExactFunctors.lean` (121 LOC): Left/right exact functors, Hom, adjoint exactness
+  - `Projective.lean` (111 LOC): Projective/injective objects, covers, hulls
 - All files build successfully
 
 ---
@@ -27,7 +27,6 @@
 ## Recommended Next Steps
 
 1. **Continue hygiene tasks** - check `bd ready` for more file splits:
-   - Projective.lean (255 LOC)
    - LocallyFinite.lean (251 LOC)
    - DerivedFunctors.lean (234 LOC)
    - IterateComap.lean (230 LOC)
@@ -37,11 +36,12 @@
 
 ## Files Modified This Session
 
-- `LemmaFeld/CategoryTheory/TensorCategories/Chapter1/FiniteLength.lean`
-  - Removed: Artinian and Noetherian sections
-  - Kept: FiniteLength definition, SimpleFiniteLength, SimpleSubobjects, JordanHolder docs
-  - Result: 143 LOC (was 261)
+- `LemmaFeld/CategoryTheory/TensorCategories/Chapter1/Projective.lean`
+  - Removed: ExactFunctors, HomFunctorsLeftExact, AdjointExactness sections
+  - Kept: ProjectiveInjective, CoversHulls, Summary
+  - Result: 111 LOC (was 255)
 
-- `LemmaFeld/CategoryTheory/TensorCategories/Chapter1/ArtinianNoetherian.lean` (NEW)
-  - ArtinianObjects section: DCC on subobjects
-  - NoetherianObjects section: ACC on subobjects
+- `LemmaFeld/CategoryTheory/TensorCategories/Chapter1/ExactFunctors.lean` (NEW)
+  - §1.6 Definition 1.6.1: Left/right exact functor definitions
+  - §1.6 Example 1.6.2: Hom functors are left exact
+  - §1.6 Exercise 1.6.4: Adjoint exactness
