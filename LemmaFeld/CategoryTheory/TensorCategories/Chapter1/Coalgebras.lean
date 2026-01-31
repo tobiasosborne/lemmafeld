@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: LemmaFeld Contributors
 -/
 import Mathlib.RingTheory.Coalgebra.Basic
+import Mathlib.RingTheory.Coalgebra.MonoidAlgebra
 import Mathlib.LinearAlgebra.TensorProduct.Basic
 
 /-!
@@ -74,8 +75,41 @@ Book: "Let X be a set. Then k[X], the set of formal linear combinations of eleme
 is a coalgebra, with Δ(x) = x ⊗ x for x ∈ X. The grouplike elements of k[X] are
 precisely elements x ∈ X."
 
-This example shows that grouplike elements correspond to the "basis" of set coalgebras.
+Mathlib: `MonoidAlgebra R X` (denoted `R[X]`) inherits a coalgebra structure from
+`Finsupp.instCoalgebra`. The base ring `R` is a coalgebra over itself with
+`comul r = 1 ⊗ r`, so `R[X]` gets `comul (single x r) = single x 1 ⊗ single x 1 · comul r`.
 -/
+
+section SetCoalgebra
+
+noncomputable section
+
+variable (R : Type*) [CommSemiring R] (X : Type*)
+
+/-- The set coalgebra k[X] is a coalgebra via the MonoidAlgebra instance.
+
+Book Example 1.9.9: For a set X, the free R-module R[X] = MonoidAlgebra R X
+is a coalgebra with Δ(x) = x ⊗ x for x ∈ X.
+
+Mathlib provides this via `MonoidAlgebra.instCoalgebra`, which comes from
+`Finsupp.instCoalgebra` using the base coalgebra structure on R. -/
+example : Coalgebra R (MonoidAlgebra R X) := inferInstance
+
+/-- Each basis element of the set coalgebra is grouplike.
+
+Book Example 1.9.9: "The grouplike elements of k[X] are precisely elements x ∈ X."
+Here we prove one direction: every x ∈ X gives a grouplike element. -/
+lemma isGrouplike_single_one (x : X) :
+    IsGrouplike R (MonoidAlgebra.single x (1 : R)) where
+  comul_eq := by
+    simp only [MonoidAlgebra.comul_single, CommSemiring.comul_apply]
+    simp only [TensorProduct.map_tmul, MonoidAlgebra.lsingle_apply]
+  counit_eq := by
+    simp only [MonoidAlgebra.counit_single, CommSemiring.counit_apply]
+
+end
+
+end SetCoalgebra
 
 /-! ## §1.9 Definition 1.9.10: Skew-Primitive Elements
 

@@ -50,17 +50,35 @@ structure IsTrivialSkewPrimitive (R : Type*) [CommRing R] {A : Type*}
 
 ---
 
+## §1.9.9: Set Coalgebra k[X]
+
+**Book Example 1.9.9:** For a set X, k[X] is a coalgebra with Δ(x) = x ⊗ x.
+The grouplike elements are precisely X.
+
+**Mathlib:** `MonoidAlgebra.instCoalgebra` (via `Finsupp.instCoalgebra`)
+- Base ring `R` has coalgebra structure with `comul r = 1 ⊗ r`
+- `MonoidAlgebra R X` inherits coalgebra structure
+- Key lemmas: `MonoidAlgebra.comul_single`, `MonoidAlgebra.counit_single`
+
+**Our formalization:**
+```lean
+lemma isGrouplike_single_one (x : X) :
+    IsGrouplike R (MonoidAlgebra.single x (1 : R))
+```
+
+---
+
 ## §1.9 Remaining Work (Section Order)
 
 | Item | Status | Issue | Notes |
 |------|--------|-------|-------|
 | §1.9.8: Grouplike ↔ 1-dim subcoalgebras | TODO | lemmafeld-e96f | Needs subcoalgebra def |
-| §1.9.9: Set coalgebra k[X] | TODO | lemmafeld-663t | Self-contained, ~25 LOC |
+| §1.9.9: Set coalgebra k[X] | ✅ DONE | lemmafeld-663t | |
 | §1.9.12: Prim/k(g-h) ≅ Ext¹ | BLOCKED | — | Requires comodule categories |
 | §1.9.13: Pointed coalgebra | BLOCKED | — | Requires "simple comodule" |
 | §1.9.15: LocallyFinite ≃ C-comod | BLOCKED | lemmafeld-cwxw | Requires comodule cat (~500 LOC) |
 
-**Recommendation:** Work on §1.9.9 (set coalgebra) first — self-contained, uses `MonoidAlgebra`.
+**Recommendation:** Work on §1.9.8 next — requires subcoalgebra definition.
 
 ---
 
