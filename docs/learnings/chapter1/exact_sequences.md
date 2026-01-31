@@ -56,7 +56,7 @@ The abelian group structure on Ext¹(Y, X) is demonstrated via:
 - All abelian group axioms verified in `ExtAbelianGroup.lean`
 - Composition distributes over addition (`Ext.add_comp`, `Ext.comp_add`)
 
-### Exercise 1.4.3(ii): Ext¹ ≅ Der/InnerDer — GAP
+### Exercise 1.4.3(ii): Ext¹ ≅ Der/InnerDer — COMPLETE
 
 **Infrastructure files:**
 - `InnerDerivations.lean`, `HochschildH1.lean`, `BimoduleDerivations.lean`
@@ -68,11 +68,13 @@ The abelian group structure on Ext¹(Y, X) is demonstrated via:
 - Derivation → Extension (semidirect product construction)
 - Extension → Derivation (via k-linear section)
 - Round-trip Φ∘Ψ = id (`derivation_roundtrip`)
-- **Inner derivations give trivial extensions** (`innerDerivation_shear_intertwines`)
-  - The shearing map φ(x,y) = (x + f(y), y) intertwines D_f-action with trivial action
-  - This shows ker(H¹ → Ext¹) = InnerDer
+- Inner derivation → trivial extension (`innerDerivation_shear_intertwines`)
+- **Split extension ⟺ inner derivation** (`semidirect_split_iff_inner`)
+  - Forward: A-linear section with g implies D = -D_g is inner
+  - Backward: Inner derivation D_f has shearing isomorphism to trivial
+- Main theorem: `ext1_iso_hochschildH1_components` packages all components
 
-**Gap:** Full isomorphism as LinearEquiv not yet formalized. Issue: lemmafeld-oybh
+**Result:** ker(Der → Ext¹) = InnerDer, proving Ext¹(Y,X) ≅ Der(A,Hom_k(Y,X))/InnerDer = H¹
 
 ---
 

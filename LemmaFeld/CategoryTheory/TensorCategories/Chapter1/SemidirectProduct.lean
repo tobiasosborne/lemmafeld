@@ -249,4 +249,79 @@ theorem innerDerivation_shear_intertwines (f : Y →ₗ[k] X)
 
 end InnerDerivationsTrivial
 
+/-! ## Split Extensions Give Inner Derivations
+
+**Converse Theorem**: If the semidirect extension E_D admits an A-linear section,
+then D is an inner derivation.
+
+Combined with `innerDerivation_shear_intertwines`, this gives:
+  E_D is split ⟺ D is inner
+
+This establishes ker(Der → Ext¹) = InnerDer, completing Exercise 1.4.3(ii).
+-/
+
+section SplitImpliesInner
+
+variable {k A : Type*} [CommRing k] [Ring A] [Algebra k A]
+variable {X Y : Type*} [AddCommGroup X] [AddCommGroup Y]
+variable [Module k X] [Module k Y] [Module A X] [Module A Y]
+variable [IsScalarTower k A X] [IsScalarTower k A Y]
+
+/-- If the semidirect extension has an A-linear section s'(y) = (g(y), y),
+    then D equals the inner derivation defined by -g.
+
+    The A-linearity condition a • s'(y) = s'(a • y) expands to:
+      a • g(y) + D(a)(y) = g(a • y)
+    i.e., D(a)(y) = g(a • y) - a • g(y) = -D_g(a)(y)
+
+    where D_g(a)(y) = a • g(y) - g(a • y) is the inner derivation from g. -/
+theorem split_extension_implies_inner (D : A → (Y →ₗ[k] X))
+    (g : Y →ₗ[k] X)
+    (hSection : ∀ a y, a • g y + D a y = g (a • y)) :
+    ∀ a y, D a y = -(a • g y - g (a • y)) := by
+  intro a y
+  have h := hSection a y
+  -- From h: a • g y + D a y = g (a • y)
+  -- Rearrange: D a y = g (a • y) - a • g y = -(a • g y - g (a • y))
+  have h1 : D a y = g (a • y) - a • g y := by
+    have := add_comm (a • g y) (D a y)
+    rw [this] at h
+    exact eq_sub_of_add_eq h
+  rw [h1]
+  abel
+
+/-- **Theorem**: The semidirect extension E_D is split (admits A-linear section)
+    if and only if D is an inner derivation.
+
+    The inner derivation D_f is characterized pointwise by: D_f(a)(y) = a • f(y) - f(a • y)
+
+    Forward: If E_D has section s'(y) = (g(y), y) with A-linearity a • g(y) + D(a)(y) = g(a • y),
+             then D = -D_g is inner.
+    Backward: `innerDerivation_shear_intertwines` -/
+theorem semidirect_split_iff_inner (D : A → (Y →ₗ[k] X)) :
+    (∃ g : Y →ₗ[k] X, ∀ a y, a • g y + D a y = g (a • y)) ↔
+    (∃ f : Y →ₗ[k] X, ∀ a y, D a y = a • f y - f (a • y)) := by
+  constructor
+  · -- Split extension → inner derivation
+    rintro ⟨g, hSection⟩
+    use -g
+    intro a y
+    have h := hSection a y
+    simp only [LinearMap.neg_apply, smul_neg]
+    -- Goal: D a y = -(a • g y) - -g (a • y) = -a • g y + g (a • y)
+    -- From h: a • g y + D a y = g (a • y)
+    have h1 : D a y = g (a • y) - a • g y := by
+      have := add_comm (a • g y) (D a y)
+      rw [this] at h
+      exact eq_sub_of_add_eq h
+    rw [h1]; abel
+  · -- Inner derivation → split extension
+    rintro ⟨f, hInner⟩
+    use -f
+    intro a y
+    simp only [LinearMap.neg_apply, smul_neg, hInner]
+    abel
+
+end SplitImpliesInner
+
 end LemmaFeld.TensorCategories.Chapter1

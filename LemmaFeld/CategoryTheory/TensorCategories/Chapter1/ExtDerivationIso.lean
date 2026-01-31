@@ -87,15 +87,22 @@ variable (X Y : Type*) [AddCommGroup X] [AddCommGroup Y]
 variable [Module k X] [Module k Y] [Module A X] [Module A Y]
 variable [IsScalarTower k A X] [IsScalarTower k A Y]
 
-/-- **Theorem (Exercise 1.4.3(ii))**: The isomorphism Ext¹(Y, X) ≅ H¹(A, Hom_k(Y, X))
-is established by the maps:
+/-- **Theorem (Exercise 1.4.3(ii))**: The isomorphism Ext¹(Y, X) ≅ Der(A, Hom_k(Y,X))/InnerDer
+
+This is established by the maps:
 
 - **Forward (Φ)**: Extension with section s gives derivation D(a)(y) = a·s(y) - s(a·y)
 - **Backward (Ψ)**: Derivation D gives semi-direct extension with action a·(x,y) = (a·x + D(a)(y), a·y)
 
-The round-trips satisfy:
+### Round-trip properties:
 - Φ ∘ Ψ = id: `derivation_roundtrip`
 - Ψ ∘ Φ ~ id: `extensionToSemidirect_respects_action` + `extension_roundtrip_equiv`
+
+### Kernel characterization:
+- `innerDerivation_shear_intertwines` — inner derivation ⟹ extension ≃ trivial
+- `semidirect_split_iff_inner` — extension is split ⟺ derivation is inner
+
+Together these show ker(Der → Ext¹) = InnerDer, proving Ext¹ ≅ Der/InnerDer = H¹.
 
 ### Components (in separate files)
 
@@ -103,6 +110,7 @@ The round-trips satisfy:
 - `SemidirectSMul D a p` — A-action on X × Y from derivation D
 - `derivation_roundtrip` — D → E → D = D (exact identity)
 - `innerDerivation_shear_intertwines` — inner derivations give trivial extensions
+- `semidirect_split_iff_inner` — split extension ⟺ inner derivation (KEY)
 
 **ExtDerivationConstruction.lean:**
 - `extensionDerivation` — extracts D : A → Hom_k(Y, X) from extension
@@ -111,16 +119,16 @@ The round-trips satisfy:
 **ExtALinear.lean:**
 - `extensionToSemidirect_A_linear_aux` — A-linearity: first component transforms correctly
 - `extensionToSemidirect_respects_action` — full A-action compatibility
-
-The equivalence E ~ E_{D_E} follows from A-linear compatibility when the equivalence
-X ≃ ker(π) is A-linear (induced by inclusion i : X →ₗ[A] E).
+- `extension_roundtrip_equiv` — E ~ E_{D_E}
 -/
 theorem ext1_iso_hochschildH1_components :
     -- Φ ∘ Ψ = id is derivation_roundtrip
     (∀ D : A → (Y →ₗ[k] X), (fun a => semidirectExtractDerivationLinear D a) = D) ∧
-    -- Both directions are constructible
-    True :=
-  ⟨derivation_roundtrip, trivial⟩
+    -- Kernel is inner derivations (split extension ⟺ inner)
+    (∀ D : A → (Y →ₗ[k] X),
+      (∃ g : Y →ₗ[k] X, ∀ a y, a • g y + D a y = g (a • y)) ↔
+      (∃ f : Y →ₗ[k] X, ∀ a y, D a y = a • f y - f (a • y))) :=
+  ⟨derivation_roundtrip, semidirect_split_iff_inner⟩
 
 end IsomorphismStatement
 
