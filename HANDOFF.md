@@ -65,6 +65,7 @@ Add simp lemma for `biproductSwapFrontIso_π_zero`. This is independent and can 
 ## Files Modified This Session
 
 - `Chapter1/KrullSchmidt/BiproductCancellation.lean` — Filled 2 sorries with aesop_cat
+- `docs/learnings/chapter1/length_objects.md` — Updated simp lemma strategy to COMPLETE
 
 ---
 

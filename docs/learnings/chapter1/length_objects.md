@@ -462,11 +462,11 @@ def biproductHeadTailIso {n : ℕ} (hn : 0 < n) (f : Fin n → C) :
 
 **Lean file:** `Chapter1/KrullSchmidt/BiproductCancellation.lean`
 
-### Simp Lemma Strategy (2026-01-31 - PARTIAL PROGRESS)
+### Simp Lemma Strategy (2026-01-31 - COMPLETE)
 
-**New strategy:** Instead of redefining biproductHeadTailIso, add simp lemmas to the existing definition.
+**Strategy:** Add simp lemmas to the existing biproductHeadTailIso definition.
 
-**Key simp lemmas (in progress - 2 sorries):**
+**Key simp lemmas (all complete, 0 sorries):**
 ```lean
 lemma biproductHeadTailIso_ι_zero_hom {n : ℕ} (hn : 0 < n) (f : Fin n → C) :
     biproduct.ι f ⟨0, hn⟩ ≫ (biproductHeadTailIso hn f).hom = biprod.inl
@@ -480,26 +480,35 @@ lemma biproductHeadTailIso_inl_inv {n : ℕ} (hn : 0 < n) (f : Fin n → C) :
     biprod.inl ≫ (biproductHeadTailIso hn f).inv = biproduct.ι f ⟨0, hn⟩
 ```
 
-**Proof structure (biproductHeadTailIso_ι_zero_hom):**
-1. Unfold 5-way composition and trace ι f 0 through each step
-2. whiskerEquiv.hom: `biproduct.ι_desc` gives `(eqToIso _).inv ≫ biproduct.ι _ (e 0)`
-3. Two mapIso.hom steps: `biproduct.ι_map` gives `(eqToIso _).hom ≫ biproduct.ι _ _`
-4. biproductBiprodIso.inv: Since 0 < 1, takes left branch → `... ≫ biprod.inl`
-5. biprod.mapIso.hom: `biprod.inl_map` gives `iso_head.hom ≫ biprod.inl`
-6. iso_head.hom: `biproduct.ι_desc` gives `𝟙`
-7. eqToHom chain collapses to `𝟙 ≫ biprod.inl = biprod.inl`
+**Proof technique (discovered 2026-01-31):**
 
-**Blocking issue:** Step 2-3 fail because `biproduct.ι_map` expects `biproduct.ι _ _ ≫ biproduct.map _` pattern, but the goal has `(eqToIso _).inv ≫ biproduct.ι _ _ ≫ biproduct.map _`. The eqToIso.inv prefix blocks the pattern match.
+The key insight is that after proper setup, `aesop_cat` handles the remaining complexity:
 
-**Workarounds being explored:**
-1. Use `conv` to target the `ι ≫ map` subterm specifically
-2. Use `slice_lhs` or manual composition manipulation
-3. Create helper lemmas that explicitly handle eqToHom threading
+```lean
+lemma biproductHeadTailIso_ι_zero_hom ... := by
+  unfold biproductHeadTailIso
+  simp only [Iso.trans_hom]
+  rw [biproduct.whiskerEquiv_hom]
+  simp only [biproduct.ι_desc_assoc, biproduct.mapIso_hom, Category.assoc]
+  -- Key: use _assoc versions to thread ι through both maps
+  rw [biproduct.ι_map_assoc, biproduct.ι_map_assoc]
+  -- Collapse eqToIso.inv ≫ eqToIso.hom chains
+  simp only [Iso.inv_hom_id_assoc]
+  -- Unfold the biproductBiprodIso
+  simp only [Iso.symm_hom, biproductBiprodIso, Nat.lt_one_iff]
+  -- aesop_cat handles the rest (dite branching, remaining simp)
+  aesop_cat
+```
 
-**Related issues:**
-- lemmafeld-valb: biproductHeadTailIso_inl_inv
-- lemmafeld-g167: biproductHeadTailIso_hom_fst
-- lemmafeld-zpys: biproductSwapFrontIso_π_zero
+**Why this works:**
+1. `biproduct.ι_map_assoc` rewrites `ι ≫ map ≫ rest` to `p ≫ ι ≫ rest` even with prefix terms
+2. `Iso.inv_hom_id_assoc` collapses `(eqToIso h).inv ≫ (eqToIso h).hom ≫ rest` to `rest`
+3. `aesop_cat` handles the dite branching and remaining biproduct lemmas
+
+**For j ≠ 0 case in hom_fst:**
+Same setup, plus `have hj_nlt : ¬ j.val < 1` to guide the dite, then `aesop_cat`.
+
+**Lean file:** `Chapter1/KrullSchmidt/BiproductCancellation.lean`
 
 ---
 
