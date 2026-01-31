@@ -1,28 +1,28 @@
-# Handoff: 2026-01-31 (Hygiene - File Split)
+# Handoff: 2026-01-31 (Hygiene - CategoricalOrzech Split)
 
 ## Project Stats
 
-- **Issues:** ~470 total, ~380 open, ~72 closed
-- **Chapter 1 Files:** 44+ Lean files, all building
+- **Issues:** ~475 total, ~379 open, ~73 closed
+- **Chapter 1 Files:** 46+ Lean files, all building
 - **Krull-Schmidt Uniqueness:** COMPLETE
 
 ---
 
 ## Completed This Session
 
-### lemmafeld-r06j: Hygiene - Split Additive.lean (CLOSED)
-- Split `Additive.lean` (236 LOC) into two files:
-  - `Additive.lean` (122 LOC): Axioms (A1)-(A3) - Preadditive, HasZeroObject, HasBinaryBiproducts
-  - `LinearCategory.lean` (141 LOC): k-linear categories, additive/linear functors, Prop 1.2.4
-- Both files build successfully
+### lemmafeld-2xm7: Hygiene - Split CategoricalOrzech.lean (CLOSED)
+- Split `CategoricalOrzech.lean` (282 LOC) into three files:
+  - `IterateComapKernel.lean` (86 LOC): Connection between iterateComap and kernelSubobject
+  - `EpiNilpotent.lean` (55 LOC): isZero_of_epi_pow_eq_zero helper lemma
+  - `CategoricalOrzech.lean` (186 LOC): Main categorical Orzech theorem
+- All files build successfully
 - Full project build passes
 
 ---
 
 ## Current State
 
-- **Uniqueness.lean**: Zero sorries - `krullSchmidt_uniqueness` fully proved
-- **All files**: Under 200 LOC limit
+- **All Chapter 1 core files**: Under 200 LOC limit (after recent splits)
 - **Full build**: Passes
 
 ---
@@ -32,30 +32,31 @@
 1. **Continue hygiene tasks** - check `bd ready` for more file splits:
    - BaerSum.lean (264 LOC)
    - FiniteLength.lean (261 LOC)
-   - CategoricalOrzech.lean (282 LOC)
    - Projective.lean (255 LOC)
-   - LocallyFinite.lean (250 LOC)
+   - LocallyFinite.lean (251 LOC)
    - DerivedFunctors.lean (234 LOC)
+   - IterateComap.lean (230 LOC)
 2. **Work on TC content issues** - §1.9.15, §1.12.3, §1.12.4
 
 ---
 
 ## Files Modified This Session
 
-- `LemmaFeld/CategoryTheory/TensorCategories/Chapter1/Additive.lean`
-  - Kept: Axioms (A1)-(A3), truncated to 122 LOC
-  - Removed: k-linear sections (moved to LinearCategory.lean)
+- `LemmaFeld/CategoryTheory/TensorCategories/Chapter1/CategoricalOrzech.lean`
+  - Removed: IterateComapKernel section, EpiNilpotent section
+  - Added: imports for new files
+  - Result: 186 LOC (was 282)
 
-- `LemmaFeld/CategoryTheory/TensorCategories/Chapter1/LinearCategory.lean` (NEW)
-  - §1.2 Definition 1.2.2: k-Linear Category
-  - §1.2 Definition 1.2.3: Additive and k-Linear Functors
-  - §1.2 Proposition 1.2.4: Additive Functors Preserve Direct Sums
-  - §1.2 Bifunctor Structure of Direct Sum
+- `LemmaFeld/CategoryTheory/TensorCategories/Chapter1/IterateComapKernel.lean` (NEW)
+  - pullback_kernelSubobject_eq: f⁻¹(ker g) = ker(g ∘ f)
+  - iterateComap_bot_eq_kernelSubobject_pow: iterateComap f ⊥ n = kernelSubobject (f ^ n)
+
+- `LemmaFeld/CategoryTheory/TensorCategories/Chapter1/EpiNilpotent.lean` (NEW)
+  - isZero_of_epi_pow_eq_zero: Epi nilpotent endomorphism implies zero object
 
 ---
 
 ## Key Learnings
 
-1. **AdditiveFunctor import required**: The `Mathlib.CategoryTheory.Preadditive.AdditiveFunctor` import is needed for `⟶` morphism arrow notation in type annotations like `(biprod.inl : X ⟶ X ⊞ Y)`.
-
-2. **Hygiene approach**: Use shell tools (head/tail/patch) for file splitting to preserve exact byte encoding of Unicode. The Edit/Write tools may introduce subtle encoding issues with Unicode characters like `⟶`, `⊞`, `≫`, `𝟙`.
+1. **Three-way splits work well**: When a file has three logical sections, splitting all three keeps each under 200 LOC.
+2. **Helper lemmas in separate files**: `isZero_of_epi_pow_eq_zero` is potentially reusable, now in its own file.
