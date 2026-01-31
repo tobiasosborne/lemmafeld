@@ -66,8 +66,30 @@ structure IsGrouplike (R : Type*) [CommSemiring R] {A : Type*} [AddCommMonoid A]
 Book: "There is a bijection between grouplike elements of a coalgebra C and its
 one-dimensional subcoalgebras, given by x ↦ k·x."
 
-This is noted here for reference; the full bijection would require subcoalgebra machinery.
+A subcoalgebra is a submodule S such that Δ(S) ⊆ S ⊗ S.
 -/
+
+/-- A submodule S is a subcoalgebra if comultiplication maps S into S ⊗ S.
+
+Book Remark 1.9.8: One-dimensional subcoalgebras correspond to grouplike elements.
+The condition Δ(S) ⊆ S ⊗ S is formalized using `Submodule.map₂`. -/
+def IsSubcoalgebra (R : Type*) [CommSemiring R] {A : Type*} [AddCommMonoid A]
+    [Module R A] [Coalgebra R A] (S : Submodule R A) : Prop :=
+  ∀ s ∈ S, Coalgebra.comul s ∈ Submodule.map₂ (TensorProduct.mk R A A) S S
+
+/-- The span of a grouplike element is a subcoalgebra.
+
+Book Remark 1.9.8: x ↦ k·x gives a map from grouplike elements to 1-dim subcoalgebras. -/
+lemma IsGrouplike.span_isSubcoalgebra {R : Type*} [CommSemiring R] {A : Type*}
+    [AddCommMonoid A] [Module R A] [Coalgebra R A] {x : A} (hx : IsGrouplike R x) :
+    IsSubcoalgebra R (Submodule.span R {x}) := by
+  intro s hs
+  rw [Submodule.mem_span_singleton] at hs
+  obtain ⟨r, rfl⟩ := hs
+  simp only [LinearMap.map_smul, hx.comul_eq, TensorProduct.smul_tmul']
+  exact Submodule.apply_mem_map₂ _
+    (Submodule.mem_span_singleton.mpr ⟨r, rfl⟩)
+    (Submodule.mem_span_singleton.mpr ⟨1, one_smul R x⟩)
 
 /-! ## §1.9 Example 1.9.9: Set Coalgebra
 

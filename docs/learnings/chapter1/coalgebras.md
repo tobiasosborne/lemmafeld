@@ -68,11 +68,30 @@ lemma isGrouplike_single_one (x : X) :
 
 ---
 
+## §1.9.8: Subcoalgebras and Grouplike Elements
+
+**Book Remark 1.9.8:** There is a bijection between grouplike elements and 1-dim subcoalgebras.
+
+**Our formalization:**
+```lean
+/-- A submodule S is a subcoalgebra if Δ(S) ⊆ S ⊗ S. -/
+def IsSubcoalgebra (S : Submodule R A) : Prop :=
+  ∀ s ∈ S, Coalgebra.comul s ∈ Submodule.map₂ (TensorProduct.mk R A A) S S
+
+/-- The span of a grouplike element is a subcoalgebra. -/
+lemma IsGrouplike.span_isSubcoalgebra (hx : IsGrouplike R x) :
+    IsSubcoalgebra R (Submodule.span R {x})
+```
+
+**Key insight:** Uses `Submodule.map₂` to formalize S ⊗ S inside A ⊗ A.
+
+---
+
 ## §1.9 Remaining Work (Section Order)
 
 | Item | Status | Issue | Notes |
 |------|--------|-------|-------|
-| §1.9.8: Grouplike ↔ 1-dim subcoalgebras | TODO | lemmafeld-e96f | Needs subcoalgebra def |
+| §1.9.8: Grouplike ↔ 1-dim subcoalgebras | ✅ DONE | lemmafeld-e96f | Subcoalgebra def + span lemma |
 | §1.9.9: Set coalgebra k[X] | ✅ DONE | lemmafeld-663t | |
 | §1.9.12: Prim/k(g-h) ≅ Ext¹ | BLOCKED | — | Requires comodule categories |
 | §1.9.13: Pointed coalgebra | BLOCKED | — | Requires "simple comodule" |
