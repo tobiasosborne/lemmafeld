@@ -31,6 +31,8 @@ Etingof, Gelaki, Nikshych, Ostrik - "Tensor Categories" (AMS 2015), §1.6
 | Injective object | `Injective I` | Extension property |
 | Enough projectives | `EnoughProjectives C` | |
 | Enough injectives | `EnoughInjectives C` | |
+| Projective cover | `ProjectiveCover` | **Gap**: mathlib only has `ProjectivePresentation` |
+| Injective hull | `InjectiveHull` | **Gap**: mathlib only has `InjectivePresentation` |
 -/
 
 noncomputable section
@@ -67,20 +69,110 @@ example [Injective I] {X Y : C} (f : X ⟶ Y) [Mono f] (g : X ⟶ I) :
 
 end ProjectiveInjective
 
-/-! ## §1.6 Definition 1.6.6 & 1.6.7: Projective Covers and Injective Hulls
+/-! ## §1.6 Definition 1.6.6: Projective Cover
 
 Book Definition 1.6.6: "A projective cover of X is a projective object P(X) with
-an epimorphism p : P(X) → X such that for any epi from projective, it factors."
+an epimorphism p : P(X) → X such that if g : P → X is an epimorphism from a
+projective object P to X, then there exists an epimorphism h : P → P(X) such that ph = g."
 
-Book Definition 1.6.7: "An injective hull of X is an injective object Q(X) with
-a monomorphism i : X → Q(X) such that any mono to injective factors."
+**Key difference from mathlib:** Mathlib's `ProjectivePresentation` is just a projective P
+with an epi f : P → X. The book's projective cover has a **minimality/universality** property:
+any other projective presentation factors through it via an epi.
+
+This is sometimes called an "essential" projective cover.
 -/
 
-section CoversHulls
+section ProjectiveCover
 
 variable {C : Type*} [Category C]
 
--- Enough projectives means we can find projective covers
+/-- A projective cover of X is a projective object P with an epi p : P → X such that
+any other projective presentation factors through it via an epi.
+
+Book: Definition 1.6.6
+
+This is stronger than mathlib's `ProjectivePresentation` which only requires
+a projective P with an epi to X, without the universality property.
+-/
+structure ProjectiveCover (X : C) where
+  /-- The projective object covering X -/
+  P : C
+  /-- P is projective -/
+  projective : Projective P
+  /-- The covering epimorphism -/
+  p : P ⟶ X
+  /-- p is an epimorphism -/
+  epi : Epi p
+  /-- Universal property: any epi from projective factors through p via an epi -/
+  universalProperty : ∀ (Q : C) [Projective Q] (g : Q ⟶ X) [Epi g],
+    ∃ (h : Q ⟶ P), Epi h ∧ h ≫ p = g
+
+/-- A projective cover gives a projective presentation. -/
+def ProjectiveCover.toProjectivePresentation {X : C} (cover : ProjectiveCover X) :
+    ProjectivePresentation X where
+  p := cover.P
+  projective := cover.projective
+  f := cover.p
+  epi := cover.epi
+
+end ProjectiveCover
+
+/-! ## §1.6 Definition 1.6.7: Injective Hull
+
+Book Definition 1.6.7: "An injective hull of X is an injective object Q(X) with
+a monomorphism i : X → Q(X) such that if g : X → I is a monomorphism to an
+injective object I, then there exists a monomorphism h : Q(X) → I such that hg = i."
+
+This is dual to projective covers.
+-/
+
+section InjectiveHull
+
+variable {C : Type*} [Category C]
+
+/-- An injective hull of X is an injective object Q with a mono i : X → Q such that
+any other injective presentation factors through it via a mono.
+
+Book: Definition 1.6.7
+
+This is stronger than mathlib's `InjectivePresentation` which only requires
+an injective I with a mono from X, without the universality property.
+-/
+structure InjectiveHull (X : C) where
+  /-- The injective object containing X -/
+  Q : C
+  /-- Q is injective -/
+  injective : Injective Q
+  /-- The embedding monomorphism -/
+  i : X ⟶ Q
+  /-- i is a monomorphism -/
+  mono : Mono i
+  /-- Universal property: any mono to injective factors through i via a mono -/
+  universalProperty : ∀ (I : C) [Injective I] (g : X ⟶ I) [Mono g],
+    ∃ (h : Q ⟶ I), Mono h ∧ i ≫ h = g
+
+/-- An injective hull gives an injective presentation. -/
+def InjectiveHull.toInjectivePresentation {X : C} (hull : InjectiveHull X) :
+    InjectivePresentation X where
+  J := hull.Q
+  injective := hull.injective
+  f := hull.i
+  mono := hull.mono
+
+end InjectiveHull
+
+/-! ## Mathlib's Projective/Injective Presentations
+
+Mathlib provides `ProjectivePresentation` and `InjectivePresentation` which are
+weaker than the book's projective covers and injective hulls. These are sufficient
+for constructing resolutions but don't have the minimality property.
+-/
+
+section Presentations
+
+variable {C : Type*} [Category C]
+
+-- Enough projectives means we can find projective presentations
 example [EnoughProjectives C] (X : C) :
     ∃ (P : C) (_ : Projective P) (f : P ⟶ X), Epi f := by
   let pres := (EnoughProjectives.presentation X).some
@@ -92,7 +184,7 @@ example [EnoughInjectives C] (X : C) :
   let pres := (EnoughInjectives.presentation X).some
   exact ⟨pres.J, pres.injective, pres.f, pres.mono⟩
 
-end CoversHulls
+end Presentations
 
 /-! ## Key Properties -/
 

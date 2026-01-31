@@ -1,51 +1,44 @@
-# Handoff: 2026-01-31 (TC 1.5.10 Part ii)
+# Handoff: 2026-01-31 (TC 1.6.6 Complete)
 
 ## Completed This Session
 
-- **lemmafeld-0om5**: TC 1.5.10 - Block decomposition (Part ii) — IN PROGRESS
-  - Created `BlockDecomposition.lean` with ~100 LOC
-  - Defined `DirectlyLinked X Y` — Ext¹(X,Y) ≠ 0 ∨ Ext¹(Y,X) ≠ 0
-  - Defined `Linked X Y` — reflexive-transitive closure of DirectlyLinked
-  - Proved `linked_equivalence` — Linked is an equivalence relation
-  - Proved symmetry via `Relation.ReflTransGen` from `Mathlib.Logic.Relation`
+- **lemmafeld-xoz1**: TC 1.6.6 - Projective cover definition — COMPLETE
+  - Added `ProjectiveCover` structure with universality property
+  - Added `InjectiveHull` structure (dual, Definition 1.6.7)
+  - Added conversions to mathlib's `ProjectivePresentation`/`InjectivePresentation`
+  - Documented mathlib gap: presentations lack minimality property
 
 ## Current State
 
 **Build:** Passing (`lake build` succeeds)
 
-**Chapter 1 Coverage:** §1.5.10 Part (ii) foundations complete
-- Core "linked" relation defined and shown to be equivalence
-- Parts (i) and (iii) still need categorical infrastructure
+**Chapter 1 Coverage:**
+- §1.5.10 Part (ii): Complete (linked relation)
+- §1.6.6-1.6.7: Complete (projective cover / injective hull definitions)
 
-**Exercise 1.5.10 Status:**
-- ✓ Part (ii) linked relation: DirectlyLinked, Linked, equivalence proof
-- ○ Part (i) block decomposition: needs "direct sum of categories" definition
-- ○ Part (iii) A-mod blocks: needs center characters
+**New structures:**
+- `ProjectiveCover X` — projective P with epi p, universality property
+- `InjectiveHull X` — injective Q with mono i, universality property
 
 ## Next Steps (SECTION ORDER)
 
-### 1. TC 1.5.10 Parts (i) & (iii): Full block decomposition
-- Issue: lemmafeld-0om5 (keep open for full completion)
-- Needs: indecomposable category def, direct sum of categories
-
-### 2. TC 1.6.6: Definition - Projective cover (P2)
-- Issue: lemmafeld-xoz1
-
-### 3. TC 1.7 (Group Cohomology): 0% coverage
+### 1. TC 1.7 (Group Cohomology): 0% coverage
 - Multiple issues in tracker, high priority gap
+- Check `bd list --status=open | grep "TC 1.7"`
+
+### 2. TC 1.8 (Locally Finite Categories)
+- Check for gaps in current coverage
 
 ## Files Modified
 
-- `LemmaFeld/CategoryTheory/TensorCategories/Chapter1/BlockDecomposition.lean` — NEW (~100 LOC)
-  - `DirectlyLinked` — two objects with nonzero Ext¹ in either direction
-  - `Linked` — reflexive-transitive closure
-  - `linked_equivalence` — equivalence relation proof
-  - `linkedSetoid` — setoid structure
-- `docs/learnings/chapter1/length_objects.md` — Added §1.5.10 documentation
+- `LemmaFeld/CategoryTheory/TensorCategories/Chapter1/Projective.lean` — Added ~80 LOC
+  - `ProjectiveCover` structure with universality property
+  - `InjectiveHull` structure with universality property
+  - `toProjectivePresentation` / `toInjectivePresentation` conversions
+- `docs/learnings/chapter1/projective.md` — Updated with implementation details
 
 ## Notes
 
-- The linking relation uses `Relation.ReflTransGen` from `Mathlib.Logic.Relation`
-- Symmetry of `Linked` follows from symmetry of `DirectlyLinked` + induction on chain
-- Full block decomposition would require defining "direct sum of categories" which is not in mathlib for abelian categories
-- Consider keeping this issue open or creating sub-issues for Parts (i) and (iii)
+- Mathlib's `ProjectivePresentation`/`InjectivePresentation` are weaker than book's covers/hulls
+- The universality property ensures minimality: any other presentation factors through
+- This is sometimes called "essential" projective cover in the literature

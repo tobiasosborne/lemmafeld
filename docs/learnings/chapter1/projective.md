@@ -60,22 +60,50 @@ class Injective (J : C) : Prop where
 
 ## §1.6.6-1.6.7: Covers and Hulls
 
-**Book Definition 1.6.6:** Projective cover = epimorphism P → X with P projective, minimal.
+**Book Definition 1.6.6:** Projective cover = projective P(X) with epi p: P(X) → X such that
+any other epi g: Q → X from projective Q factors through p via an epi h: Q → P(X).
 
-**Mathlib:**
+**Book Definition 1.6.7:** Injective hull = injective Q(X) with mono i: X → Q(X) such that
+any other mono g: X → I to injective I factors through i via a mono h: Q(X) → I.
+
+### Mathlib Gap: Minimality Property
+
+**Mathlib has `ProjectivePresentation`/`InjectivePresentation`:**
 ```lean
 structure ProjectivePresentation (X : C) where
   p : C
   f : p ⟶ X
   projective : Projective p := by infer_instance
   epi : Epi f := by infer_instance
-
-structure InjectivePresentation (X : C) where
-  J : C
-  f : X ⟶ J
-  injective : Injective J := by infer_instance
-  mono : Mono f := by infer_instance
 ```
+
+**The gap:** Mathlib's presentations are just (projective + epi) or (injective + mono).
+The book's covers/hulls have a **minimality/universality property**: any other presentation
+factors through them via an epi/mono.
+
+### Our Implementation (2026-01-31)
+
+```lean
+/-- Projective cover with universality property -/
+structure ProjectiveCover (X : C) where
+  P : C
+  projective : Projective P
+  p : P ⟶ X
+  epi : Epi p
+  universalProperty : ∀ (Q : C) [Projective Q] (g : Q ⟶ X) [Epi g],
+    ∃ (h : Q ⟶ P), Epi h ∧ h ≫ p = g
+
+/-- Injective hull with universality property -/
+structure InjectiveHull (X : C) where
+  Q : C
+  injective : Injective Q
+  i : X ⟶ Q
+  mono : Mono i
+  universalProperty : ∀ (I : C) [Injective I] (g : X ⟶ I) [Mono g],
+    ∃ (h : Q ⟶ I), Mono h ∧ i ≫ h = g
+```
+
+**Conversions:** `ProjectiveCover.toProjectivePresentation`, `InjectiveHull.toInjectivePresentation`
 
 **Enough projectives/injectives:**
 ```lean
