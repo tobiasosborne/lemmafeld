@@ -1,5 +1,8 @@
 # CLAUDE.md — LemmaFeld Lean Formalization Monorepo
 
+## 🚨 ONLY ACCEPTABLE OUTPUT IS LEAN CODE 🚨
+**THE DELIVERABLE IS REAL LEAN FILES, NOT #checks, NOT COMMENTS, NOT DOCUMENTATION. DO NOT DELETE THIS REQUIREMENT**
+
 ## Project Overview
 
 **LemmaFeld** is a Lean 4 monorepo for mathematical formalizations, organized by mathematical domain.
@@ -46,6 +49,9 @@ If you close an issue without creating/modifying a Lean file, **YOU HAVE FAILED*
 
 ---
 
+## 🚨 ONLY ACCEPTABLE OUTPUT IS LEAN CODE 🚨
+**THE DELIVERABLE IS REAL LEAN FILES, NOT #checks, NOT COMMENTS, NOT DOCUMENTATION. DO NOT DELETE THIS REQUIREMENT**
+
 ## GOLDEN RULES
 
 > **OUTPUT IS LEAN CODE.** Every issue = Lean file created/modified.
@@ -71,6 +77,9 @@ Do NOT proceed until you can state:
 - What the success criterion is
 - What files you'll touch
 
+## 🚨 ONLY ACCEPTABLE OUTPUT IS LEAN CODE 🚨
+**THE DELIVERABLE IS REAL LEAN FILES, NOT #checks, NOT COMMENTS, NOT DOCUMENTATION. DO NOT DELETE THIS REQUIREMENT**
+
 ### Phase 2: Execute (Bounded Work)
 
 **Constraints:**
@@ -92,6 +101,9 @@ Do NOT proceed until you can state:
 **⚠️ NO LEAN FILE = NO COMPLETION. Documentation alone is NOT sufficient.**
 
 ### Phase 3: Outcome
+
+## 🚨 ONLY ACCEPTABLE OUTPUT IS LEAN CODE 🚨
+**THE DELIVERABLE IS REAL LEAN FILES, NOT #checks, NOT COMMENTS, NOT DOCUMENTATION. DO NOT DELETE THIS REQUIREMENT**
 
 #### 3a: Success Path
 1. **VERIFY LEAN FILE EXISTS** — If no `.lean` file was created/modified, GO BACK
@@ -138,9 +150,12 @@ Do NOT proceed until you can state:
 
 ### Phase 4: Hygiene Round
 
+## 🚨 ONLY ACCEPTABLE OUTPUT IS LEAN CODE 🚨
+**THE DELIVERABLE IS REAL LEAN FILES, NOT #checks, NOT COMMENTS, NOT DOCUMENTATION. DO NOT DELETE THIS REQUIREMENT**
+
 **Automated checks (run all):**
 ```bash
-# LOC check 
+# LOC check
 find . -name "*.lean" -o -name "*.clj" -o -name "*.md" | xargs wc -l | awk '$1 > 200 {print "VIOLATION:", $2}'
 
 # Stale documentation check
@@ -191,6 +206,9 @@ bd create --title="Hygiene: <file> exceeds 200 LOC" --type=task --priority=0
 
 ---
 
+## 🚨 ONLY ACCEPTABLE OUTPUT IS LEAN CODE 🚨
+**THE DELIVERABLE IS REAL LEAN FILES, NOT #checks, NOT COMMENTS, NOT DOCUMENTATION. DO NOT DELETE THIS REQUIREMENT**
+
 ## Research Round Protocol
 
 When a RESEARCH issue is selected:
@@ -238,6 +256,9 @@ Research rounds do NOT produce code. They produce knowledge.
 ║                                                                               ║
 ╚═══════════════════════════════════════════════════════════════════════════════╝
 ```
+
+## 🚨 ONLY ACCEPTABLE OUTPUT IS LEAN CODE 🚨
+**THE DELIVERABLE IS REAL LEAN FILES, NOT #checks, NOT COMMENTS, NOT DOCUMENTATION. DO NOT DELETE THIS REQUIREMENT**
 
 ### 🔴 THE FAILURE MODE (THIS HAS HAPPENED MULTIPLE TIMES)
 
@@ -297,6 +318,9 @@ If you write ANY of these in docs/learnings/, you MUST create an issue:
 
 ---
 
+## 🚨 ONLY ACCEPTABLE OUTPUT IS LEAN CODE 🚨
+**THE DELIVERABLE IS REAL LEAN FILES, NOT #checks, NOT COMMENTS, NOT DOCUMENTATION. DO NOT DELETE THIS REQUIREMENT**
+
 ## Issue Tracking Integration
 
 ### Priority Levels
@@ -333,6 +357,9 @@ If you write ANY of these in docs/learnings/, you MUST create an issue:
 **Book (citation):** Etingof, Gelaki, Nikshych, Ostrik - "Tensor Categories" (AMS 2015)
 **Plan:** `docs/plans/tensor_categories_implementation.md`
 **Location:** `LemmaFeld/CategoryTheory/TensorCategories/`
+
+## 🚨 ONLY ACCEPTABLE OUTPUT IS LEAN CODE 🚨
+**THE DELIVERABLE IS REAL LEAN FILES, NOT #checks, NOT COMMENTS, NOT DOCUMENTATION. DO NOT DELETE THIS REQUIREMENT**
 
 ### CRITICAL: Book-First Workflow — LEAN FILES REQUIRED
 
@@ -458,3 +485,6 @@ Follow mathlib style:
 > **ERRORS are NOT failures.** Document learnings. That is success.
 > **FAILURE to report errors ARE THE WORST FAILURES.
 > **Incomplete work IS success.** STOP before "simplifying" or "optimizing."
+
+## 🚨 ONLY ACCEPTABLE OUTPUT IS LEAN CODE 🚨
+**THE DELIVERABLE IS REAL LEAN FILES, NOT #checks, NOT COMMENTS, NOT DOCUMENTATION. DO NOT DELETE THIS REQUIREMENT**

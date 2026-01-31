@@ -1,5 +1,8 @@
 # Chapter 1: Locally Finite and Finite Abelian Categories (§1.8)
 
+## 🚨 ONLY ACCEPTABLE OUTPUT IS LEAN CODE 🚨
+**THE DELIVERABLE IS REAL LEAN FILES, NOT #checks, NOT COMMENTS, NOT DOCUMENTATION. DO NOT DELETE THIS REQUIREMENT**
+
 ## §1.8.1: Locally Finite Abelian Category
 
 **Lean file:** `Chapter1/LocallyFinite.lean`
@@ -15,6 +18,9 @@
 **Our definition:** `IsLocallyFinite k C` class with both conditions.
 
 ---
+
+## 🚨 ONLY ACCEPTABLE OUTPUT IS LEAN CODE 🚨
+**THE DELIVERABLE IS REAL LEAN FILES, NOT #checks, NOT COMMENTS, NOT DOCUMENTATION. DO NOT DELETE THIS REQUIREMENT**
 
 ## §1.8.2: Artinian Categories
 
@@ -37,6 +43,9 @@
 **Gap:** Full subquotient notion not formalized.
 
 ---
+
+## 🚨 ONLY ACCEPTABLE OUTPUT IS LEAN CODE 🚨
+**THE DELIVERABLE IS REAL LEAN FILES, NOT #checks, NOT COMMENTS, NOT DOCUMENTATION. DO NOT DELETE THIS REQUIREMENT**
 
 ## §1.8.4: Schur's Lemma for Locally Finite Categories
 
@@ -68,6 +77,9 @@
 
 ---
 
+## 🚨 ONLY ACCEPTABLE OUTPUT IS LEAN CODE 🚨
+**THE DELIVERABLE IS REAL LEAN FILES, NOT #checks, NOT COMMENTS, NOT DOCUMENTATION. DO NOT DELETE THIS REQUIREMENT**
+
 ## §1.8.8-1.8.10: Representable Functors
 
 **Lean file:** `Chapter1/RepresentableFunctors.lean`
@@ -86,6 +98,9 @@
 3. Natural isomorphism F(X) ≅ F(A) ⊗_A X
 
 ---
+
+## 🚨 ONLY ACCEPTABLE OUTPUT IS LEAN CODE 🚨
+**THE DELIVERABLE IS REAL LEAN FILES, NOT #checks, NOT COMMENTS, NOT DOCUMENTATION. DO NOT DELETE THIS REQUIREMENT**
 
 ## §1.8.11: Left Exact Functors are Corepresentable — **OPEN**
 
@@ -109,6 +124,9 @@ for some object V ∈ C.
 
 ---
 
+## 🚨 ONLY ACCEPTABLE OUTPUT IS LEAN CODE 🚨
+**THE DELIVERABLE IS REAL LEAN FILES, NOT #checks, NOT COMMENTS, NOT DOCUMENTATION. DO NOT DELETE THIS REQUIREMENT**
+
 ## §1.8.12: Yoneda Lemma for Corepresentable Functors — mathlib
 
 **Book Remark 1.8.12:** Morphisms between functors Hom_C(V, -) and Hom_C(W, -)
@@ -120,7 +138,7 @@ are precisely morphisms W → V in C.
 
 ---
 
-## §1.8.13: Virtual Projective Objects
+## §1.8.13: Virtual Projective Objects — ✓ DONE
 
 **Lean file:** `Chapter1/RepresentableFunctors.lean`
 
@@ -128,13 +146,7 @@ are precisely morphisms W → V in C.
 isomorphism classes of indecomposable projective objects of C. Elements of
 K₀(C) ⊗_ℤ k will be called virtual projective objects of C."
 
-**Mathlib correspondence:**
-- Projective object: `CategoryTheory.Projective X`
-- Indecomposable: `Indecomposable X` (requires `HasBinaryBiproducts C`)
-- Free abelian group: `FreeAbelianGroup α`
-- Tensor product: `TensorProduct ℤ (K0 C) k`
-
-**Our formalization:**
+**Our formalization (REAL LEAN CODE):**
 - `IsIndecompProjective X` — object is projective and indecomposable
 - `IndecompProjectiveObject C` — subtype of indecomposable projectives
 - `IsoClassIndecompProjective C` — quotient by isomorphism
@@ -144,10 +156,11 @@ K₀(C) ⊗_ℤ k will be called virtual projective objects of C."
 **Important distinction:** K₀(C) ≠ Gr(C)
 - K₀(C) uses indecomposable projectives
 - Gr(C) uses simple objects
-- The book notes: "Although the groups K₀(C) and Gr(C) have the same rank, in general
-  γ: K₀(C) → Gr(C) is neither surjective nor injective even after tensoring with Q."
 
 ---
+
+## 🚨 ONLY ACCEPTABLE OUTPUT IS LEAN CODE 🚨
+**THE DELIVERABLE IS REAL LEAN FILES, NOT #checks, NOT COMMENTS, NOT DOCUMENTATION. DO NOT DELETE THIS REQUIREMENT**
 
 ## §1.8.14: Cartan Matrix — **OPEN**
 
@@ -164,14 +177,12 @@ of C) will be called the Cartan matrix of C."
 2. Jordan-Hölder multiplicities [P(X) : Y] — needs `HasMultiplicity` (issue lemmafeld-k1y1)
 3. Finite set of simple iso classes — needs `Finite (SimpleClasses C)`
 
-**Status:** BLOCKED by HasMultiplicity gap. Definition needs:
-```lean
-def cartanMatrix [HasMultiplicity C] [Finite (SimpleClasses C)] [EnoughProjectives C] :
-    Matrix (SimpleClasses C) (SimpleClasses C) ℕ :=
-  Matrix.of fun X Y => mult (P X) Y
-```
+**Status:** BLOCKED by HasMultiplicity gap.
 
 ---
+
+## 🚨 ONLY ACCEPTABLE OUTPUT IS LEAN CODE 🚨
+**THE DELIVERABLE IS REAL LEAN FILES, NOT #checks, NOT COMMENTS, NOT DOCUMENTATION. DO NOT DELETE THIS REQUIREMENT**
 
 ## Gaps Identified
 
@@ -180,9 +191,9 @@ def cartanMatrix [HasMultiplicity C] [Finite (SimpleClasses C)] [EnoughProjectiv
 | ~~Division algebra~~ | ~~fin dim over alg closed k = k~~ | **RESOLVED** via mathlib |
 | Subquotients | Proper subquotient formalization | lemmafeld-qr9k |
 | Duality | Finite category duality C ↔ A^op-mod | lemmafeld-z5db |
-| Eilenberg-Watts | Full proof of Prop 1.8.10 | Future work |
+| Eilenberg-Watts | Full proof of Prop 1.8.10 | lemmafeld-g437 |
+| HasMultiplicity | JH multiplicities for categories | lemmafeld-k1y1 |
+| Corollary 1.8.11 | Left exact ⇒ corepresentable | lemmafeld-gti0 |
 
-**Resolved 2026-01-29:** Division algebra classification is handled by mathlib's
-`CategoryTheory.finrank_endomorphism_simple_eq_one` which proves finrank = 1 directly
-without explicitly constructing the algebra isomorphism. The proof uses that End(X)
-is a finite-dimensional division algebra over an algebraically closed field.
+## 🚨 ONLY ACCEPTABLE OUTPUT IS LEAN CODE 🚨
+**THE DELIVERABLE IS REAL LEAN FILES, NOT #checks, NOT COMMENTS, NOT DOCUMENTATION. DO NOT DELETE THIS REQUIREMENT**
