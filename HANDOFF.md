@@ -6,31 +6,38 @@
   - Added `TrivialCategory` class — category where every object is zero
   - Added `NontrivialCategory` definition — has at least one non-zero object
   - Added `IndecomposableCategory` class — cannot be decomposed into product of nontrivial categories
-  - Added supporting lemma `isZero_all`, `not_trivial_of_nontrivial`
+
+- **lemmafeld-r7fn**: TC 1.5.10(i): Define direct sum of abelian categories
+  - Documented: mathlib's `CategoryTheory.prod` IS the direct sum for abelian categories
+
+- **lemmafeld-vbf5**: TC 1.6.7: Definition - Injective hull
+  - Already implemented in `Chapter1/Projective.lean` — closed as complete
+
+- **lemmafeld-4si7**: TC 1.8.10: Proposition - Representable iff right exact
+  - Created `Chapter1/RepresentableFunctors.lean` with `IsTensorRepresentable` structure
+  - Documented mathlib correspondence and gaps for full Eilenberg-Watts proof
 
 ## Current State
 
 **Chapter 1 Progress:**
-- Exercise 1.5.10(i) now has the key definitions: TrivialCategory, NontrivialCategory, IndecomposableCategory
-- Exercise 1.5.10(ii) already has Linked relation and equivalence
-- The block decomposition theorem itself (proving C = ⊕ C_α) is still open
+- §1.5.10(i): Key definitions complete (TrivialCategory, IndecomposableCategory)
+- §1.6.7: InjectiveHull already exists
+- §1.8.10: Documentation created, full proof is future work
 
-**Next section-order issues:**
-- TC 1.5.10(i): Define direct sum of abelian categories (lemmafeld-r7fn) — NOTE: partially addressed via mathlib's Prod category
-- TC 1.6.7: Definition - Injective hull (lemmafeld-vbf5)
-- TC 1.8.x: Various §1.8 issues
+## Next Steps (by section order)
 
-## Next Steps
-
-1. Work on TC 1.6.7 (injective hull) — next section in order
-2. Or work on lemmafeld-r7fn to clarify the direct sum definition
+1. **TC 1.8.11**: Corollary - Yoneda for left exact functors (lemmafeld-8xv7)
+2. **TC 1.8.13+**: Continue through §1.8
+3. **TC 1.9.x**: Coalgebras section
 
 ## Known Issues / Gotchas
 
-- The product of categories C × D in mathlib is NOT the same as the categorical coproduct — it's just the type-theoretic product with pointwise morphisms
-- For abelian categories, "direct sum of categories" is equivalent to product at the level of objects
+- Eilenberg-Watts theorem (Prop 1.8.10) requires significant infrastructure for full formalization
+- Many §1.8 items relate to finite abelian categories and representability
 
 ## Files Modified
 
-- `LemmaFeld/CategoryTheory/TensorCategories/Chapter1/BlockDecomposition.lean` — added TrivialCategory, NontrivialCategory, IndecomposableCategory definitions
-- `docs/learnings/chapter1/length_objects.md` — updated with new definitions
+- `LemmaFeld/CategoryTheory/TensorCategories/Chapter1/BlockDecomposition.lean` — TrivialCategory, IndecomposableCategory
+- `LemmaFeld/CategoryTheory/TensorCategories/Chapter1/RepresentableFunctors.lean` — NEW file for §1.8.8-1.8.10
+- `docs/learnings/chapter1/length_objects.md` — §1.5.10(i) definitions
+- `docs/learnings/chapter1/locally_finite.md` — §1.8.10 documentation

@@ -68,6 +68,25 @@
 
 ---
 
+## §1.8.8-1.8.10: Representable Functors
+
+**Lean file:** `Chapter1/RepresentableFunctors.lean`
+
+**Book Definition 1.8.8:** F: A-mod → B-mod is (⊗-)representable if F ≅ V ⊗_A - for some (B,A)-bimodule V.
+
+**Book Proposition 1.8.10:** F is representable iff F is right exact (Eilenberg-Watts theorem).
+
+**Mathlib correspondence:**
+- `ModuleCat A` — category of left A-modules
+- `TensorProduct` — tensor product of modules
+
+**Status:** Documentation file created. Full Eilenberg-Watts proof requires:
+1. Tensor functor V ⊗_A - as functor on ModuleCat
+2. Bimodule structure on F(A)
+3. Natural isomorphism F(X) ≅ F(A) ⊗_A X
+
+---
+
 ## Gaps Identified
 
 | Gap | Description | Issue |
@@ -75,6 +94,7 @@
 | ~~Division algebra~~ | ~~fin dim over alg closed k = k~~ | **RESOLVED** via mathlib |
 | Subquotients | Proper subquotient formalization | lemmafeld-qr9k |
 | Duality | Finite category duality C ↔ A^op-mod | lemmafeld-z5db |
+| Eilenberg-Watts | Full proof of Prop 1.8.10 | Future work |
 
 **Resolved 2026-01-29:** Division algebra classification is handled by mathlib's
 `CategoryTheory.finrank_endomorphism_simple_eq_one` which proves finrank = 1 directly
