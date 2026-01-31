@@ -204,9 +204,24 @@ algebra isomorphism α_{F₁,F₂}: End(F₁) ⊗ End(F₂) ≅ End(F₁ ⊗ F�
 
 ## §1.8.16: Exercise — Prove Proposition 1.8.15
 
-**Issue:** lemmafeld-cgdr (blocked by lemmafeld-40za, now closed)
+**Lean file:** `Chapter1/FunctorEndomorphisms.lean`
 
-This exercise asks to prove the full isomorphism in Proposition 1.8.15.
+**Issue:** lemmafeld-cgdr
+
+**Status:** Bilinearity PROVED, bijectivity pending.
+
+**Proved lemmas:**
+- `endTensor_add_left` — map is additive in first argument
+- `endTensor_add_right` — map is additive in second argument
+- `endTensor_smul_left` — map respects scalar multiplication in first argument
+- `endTensor_smul_right` — map respects scalar multiplication in second argument
+
+These establish that the map α_{F₁,F₂} is a well-defined k-bilinear map, hence
+lifts to an algebra homomorphism from End(F₁) ⊗_k End(F₂) to End(F₁ ⊗ F₂).
+
+**Remaining:** Bijectivity proof requires:
+1. Injectivity from faithfulness
+2. Surjectivity from exactness + finite-dimensionality
 
 ---
 

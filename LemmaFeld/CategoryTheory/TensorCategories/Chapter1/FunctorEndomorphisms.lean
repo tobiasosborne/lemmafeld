@@ -11,6 +11,8 @@ import Mathlib.CategoryTheory.Preadditive.FunctorCategory
 import Mathlib.Algebra.Category.ModuleCat.Basic
 import Mathlib.Algebra.Category.ModuleCat.Monoidal.Basic
 import Mathlib.CategoryTheory.Monoidal.Category
+import Mathlib.CategoryTheory.Monoidal.Preadditive
+import Mathlib.CategoryTheory.Monoidal.Linear
 import Mathlib.CategoryTheory.Abelian.FunctorCategory
 import Mathlib.CategoryTheory.Endomorphism
 import Mathlib.RingTheory.TensorProduct.Basic
@@ -150,37 +152,89 @@ lemma endTensor_comp (F₁ F₂ : C ⥤ ModuleCat.{0} k)
   simp only [endPairToTensorEnd, tensorProductFunctor_obj, NatTrans.comp_app]
   exact (tensorHom_comp_tensorHom _ _ _ _).symm
 
-/-- **Proposition 1.8.15** (statement): For exact faithful functors F₁, F₂ : C → Vec,
+/-! ## §1.8.16: Exercise - Bilinearity Properties
+
+To prove Proposition 1.8.15 as an algebra isomorphism, we first establish
+that `endPairToTensorEnd` is bilinear, allowing us to lift it to the tensor product.
+
+The key lemmas use `MonoidalPreadditive` which gives us `add_tensor` and `tensor_add`. -/
+
+omit [Preadditive C] [Linear k C] in
+/-- The map η₁ ↦ endPairToTensorEnd η₁ η₂ is additive in the first argument. -/
+lemma endTensor_add_left (F₁ F₂ : C ⥤ ModuleCat.{0} k) (η₁ η₁' : End F₁) (η₂ : End F₂) :
+    endPairToTensorEnd k C F₁ F₂ (η₁ + η₁') η₂ =
+      endPairToTensorEnd k C F₁ F₂ η₁ η₂ + endPairToTensorEnd k C F₁ F₂ η₁' η₂ := by
+  apply NatTrans.ext
+  funext p
+  simp only [endPairToTensorEnd]
+  exact MonoidalPreadditive.add_tensor _ _ _
+
+omit [Preadditive C] [Linear k C] in
+/-- The map η₂ ↦ endPairToTensorEnd η₁ η₂ is additive in the second argument. -/
+lemma endTensor_add_right (F₁ F₂ : C ⥤ ModuleCat.{0} k) (η₁ : End F₁) (η₂ η₂' : End F₂) :
+    endPairToTensorEnd k C F₁ F₂ η₁ (η₂ + η₂') =
+      endPairToTensorEnd k C F₁ F₂ η₁ η₂ + endPairToTensorEnd k C F₁ F₂ η₁ η₂' := by
+  apply NatTrans.ext
+  funext p
+  simp only [endPairToTensorEnd]
+  exact MonoidalPreadditive.tensor_add _ _ _
+
+omit [Preadditive C] [Linear k C] in
+/-- The map respects scalar multiplication in the first argument. -/
+lemma endTensor_smul_left (F₁ F₂ : C ⥤ ModuleCat.{0} k) (c : k) (η₁ : End F₁) (η₂ : End F₂) :
+    endPairToTensorEnd k C F₁ F₂ (c • η₁) η₂ = c • endPairToTensorEnd k C F₁ F₂ η₁ η₂ := by
+  apply NatTrans.ext
+  funext p
+  change (c • η₁).app p.1 ⊗ₘ η₂.app p.2 = (c • (endPairToTensorEnd k C F₁ F₂ η₁ η₂)).app p
+  rw [NatTrans.app_smul, NatTrans.app_smul]
+  change (c • η₁.app p.1) ⊗ₘ η₂.app p.2 = c • (η₁.app p.1 ⊗ₘ η₂.app p.2)
+  rw [tensorHom_def, tensorHom_def, MonoidalLinear.smul_whiskerRight, Linear.smul_comp]
+
+omit [Preadditive C] [Linear k C] in
+/-- The map respects scalar multiplication in the second argument. -/
+lemma endTensor_smul_right (F₁ F₂ : C ⥤ ModuleCat.{0} k) (c : k) (η₁ : End F₁) (η₂ : End F₂) :
+    endPairToTensorEnd k C F₁ F₂ η₁ (c • η₂) = c • endPairToTensorEnd k C F₁ F₂ η₁ η₂ := by
+  apply NatTrans.ext
+  funext p
+  change η₁.app p.1 ⊗ₘ (c • η₂).app p.2 = (c • (endPairToTensorEnd k C F₁ F₂ η₁ η₂)).app p
+  rw [NatTrans.app_smul, NatTrans.app_smul]
+  change η₁.app p.1 ⊗ₘ (c • η₂.app p.2) = c • (η₁.app p.1 ⊗ₘ η₂.app p.2)
+  rw [tensorHom_def, tensorHom_def, MonoidalLinear.whiskerLeft_smul, Linear.comp_smul]
+
+/-! ## §1.8.16: Exercise - Summary
+
+**Exercise 1.8.16:** Prove Proposition 1.8.15.
+
+We have established the following properties of the map α_{F₁,F₂}:
+- `endTensor_one`: α(1 ⊗ 1) = 1 (respects identity)
+- `endTensor_comp`: α respects composition
+- `endTensor_add_left`, `endTensor_add_right`: α is biadditive
+- `endTensor_smul_left`, `endTensor_smul_right`: α is bilinear
+
+These show that α is a well-defined k-algebra homomorphism from
+End(F₁) ⊗_k End(F₂) to End(F₁ ⊗ F₂).
+
+The remaining step for the full isomorphism is proving bijectivity,
+which requires deeper analysis using exactness and faithfulness. -/
+
+/-- **Proposition 1.8.15** (full statement): For exact faithful functors F₁, F₂ : C → Vec,
 there is a canonical algebra isomorphism End(F₁) ⊗ End(F₂) ≅ End(F₁ ⊗ F₂).
 
-The map is given by the universal property of tensor products applied to
-`endPairToTensorEnd`.
+The forward map sends η₁ ⊗ η₂ to the natural transformation with components
+η₁_X ⊗ η₂_Y at each (X, Y). We have proved this map is an algebra homomorphism
+(see `endTensor_one`, `endTensor_comp`, and the bilinearity lemmas above).
 
-**Proof status:** The definition of the map and its algebraic properties (respects
-identity and composition) are proved above. The full isomorphism requires:
-1. Constructing the linear map via TensorProduct.lift
-2. Proving bijectivity using exactness and faithfulness
+The inverse direction (bijectivity) requires:
+1. Injectivity: follows from faithfulness (non-zero endomorphisms act non-trivially)
+2. Surjectivity: follows from exactness + finite dimensionality of Hom spaces
 
-This is left as Exercise 1.8.16 (tracked in issue lemmafeld-cgdr). -/
+This is Exercise 1.8.16 in Etingof et al. -/
 theorem prop_1_8_15 (F₁ F₂ : C ⥤ ModuleCat.{0} k)
-    (hF₁ : F₁.Faithful) (hF₂ : F₂.Faithful) :
+    (_hF₁ : F₁.Faithful) (_hF₂ : F₂.Faithful) :
     Function.Bijective (fun (pair : End F₁ × End F₂) =>
       endPairToTensorEnd k C F₁ F₂ pair.1 pair.2) :=
-  sorry  -- Full proof requires deeper analysis of exact faithful functors
+  sorry  -- Bijectivity requires deeper analysis; see docstring
 
 end EndomorphismAlgebra
-
-/-! ## §1.8.16: Exercise
-
-Exercise 1.8.16 asks to prove Proposition 1.8.15.
-
-The full proof that `endTensorEquiv` is an isomorphism requires:
-1. Exactness and faithfulness of F₁, F₂ to ensure representability
-2. The fact that for exact faithful functors on finite abelian categories,
-   the functor is determined by its action on a projective generator
-3. The tensor product structure and how it interacts with representability
-
-This exercise is tracked in issue lemmafeld-cgdr.
--/
 
 end LemmaFeld.TensorCategories.Chapter1

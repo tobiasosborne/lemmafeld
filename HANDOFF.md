@@ -5,20 +5,22 @@
 
 ## Completed This Session
 
-- **lemmafeld-40za**: TC 1.8.15: Proposition - End(F1⊗F2) ≅ End(F1)⊗End(F2) ✓
-  - Created `FunctorEndomorphisms.lean`
-  - `tensorProductFunctor` — tensor product of functors F₁ ⊗ F₂
-  - `endPairToTensorEnd` — the map (η₁, η₂) ↦ η₁ ⊗ η₂
-  - `endTensor_one` — proved: map respects identity
-  - `endTensor_comp` — proved: map respects composition
-  - `prop_1_8_15` — full isomorphism left as sorry (Exercise 1.8.16)
+- **lemmafeld-cgdr**: TC 1.8.16: Exercise - Prove Proposition 1.8.15 — PARTIAL PROGRESS
+  - Added bilinearity lemmas to `FunctorEndomorphisms.lean`:
+    - `endTensor_add_left` — PROVED
+    - `endTensor_add_right` — PROVED
+    - `endTensor_smul_left` — PROVED
+    - `endTensor_smul_right` — PROVED
+  - Updated imports (Monoidal.Preadditive, Monoidal.Linear)
+  - Updated documentation for Exercise 1.8.16
+  - **Bijectivity (sorry) remains** — requires deeper analysis
 
 ## 🚨 ONLY ACCEPTABLE OUTPUT IS LEAN CODE 🚨
 **THE DELIVERABLE IS REAL LEAN FILES, NOT #checks, NOT COMMENTS, NOT DOCUMENTATION. DO NOT DELETE THIS REQUIREMENT**
 
 ## Still OPEN (NOT completed)
 
-- **lemmafeld-cgdr**: TC 1.8.16: Exercise - Prove Proposition 1.8.15 (was blocked, now unblocked)
+- **lemmafeld-cgdr**: TC 1.8.16: Exercise - still needs bijectivity proof
 - **lemmafeld-8xv7**: TC 1.8.11: Corollary - needs Eilenberg-Watts theorem
 - **lemmafeld-296g**: TC 1.8.14: Cartan matrix - blocked by HasMultiplicity
 - **lemmafeld-q6ku**: TC 1.8.17: Gabber's theorem
@@ -32,7 +34,7 @@
 
 **Chapter 1 Progress:**
 - §1.8.15: DONE (tensorProductFunctor, endPairToTensorEnd, key lemmas)
-- §1.8.16: OPEN (Exercise to prove 1.8.15 isomorphism)
+- §1.8.16: IN PROGRESS (bilinearity proved, bijectivity pending)
 - §1.8.11, §1.8.14: OPEN (blocked by gaps)
 - §1.8.17-1.8.19: OPEN
 
@@ -41,7 +43,7 @@
 
 ## Next Steps (by section order)
 
-1. TC 1.8.16: Exercise - complete the isomorphism proof (lemmafeld-cgdr)
+1. TC 1.8.16: Complete bijectivity proof for isomorphism (lemmafeld-cgdr)
 2. TC 1.8.17: Gabber's theorem (lemmafeld-q6ku)
 3. TC 1.8.18: Image of exact functor (lemmafeld-ssq7)
 4. TC 1.8.19: Im(F) finite if C finite (lemmafeld-dyzj)
@@ -51,8 +53,11 @@
 
 ## Files Modified
 
-- `LemmaFeld/CategoryTheory/TensorCategories/Chapter1/FunctorEndomorphisms.lean` — NEW FILE
-- `docs/learnings/chapter1/locally_finite.md` — added §1.8.15-1.8.16 documentation
+- `LemmaFeld/CategoryTheory/TensorCategories/Chapter1/FunctorEndomorphisms.lean` — MODIFIED
+  - Added bilinearity lemmas (add_left, add_right, smul_left, smul_right)
+  - Added imports for Monoidal.Preadditive, Monoidal.Linear
+  - Updated documentation
+- `docs/learnings/chapter1/locally_finite.md` — updated §1.8.16 documentation
 
 ## 🚨 ONLY ACCEPTABLE OUTPUT IS LEAN CODE 🚨
 **THE DELIVERABLE IS REAL LEAN FILES, NOT #checks, NOT COMMENTS, NOT DOCUMENTATION. DO NOT DELETE THIS REQUIREMENT**
