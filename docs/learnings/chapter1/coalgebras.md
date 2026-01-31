@@ -13,6 +13,38 @@
 
 ---
 
+## §1.9.2: Comodules (NEW)
+
+**Book Definition 1.9.2:** A left comodule over C is M with ρ: M → C ⊗ M satisfying:
+- (Δ ⊗ id)(ρ(m)) = (id ⊗ ρ)(ρ(m)) [coassociativity]
+- (ε ⊗ id)(ρ(m)) = m [counit]
+
+**Mathlib status:** NOT in mathlib (as of v4.26.0)
+
+**Our definition (`Chapter1/Comodules.lean`):**
+```lean
+class LeftComodule (R : Type*) (C : Type*) (M : Type*)
+    [CommSemiring R]
+    [AddCommMonoid C] [Module R C] [Coalgebra R C]
+    [AddCommMonoid M] [Module R M]
+    extends LeftComoduleStruct R C M where
+  coassoc : (TensorProduct.assoc R C C M) ∘ₗ (Coalgebra.comul.rTensor M) ∘ₗ coaction =
+            (LinearMap.lTensor C coaction) ∘ₗ coaction
+  left_counit : (TensorProduct.lid R M) ∘ₗ (Coalgebra.counit.rTensor M) ∘ₗ coaction =
+                LinearMap.id
+```
+
+**Also defined:**
+- `RightComodule R C M` — symmetric definition with ρ: M → M ⊗ C
+- `instLeftComoduleSelf` / `instRightComoduleSelf` — coalgebra C is comodule over itself
+
+**API:**
+- `LeftComodule.coact R C M : M →ₗ[R] C ⊗[R] M` — coaction map
+- `LeftComodule.coassoc_apply` — simp lemma for coassociativity
+- `LeftComodule.left_counit_apply` — simp lemma for counit
+
+---
+
 ## §1.9.7: Grouplike Elements
 
 **Book Definition 1.9.7:** x is grouplike if Δ(x) = x ⊗ x and ε(x) = 1.
@@ -91,13 +123,16 @@ lemma IsGrouplike.span_isSubcoalgebra (hx : IsGrouplike R x) :
 
 | Item | Status | Issue | Notes |
 |------|--------|-------|-------|
+| §1.9.2: Comodule definition | ✅ DONE | lemmafeld-lyxp | Left + Right comodules |
 | §1.9.8: Grouplike ↔ 1-dim subcoalgebras | ✅ DONE | lemmafeld-e96f | Subcoalgebra def + span lemma |
 | §1.9.9: Set coalgebra k[X] | ✅ DONE | lemmafeld-663t | |
 | §1.9.12: Prim/k(g-h) ≅ Ext¹ | BLOCKED | — | Requires comodule categories |
 | §1.9.13: Pointed coalgebra | BLOCKED | — | Requires "simple comodule" |
 | §1.9.15: LocallyFinite ≃ C-comod | BLOCKED | lemmafeld-cwxw | Requires comodule cat (~500 LOC) |
 
-**Recommendation:** Work on §1.9.8 next — requires subcoalgebra definition.
+**Next steps:** With comodules defined, can now work on:
+- §1.9.5: Finite-dim C-comodules form locally finite category (lemmafeld-51b0)
+- §1.9.12, §1.9.13 become unblocked
 
 ---
 
