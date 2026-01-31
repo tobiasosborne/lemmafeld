@@ -4,7 +4,7 @@
 
 - **Issues:** ~469 total, ~380 open, ~65 closed
 - **Chapter 1 Files:** 43+ Lean files, all building
-- **KS Uniqueness:** Remainder decompositions COMPLETE; next is strong induction restructure
+- **KS Uniqueness:** Remainder decompositions COMPLETE; strong induction restructure attempted but blocked
 
 ---
 
@@ -12,33 +12,55 @@
 
 ### lemmafeld-u2wc: Build IndecomposableDecomposition for remainder biproducts (COMPLETE)
 
-**Goal:** Construct decompositions for `finTail` components
-
-**Key changes:**
-1. Added `d1_tail : IndecomposableDecomposition C (⨁ (finTail hn_pos d₁.components))`
-   - n = d₁.n - 1
-   - components = finTail hn_pos d₁.components
-   - indecomposable = inherited via index shift
-   - iso = Iso.refl _
-
-2. Added `d2_tail : IndecomposableDecomposition C (⨁ (finTail hn_pos d₁.components))`
-   - n = d₂.n - 1
-   - components = finTail hd2_pos d2_swapped
-   - indecomposable = inherited via (finSwapFront j).symm
-   - iso = iso_remainder (connects to same base object as d1_tail!)
-
-**Key insight:** Both decompositions use the same base object `⨁ (finTail hn_pos d₁.components)`, enabling IH application via `DecompositionsEquivalent d1_tail d2_tail`.
+Built d1_tail and d2_tail decompositions. Both share the same base object via iso_remainder.
 
 ---
 
-## KS Uniqueness Dependency Chain (updated)
+## Attempted This Session
+
+### lemmafeld-3ber: Restructure for strong induction (BLOCKED)
+
+**Attempted:** Convert proof to use `Nat.strong_induction_on` for IH.
+
+**Issue encountered:** Tactic parsing/scoping issues with deeply nested bullet structure.
+
+When using:
+```lean
+induction n using Nat.strong_induction_on with
+| h m ih =>
+  intro hX d₁ d₂ hm_eq
+  rcases Nat.eq_zero_or_pos d₁.n with hn | hn_pos
+  · -- case 1
+    ...
+  · -- case 2
+    by_cases hn1 : d₁.n = 1
+    · -- subcase 2a
+      ...
+    · -- subcase 2b (inductive case)
+      ...  -- many lines of code
+      have ih_tail := ih (d₁.n - 1) h_lt ...  -- use IH here
+```
+
+The parser produced errors like `Invalid field 'n': The environment does not contain 'And.n'` suggesting the `d₁` variable was being misinterpreted in nested scopes.
+
+**Possible solutions for next session:**
+1. Use `case` syntax instead of bullets for the outer cases
+2. Extract the inductive case body into a separate lemma
+3. Try term-mode strong induction with explicit lambda
+4. Use a different induction approach (e.g., well-founded recursion on Subobject lattice)
+
+**Reverted:** Changes reverted to keep build green.
+
+---
+
+## KS Uniqueness Dependency Chain
 
 ```
-✓ lemmafeld-bh5d  ←── DONE
+✓ lemmafeld-bh5d  ←── DONE (Biprod.isoElim)
     ↓
-✓ lemmafeld-u2wc  ←── DONE (this session)
+✓ lemmafeld-u2wc  ←── DONE (remainder decompositions)
     ↓
-○ lemmafeld-3ber  ←── READY (restructure for strong induction)
+○ lemmafeld-3ber  ←── BLOCKED (strong induction restructure)
     ↓
 ○ lemmafeld-45lt  ←── construct full permutation
     ↓
@@ -50,45 +72,29 @@
 ## Current State
 
 - **Uniqueness.lean:**
-  - `iso_remainder` via `Biprod.isoElim` ✓
-  - `d1_tail` decomposition ✓
-  - `d2_tail` decomposition ✓
-  - Remaining sorry: apply IH + combine permutations (needs strong induction restructure)
-
----
-
-## Immediate Next Steps
-
-### Issue 3ber (P2): Restructure for strong induction on n
-
-**Problem:** Current proof structure doesn't support recursive calls.
-
-**Approach (Option A - recommended):**
-1. Define `uniqueness_aux (n : ℕ) : ∀ X d₁ d₂, d₁.n = n → DecompositionsEquivalent C d₁ d₂`
-2. Prove via `Nat.strong_induction_on n`
-3. Wrapper: `krullSchmidt_uniqueness` calls `uniqueness_aux d₁.n`
-
-**File:** Chapter1/KrullSchmidt/Uniqueness.lean
+  - All setup complete: iso_remainder, d1_tail, d2_tail
+  - One sorry remains: need IH application + permutation combining
+  - Proof needs restructuring for recursive call
 
 ---
 
 ## Files Modified This Session
 
-- `LemmaFeld/CategoryTheory/TensorCategories/Chapter1/KrullSchmidt/Uniqueness.lean`
-  - Added `d1_tail` and `d2_tail` decompositions
+- None (changes reverted)
 
 ---
 
 ## Key Learnings
 
-1. **Shared base object:** d2_tail uses `iso_remainder` as its iso, making both decompositions over the same object
-2. **Indecomposability inheritance:** For d2_tail, use `(finSwapFront j).symm ⟨i.val + 1, ...⟩` to access correct index
+1. **Nat.strong_induction_on with nested bullets:** Deep nesting with `by_cases` inside `rcases` inside strong induction causes parsing issues
+2. **Syntax:** `| h m ih =>` is correct for strong induction case naming
+3. **Alternative approach needed:** May need to extract inductive case to separate lemma or use different proof structure
 
 ---
 
 ## Session Orientation for Next Agent
 
-1. **Issue 3ber is ready** - restructure proof for strong induction
-2. **Current proof has all pieces** but can't recurse
-3. **Option A is recommended:** use `Nat.strong_induction_on` with auxiliary lemma
-4. **After restructure:** IH gives `DecompositionsEquivalent d1_tail d2_tail`, then combine permutations
+1. **Issue 3ber is blocked** - needs different approach
+2. **Try extracting inductive case** to a separate lemma that takes `ih` as parameter
+3. **Alternative:** Use `termination_by` with a recursive function definition
+4. **The setup is complete** - just need a way to apply the IH
