@@ -510,6 +510,50 @@ Same setup, plus `have hj_nlt : ¬ j.val < 1` to guide the dite, then `aesop_cat
 
 **Lean file:** `Chapter1/KrullSchmidt/BiproductCancellation.lean`
 
+### biproductSwapFrontIso Simp Lemma Challenge (2026-01-31 - BLOCKED)
+
+**Goal:** Prove `biproductSwapFrontIso.hom ≫ biproduct.π _ ⟨0, _⟩ = biproduct.π f j ≫ eqToHom _`
+
+**Issue:** lemmafeld-zpys
+
+**Challenge:** Dependent type issues when proving the k = j case after `subst hk`.
+
+**Attempted approaches (all failed):**
+
+1. **Direct simp/rw:** After `subst hk`, rewriting with `finSwapFront_apply_self` causes:
+   ```
+   Tactic `rewrite` failed: motive is not type correct
+   ```
+   The proof term `(⋯.mpr (Iso.refl (f k))).inv` has dependent types that break rewriting.
+
+2. **simp only / simp_all:** No progress on the goal after substitution. The dependent proof
+   terms inside `whiskerEquiv` don't match simp lemmas.
+
+3. **aesop_cat:** Exhaustive search fails. Remaining goals include:
+   - `(⨁ f) = (f ∘ ⇑(finSwapFront k).symm) ((finSwapFront k) k)` (propositional equality)
+   - `biproduct.ι f k ≍ (cast ⋯ (Iso.refl (f k))).inv` (heterogeneous equality)
+
+4. **convert rfl using N:** Generates subgoals that aesop_cat cannot solve.
+
+**Root cause:** The `whiskerEquiv` construction creates proof terms like `(hw (e j)).inv`
+where `hw` is defined via `simp only [...]; exact Iso.refl _`. This creates a complex
+proof term that is propositionally but not definitionally equal to `𝟙`.
+
+**Possible solutions (untried):**
+
+1. **Redefine biproductSwapFrontIso** using a simpler construction that avoids `whiskerEquiv`,
+   similar to how `biproductHeadTailIso` was redefined.
+
+2. **Add intermediate lemmas** that expose the definitional structure of `whiskerEquiv`
+   more directly.
+
+3. **Use conv mode** with careful targeting to avoid the dependent type issues.
+
+4. **Prove the lemma WITHOUT using biproduct extensionality** - instead prove it by
+   showing both morphisms agree on some universal property.
+
+**Lean file:** `Chapter1/KrullSchmidt/BiproductCancellation.lean`
+
 ---
 
 ## §1.5.8: Grothendieck Group
