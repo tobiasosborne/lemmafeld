@@ -102,6 +102,7 @@ The round-trips satisfy:
 **SemidirectProduct.lean:**
 - `SemidirectSMul D a p` — A-action on X × Y from derivation D
 - `derivation_roundtrip` — D → E → D = D (exact identity)
+- `innerDerivation_shear_intertwines` — inner derivations give trivial extensions
 
 **ExtDerivationConstruction.lean:**
 - `extensionDerivation` — extracts D : A → Hom_k(Y, X) from extension

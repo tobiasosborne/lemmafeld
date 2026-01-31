@@ -109,6 +109,8 @@ end BaerSumDescription
 
 /-! ## Summary
 
+### Exercise 1.4.3(i): Abelian Group Structure
+
 Exercise 1.4.3(i) is established via mathlib's `AddCommGroup (Ext X Y 1)` instance.
 The abelian group axioms are verified in `ExtAbelianGroup.lean`.
 
@@ -121,6 +123,22 @@ The abelian group axioms are verified in `ExtAbelianGroup.lean`.
 2. Abelian group structure is inherited from the additive category structure
 
 The equivalence is a classical result in homological algebra.
+
+### Exercise 1.4.3(ii): Ext¹ ≅ Der/InnerDer
+
+For A-modules over k, the book claims Ext¹(Y, X) ≅ Der(A, Hom_k(Y,X)) / InnerDer.
+
+**Implementation status (across multiple files):**
+- `InnerDerivations.lean` — Inner derivation structure and submodule
+- `HochschildH1.lean` — First Hochschild cohomology H¹ = Der/InnerDer
+- `BimoduleDerivations.lean` — Bimodule derivations with book's Leibniz rule
+- `ExtAsDerivations.lean` — Bimodule structure on Hom_k(Y, X)
+- `SemidirectProduct.lean` — Derivation → Extension construction
+- `ExtDerivationConstruction.lean` — Extension → Derivation construction
+- `ExtDerivationIso.lean` — Round-trip Φ∘Ψ = id (derivation_roundtrip)
+
+**Gap:** The full isomorphism theorem (as a LinearEquiv) is not yet formalized.
+See `ExtAsDerivations.lean` line 195 for details.
 -/
 
 end LemmaFeld.TensorCategories.Chapter1

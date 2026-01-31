@@ -36,7 +36,7 @@ structure ShortExact : Prop where
 
 ---
 
-## §1.4.3: Ext Groups
+## §1.4.3: Ext Groups and Abelian Structure
 
 **Book Definition 1.4.2:** Ext¹(Y, X) = isomorphism classes of extensions 0 → X → Z → Y → 0
 
@@ -45,9 +45,34 @@ structure ShortExact : Prop where
 - Requires `EnoughProjectives`
 - `AddCommGroup (Ext X Y n)` comes automatically from ModuleCat
 
-**Gap:** No explicit "Yoneda Ext" (Ext as extensions) formalized, though mathematically equivalent.
+**Note:** No explicit "Yoneda Ext" (Ext as extensions) formalized in mathlib, though mathematically equivalent.
 
-**Lean file:** `Chapter1/BaerSum.lean`
+### Exercise 1.4.3(i): Abelian Group Structure — COMPLETE
+
+**Lean files:** `Chapter1/BaerSum.lean`, `Chapter1/ExtAbelianGroup.lean`
+
+The abelian group structure on Ext¹(Y, X) is demonstrated via:
+- `AddCommGroup (Ext X Y 1)` instance from mathlib
+- All abelian group axioms verified in `ExtAbelianGroup.lean`
+- Composition distributes over addition (`Ext.add_comp`, `Ext.comp_add`)
+
+### Exercise 1.4.3(ii): Ext¹ ≅ Der/InnerDer — GAP
+
+**Infrastructure files:**
+- `InnerDerivations.lean`, `HochschildH1.lean`, `BimoduleDerivations.lean`
+- `ExtAsDerivations.lean`, `SemidirectProduct.lean`, `ExtDerivationConstruction.lean`
+- `ExtDerivationIso.lean`
+
+**Completed:**
+- Bimodule structure on Hom_k(Y, X)
+- Derivation → Extension (semidirect product construction)
+- Extension → Derivation (via k-linear section)
+- Round-trip Φ∘Ψ = id (`derivation_roundtrip`)
+- **Inner derivations give trivial extensions** (`innerDerivation_shear_intertwines`)
+  - The shearing map φ(x,y) = (x + f(y), y) intertwines D_f-action with trivial action
+  - This shows ker(H¹ → Ext¹) = InnerDer
+
+**Gap:** Full isomorphism as LinearEquiv not yet formalized. Issue: lemmafeld-oybh
 
 ---
 

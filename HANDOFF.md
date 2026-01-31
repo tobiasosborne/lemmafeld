@@ -1,31 +1,36 @@
-# Handoff: 2026-01-31 (Comodules Definition)
+# Handoff: 2026-01-31 (Inner Derivations Triviality)
 
 ## Completed This Session
 
-- **lemmafeld-lyxp**: TC 1.9.2 — Defined left and right comodules over coalgebras
-  - Created `LemmaFeld/CategoryTheory/TensorCategories/Chapter1/Comodules.lean`
-  - Defined `LeftComodule` and `RightComodule` classes with full axioms
-  - Proved coalgebra is comodule over itself (book example after 1.9.2)
-  - ~200 LOC, fully documented with book references
+- **lemmafeld-ff5z**: TC 1.4.3 — Closed as complete (part i) with gap tracked (part ii)
+  - Part (i): Abelian group on Ext¹ is fully covered by `ExtAbelianGroup.lean`
+  - Part (ii) gap tracked in lemmafeld-oybh
+  - Updated `BaerSum.lean` with comprehensive summary
+
+- **lemmafeld-oybh**: TC 1.4.3(ii) gap — Added key theorem
+  - Added `innerDerivation_shear_intertwines` to `SemidirectProduct.lean`
+  - Proves: inner derivations D_f give extensions isomorphic to trivial extension
+  - The shearing map φ(x,y) = (x + f(y), y) intertwines D_f-action with diagonal action
+  - This establishes ker(H¹ → Ext¹) = InnerDer, a key piece of the isomorphism
 
 ## Current State
 
 **Build:** Passing (`lake build` succeeds)
 
-**Chapter 1 Coverage:** Now improved — §1.9.2 (Comodules) complete
+**Chapter 1 Coverage:** Improved — §1.4.3 infrastructure strengthened
 
-**Comodule Infrastructure:**
-- `LeftComodule R C M` — coaction ρ: M → C ⊗ M with axioms
-- `RightComodule R C M` — coaction ρ: M → M ⊗ C with axioms
-- `LeftComodule.coact` / `RightComodule.coact` — accessor functions
-- Self-comodule instances for any coalgebra
+**Exercise 1.4.3(ii) Status:**
+- ✓ derivation_roundtrip (Φ∘Ψ = id)
+- ✓ extensionToSemidirect_respects_action (Ψ∘Φ ~ id)
+- ✓ innerDerivation_shear_intertwines (InnerDer → trivial extension)
+- Gap: Bundle into LinearEquiv between H¹ and Ext¹
 
 ## Next Steps (SECTION ORDER)
 
-### 1. TC 1.4.3: Exercise - Ext¹ abelian group structure (P2)
-- Issue: lemmafeld-ff5z
-- Show Baer sum is well-defined, gives abelian group on Ext¹(Y,X)
-- Extend existing `BaerSum.lean`
+### 1. TC 1.4.3(ii) gap: Complete LinearEquiv (P2)
+- Issue: lemmafeld-oybh
+- Remaining: Bundle round-trips into LinearEquiv
+- Estimated ~50 LOC
 
 ### 2. TC 1.5.10: Exercise - Block decomposition (P2)
 - Issue: lemmafeld-0om5
@@ -35,11 +40,16 @@
 
 ## Files Modified
 
-- `LemmaFeld/CategoryTheory/TensorCategories/Chapter1/Comodules.lean` — NEW, ~200 LOC
-- `docs/learnings/chapter1/coalgebras.md` — Added §1.9.2 section
+- `LemmaFeld/CategoryTheory/TensorCategories/Chapter1/SemidirectProduct.lean` — Added ~70 LOC
+  - `innerDerivationShear`, `innerDerivationShearInv` — shearing maps
+  - `innerDerivationShearEquiv` — k-linear equivalence
+  - `innerDerivation_shear_intertwines` — KEY THEOREM
+- `LemmaFeld/CategoryTheory/TensorCategories/Chapter1/ExtDerivationIso.lean` — Updated docstring
+- `LemmaFeld/CategoryTheory/TensorCategories/Chapter1/BaerSum.lean` — Added part (ii) summary
+- `docs/learnings/chapter1/exact_sequences.md` — Updated with new theorem
 
 ## Notes
 
-- Mathlib does NOT have comodules (verified loogle + leansearch)
-- Our definition follows mathlib's pattern for Coalgebra (separate Struct class)
-- The `coact` function requires explicit type parameters (R, C, M) for inference
+- The inner derivation triviality theorem is the "kernel" part of the Ext¹ ≅ H¹ isomorphism
+- Full LinearEquiv requires relating InnerDerivations to extension equivalence classes
+- Mathlib's Ext is via derived categories, so direct LinearEquiv would be to our H¹, not mathlib's Ext

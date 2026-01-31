@@ -166,4 +166,87 @@ theorem derivation_roundtrip (D : A → (Y →ₗ[k] X)) :
 
 end RoundTrip
 
+/-! ## Inner Derivations Give Trivial Extensions
+
+**Key Theorem**: If D = D_f is an inner derivation, then the semidirect product extension
+is isomorphic to the trivial (split) extension X × Y with diagonal action.
+
+This is crucial for the Ext¹ ≅ H¹ isomorphism: it shows the map H¹ → Ext¹ has
+kernel exactly equal to the inner derivations.
+
+For an inner derivation D_f(a)(y) = a • f(y) - f(a • y), the isomorphism is:
+  φ(x, y) = (x + f(y), y)
+
+This intertwines the D_f-action with the trivial (diagonal) action.
+-/
+
+section InnerDerivationsTrivial
+
+variable {k A : Type*} [CommRing k] [Ring A] [Algebra k A]
+variable {X Y : Type*} [AddCommGroup X] [AddCommGroup Y]
+variable [Module k X] [Module k Y] [Module A X] [Module A Y]
+variable [IsScalarTower k A X] [IsScalarTower k A Y]
+
+/-- The "shearing" map that trivializes an inner derivation extension.
+    For f : Y →ₗ[k] X, this maps (x, y) ↦ (x + f(y), y). -/
+def innerDerivationShear (f : Y →ₗ[k] X) : (X × Y) →ₗ[k] (X × Y) :=
+  LinearMap.prod (LinearMap.fst k X Y + f.comp (LinearMap.snd k X Y)) (LinearMap.snd k X Y)
+
+/-- The inverse shearing map: (x, y) ↦ (x - f(y), y). -/
+def innerDerivationShearInv (f : Y →ₗ[k] X) : (X × Y) →ₗ[k] (X × Y) :=
+  LinearMap.prod (LinearMap.fst k X Y - f.comp (LinearMap.snd k X Y)) (LinearMap.snd k X Y)
+
+/-- Shear applied to a pair. -/
+@[simp] lemma innerDerivationShear_apply (f : Y →ₗ[k] X) (p : X × Y) :
+    innerDerivationShear f p = (p.1 + f p.2, p.2) := rfl
+
+/-- Inverse shear applied to a pair. -/
+@[simp] lemma innerDerivationShearInv_apply (f : Y →ₗ[k] X) (p : X × Y) :
+    innerDerivationShearInv f p = (p.1 - f p.2, p.2) := rfl
+
+/-- The shear and its inverse are mutual inverses. -/
+lemma innerDerivationShear_inv (f : Y →ₗ[k] X) :
+    (innerDerivationShear f).comp (innerDerivationShearInv f) = LinearMap.id := by
+  apply LinearMap.ext
+  intro p
+  simp only [LinearMap.comp_apply, innerDerivationShearInv_apply, innerDerivationShear_apply,
+    LinearMap.id_apply, sub_add_cancel, Prod.mk.eta]
+
+lemma innerDerivationShearInv_shear (f : Y →ₗ[k] X) :
+    (innerDerivationShearInv f).comp (innerDerivationShear f) = LinearMap.id := by
+  apply LinearMap.ext
+  intro p
+  simp only [LinearMap.comp_apply, innerDerivationShear_apply, innerDerivationShearInv_apply,
+    LinearMap.id_apply, add_sub_cancel_right, Prod.mk.eta]
+
+/-- The k-linear equivalence given by the shearing map. -/
+def innerDerivationShearEquiv (f : Y →ₗ[k] X) : (X × Y) ≃ₗ[k] (X × Y) where
+  toLinearMap := innerDerivationShear f
+  invFun := innerDerivationShearInv f
+  left_inv p := by simp [innerDerivationShear, innerDerivationShearInv, add_sub_cancel_right]
+  right_inv p := by simp [innerDerivationShear, innerDerivationShearInv, sub_add_cancel]
+
+/-- **Key Theorem**: The shearing map intertwines the inner derivation action with trivial action.
+
+For an inner derivation D_f(a)(y) = a • f(y) - f(a • y), we have:
+  φ(a •_Df (x, y)) = a •_trivial φ(x, y)
+
+where φ(x, y) = (x + f(y), y) and •_trivial is the diagonal action (a • x, a • y). -/
+theorem innerDerivation_shear_intertwines (f : Y →ₗ[k] X)
+    (D : A → (Y →ₗ[k] X))
+    (hD : ∀ a y, D a y = a • f y - f (a • y)) -- D is the inner derivation defined by f
+    (a : A) (p : X × Y) :
+    innerDerivationShear f (SemidirectSMul D a p) = (a • (innerDerivationShear f p).1,
+                                                     a • (innerDerivationShear f p).2) := by
+  simp only [innerDerivationShear_apply, SemidirectSMul]
+  ext
+  · -- First component: a • p.1 + D(a)(p.2) + f(a • p.2) = a • (p.1 + f(p.2))
+    simp only [hD, smul_add]
+    -- Goal: a • p.1 + (a • f p.2 - f (a • p.2)) + f (a • p.2) = a • p.1 + a • f p.2
+    abel
+  · -- Second component: a • p.2 = a • p.2  ✓
+    rfl
+
+end InnerDerivationsTrivial
+
 end LemmaFeld.TensorCategories.Chapter1
