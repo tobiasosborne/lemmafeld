@@ -10,6 +10,27 @@ This directory contains organized learnings from the Tensor Categories formaliza
 | [api_gotchas.md](api_gotchas.md) | Common API issues and solutions |
 | [proof_patterns.md](proof_patterns.md) | Reusable proof techniques |
 
+---
+
+## Chapter 1 Coverage Audit (2026-01-31)
+
+**Overall Coverage: 54.8%** (40/73 numbered items formalized)
+
+| Section | Coverage | Status |
+|---------|----------|--------|
+| §1.1-1.2 | 100% | ✓ Complete |
+| §1.3-1.6 | 43-78% | Partial - gaps tracked |
+| §1.7 | **0%** | ⚠️ All group cohomology missing |
+| §1.8 | 42% | Representable functors gap |
+| §1.9 | 54% | Comodules + Theorem 1.9.15 missing |
+| §1.10 | **0%** | ⚠️ Coend reconstruction missing |
+| §1.11-1.12 | 50-67% | Partial |
+| §1.13 | **0%** | ⚠️ All coradical filtration missing |
+
+**46 gap issues filed** — see `bd list --status=open | grep "TC 1."`
+
+---
+
 ## Chapter 1 Learnings
 
 | Section | Document | Topics |
