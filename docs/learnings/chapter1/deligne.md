@@ -112,11 +112,29 @@ def dualCounit : Module.Dual k A →ₗ[k] k
 
 ---
 
+### Pre-Comultiplication (NEW)
+
+```lean
+/-- Multiplication as a linear map A ⊗ A → A -/
+noncomputable def mulLinear : A ⊗[k] A →ₗ[k] A
+
+/-- Pre-comultiplication Δ : A* → (A ⊗ A)* defined by Δ(f)(a ⊗ b) = f(ab) -/
+noncomputable def dualComulAux : Module.Dual k A →ₗ[k] Module.Dual k (A ⊗[k] A)
+
+/-- Δ(f) vanishes on I ⊗ A when f vanishes on I -/
+lemma dualComulAux_vanishes_left
+lemma dualComulAux_vanishes_right
+```
+
+**Lean file:** `Chapter1/FiniteDualCoalgebra.lean`
+
+---
+
 ## Gaps for §1.12 Full Implementation
 
 1. **Module structure on quotients** — show k-algebra structure descends
 2. ~~**Finite codimension intersection**~~ — **RESOLVED**: `fintypeQuotientInf` proved
-3. **Coalgebra structure** — define Δ : A*_fin → A*_fin ⊗ A*_fin (lemmafeld-oedl)
+3. **Coalgebra structure** — **IN PROGRESS** (lemmafeld-oedl): Pre-comul defined, need to show Δ restricts to A*_fin ⊗ A*_fin
 4. ~~**FiniteDual submodule**~~ — **RESOLVED**: `FiniteDual` submodule with closure proofs
 
-**Lean file:** `Chapter1/FiniteDual.lean`
+**Lean files:** `Chapter1/FiniteDual.lean`, `Chapter1/FiniteDualCoalgebra.lean`

@@ -1,54 +1,48 @@
-# Handoff: 2026-01-31 (TC 1.9.8 + 1.9.9)
+# Handoff: 2026-01-31 (TC 1.12.3 Progress)
 
 ## Project Stats
 
 - **Issues:** ~480 total, ~374 open, ~82 closed
-- **Chapter 1 Files:** 51+ Lean files, all building
+- **Chapter 1 Files:** 52 Lean files, all building
 
 ---
 
 ## Completed This Session
 
-### lemmafeld-e96f: TC 1.9.8 - Subcoalgebras (CLOSED)
-- Added `IsSubcoalgebra`: submodule S with Δ(S) ⊆ S ⊗ S
-- Added `IsGrouplike.span_isSubcoalgebra`: k·x is subcoalgebra when x grouplike
-- Uses `Submodule.map₂` to formalize tensor product of submodules
-- Build passes, +22 LOC
+### TC 1.12.3 Progress - Pre-Comultiplication (IN PROGRESS)
+- Created `FiniteDualCoalgebra.lean` (104 LOC)
+- Defined `mulBilin` and `mulLinear`: multiplication A ⊗ A → A
+- Defined `dualComulAux`: pre-comultiplication Δ : A* → (A ⊗ A)*
+- Proved `dualComulAux_vanishes_left/right`: key for showing Δ preserves finite dual
 
-### lemmafeld-663t: TC 1.9.9 - Set coalgebra (CLOSED, prev session)
-- `isGrouplike_single_one`: basis elements of `MonoidAlgebra R X` are grouplike
+**Remaining for TC 1.12.3:**
+- Show Δ(f) ∈ A*_fin ⊗ A*_fin when f ∈ A*_fin (requires tensor product of finite duals)
+- Prove coalgebra axioms (coassociativity, counitality)
 
 ---
 
 ## Current State
 
-**Chapter 1 §1.9 complete through 1.9.11:**
-- §1.9.7 ✅ Grouplike elements
-- §1.9.8 ✅ Subcoalgebras
-- §1.9.9 ✅ Set coalgebra
-- §1.9.10 ✅ Skew-primitive elements
-- §1.9.11 ✅ Trivial skew-primitives
-- §1.9.12+ BLOCKED on comodules
-
-**Coalgebras.lean:** 200 LOC (at limit)
+**Chapter 1 §1.9:** 1.9.7-1.9.11 complete; 1.9.12+ blocked on comodules
+**Chapter 1 §1.12:** Partial - FiniteDual submodule + pre-comultiplication done
 
 ---
 
-## Recommended Next Steps (Section Order)
+## Recommended Next Steps
 
-### 1. **TC 1.12.3: Coalgebra structure on FiniteDual** (lemmafeld-oedl)
-- ~60 LOC
-- Define Δ = m*, ε = u* on finite dual A°
+### 1. Continue TC 1.12.3 (lemmafeld-oedl)
+- Need tensor product theory for A*_fin ⊗ A*_fin
+- May need to define finite dual tensor product embedding
 
-### 2. Hygiene: Split Coalgebras.lean (200 LOC at limit)
-- Could extract SetCoalgebra section to separate file
-- Or wait until more content added
+### 2. Hygiene: Trim FiniteDual.lean (lemmafeld-3mtz)
+- Currently 262 LOC (over 200 limit)
+- Now split: FiniteDual.lean (definitions) + FiniteDualCoalgebra.lean (coalgebra)
 
-### 3. TC 1.10: Coends (blocked on mathlib coend coverage)
+### 3. Other §1.9 items requiring comodule infrastructure
 
 ---
 
 ## Files Modified This Session
 
-- `LemmaFeld/CategoryTheory/TensorCategories/Chapter1/Coalgebras.lean` — Subcoalgebra def + lemma (+22 LOC, now 200 LOC)
-- `docs/learnings/chapter1/coalgebras.md` — Updated §1.9 status
+- `LemmaFeld/CategoryTheory/TensorCategories/Chapter1/FiniteDualCoalgebra.lean` — NEW (104 LOC)
+- `docs/learnings/chapter1/deligne.md` — Updated §1.12 progress
