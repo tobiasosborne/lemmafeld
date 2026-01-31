@@ -1,44 +1,49 @@
-# Handoff: 2026-01-31 (TC 1.6.6 Complete)
+# Handoff: 2026-01-31 (TC 1.7.1 Complete)
 
 ## Completed This Session
 
-- **lemmafeld-xoz1**: TC 1.6.6 - Projective cover definition — COMPLETE
-  - Added `ProjectiveCover` structure with universality property
-  - Added `InjectiveHull` structure (dual, Definition 1.6.7)
-  - Added conversions to mathlib's `ProjectivePresentation`/`InjectivePresentation`
-  - Documented mathlib gap: presentations lack minimality property
+- **lemmafeld-4rdp**: TC 1.7.1 - Explicit differential formulas d₁,d₂,d₃,d₄ — COMPLETE
+  - Created `Chapter1/GroupCohomology.lean` with book ↔ mathlib correspondence
+  - Key mathlib API: `inhomogeneousCochains.d_hom_apply` gives general formula
+  - Documented the 4 explicit differential formulas from Example 1.7.1
+  - References bar resolution `Rep.barResolution k G`
 
 ## Current State
 
 **Build:** Passing (`lake build` succeeds)
 
-**Chapter 1 Coverage:**
-- §1.5.10 Part (ii): Complete (linked relation)
-- §1.6.6-1.6.7: Complete (projective cover / injective hull definitions)
-
-**New structures:**
-- `ProjectiveCover X` — projective P with epi p, universality property
-- `InjectiveHull X` — injective Q with mono i, universality property
+**Chapter 1 §1.7 Coverage:**
+- Example 1.7.1 (d₁-d₄ formulas): COMPLETE
+- Example 1.7.2 (H⁰, H¹): Not started
+- Remark 1.7.3 (non-abelian 1-cocycles): Not started
+- Example 1.7.4 (ℤ/nℤ cohomology): Not started
+- Exercise 1.7.5 (ring structure): Not started
 
 ## Next Steps (SECTION ORDER)
 
-### 1. TC 1.7 (Group Cohomology): 0% coverage
-- Multiple issues in tracker, high priority gap
-- Check `bd list --status=open | grep "TC 1.7"`
+### 1. TC 1.7.2: H⁰ and H¹ for trivial action
+- Issue: `lemmafeld-rm4u`
+- Book says: H⁰(G,A) = A^G, H¹(G,A) = Hom(G,A) for trivial action
 
-### 2. TC 1.8 (Locally Finite Categories)
-- Check for gaps in current coverage
+### 2. TC 1.7.3: Non-abelian 1-cocycles remark
+- Issue: `lemmafeld-wlki`
+
+### 3. TC 1.7.4: ℤ/nℤ cohomology computation
+- Issue: `lemmafeld-j2mh`
+
+### 4. TC 1.7.5: Ring structure on H*(ℤ/nℤ, ℤ)
+- Issue: `lemmafeld-7jnu`
 
 ## Files Modified
 
-- `LemmaFeld/CategoryTheory/TensorCategories/Chapter1/Projective.lean` — Added ~80 LOC
-  - `ProjectiveCover` structure with universality property
-  - `InjectiveHull` structure with universality property
-  - `toProjectivePresentation` / `toInjectivePresentation` conversions
-- `docs/learnings/chapter1/projective.md` — Updated with implementation details
+- `LemmaFeld/CategoryTheory/TensorCategories/Chapter1/GroupCohomology.lean` — NEW (~100 LOC)
+  - Explicit differential formulas d₁, d₂, d₃, d₄ for group cohomology
+  - Book ↔ mathlib correspondence for inhomogeneous cochains
+  - References to bar resolution and `groupCohomology` functor
+- `docs/learnings/chapter1/derived_functors.md` — Updated with Example 1.7.1 section
 
 ## Notes
 
-- Mathlib's `ProjectivePresentation`/`InjectivePresentation` are weaker than book's covers/hulls
-- The universality property ensures minimality: any other presentation factors through
-- This is sometimes called "essential" projective cover in the literature
+- Mathlib's `inhomogeneousCochains.d_hom_apply` gives the general formula
+- Universe polymorphism: `Rep k G` requires k, G in same universe
+- Low-degree group cohomology theorems in `GroupCohomology.LowDegree` module

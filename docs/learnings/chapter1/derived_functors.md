@@ -88,6 +88,42 @@ def groupCohomologyIsoExt : groupCohomology n ≅ ...  -- isomorphism to Ext
 
 ---
 
+## Example 1.7.1: Explicit Differential Formulas
+
+**Lean file:** `Chapter1/GroupCohomology.lean`
+
+**Book:** The standard complex C^i(G, A) = Fun(G^i, A) has differential:
+```
+d_i(f)(g₁,...,gᵢ) = g₁·f(g₂,...,gᵢ)
+                  - f(g₁g₂,...,gᵢ)
+                  + ... + (-1)^{i-1}·f(g₁,...,g_{i-1}gᵢ)
+                  + (-1)^i·f(g₁,...,g_{i-1})
+```
+
+**Explicit formulas (Example 1.7.1):**
+- d₁(f)(g) = g·f - f
+- d₂(f)(g,h) = g·f(h) - f(gh) + f(g)
+- d₃(f)(g,h,k) = g·f(h,k) - f(gh,k) + f(g,hk) - f(g,h)
+- d₄(f)(g,h,k,l) = g·f(h,k,l) - f(gh,k,l) + f(g,hk,l) - f(g,h,kl) + f(g,h,k)
+
+**Mathlib (`Mathlib.RepresentationTheory.Homological.GroupCohomology.Basic`):**
+```lean
+inhomogeneousCochains.d_hom_apply :
+  (inhomogeneousCochains.d A n).hom f g =
+    (A.ρ (g 0)) (f (g ∘ Fin.succ)) +
+    ∑ j : Fin (n+1), (-1)^(j+1) • f (j.contractNth (·*·) g)
+```
+
+| Component | Book | Mathlib |
+|-----------|------|---------|
+| G-action term | g₁·f(g₂,...) | `(A.ρ (g 0)) (f (g ∘ Fin.succ))` |
+| Contract term | f(g_j·g_{j+1},...) | `f (j.contractNth (·*·) g)` |
+| Alternating sign | (-1)^j | `(-1)^(j+1)` in sum |
+
+The bar resolution is `Rep.barResolution k G : ProjectiveResolution (Rep.trivial k G k)`.
+
+---
+
 ## §1.7.2: Ext^n(X, Y) Definition
 
 **Lean file:** `Chapter1/ExtGroups.lean`
