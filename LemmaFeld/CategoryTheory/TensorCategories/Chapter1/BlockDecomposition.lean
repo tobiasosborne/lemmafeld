@@ -7,6 +7,8 @@ import Mathlib.CategoryTheory.Simple
 import Mathlib.CategoryTheory.Abelian.Basic
 import Mathlib.Algebra.Homology.DerivedCategory.Ext.Basic
 import Mathlib.Logic.Relation
+import Mathlib.CategoryTheory.Products.Basic
+import Mathlib.CategoryTheory.Equivalence
 
 /-!
 # Chapter 1, Exercise 1.5.10: Block Decomposition
@@ -139,16 +141,81 @@ def DirectlyLinkedSimple (X Y : C) [Simple X] [Simple Y] : Prop :=
 
 end LinkedSimple
 
-/-! ## Block Decomposition (Sketch)
+/-! ## §1.5.10 Part (i): Block Decomposition
 
-Part (i) of Exercise 1.5.10 states that C = ⊕ C_α where C_α are indecomposable blocks.
+Part (i) of Exercise 1.5.10 states that C = ⊕_{α ∈ I} C_α where C_α are indecomposable blocks.
 
-A full formalization would require:
-1. Definition of "direct sum of categories" (not in mathlib for abelian categories)
-2. Definition of "indecomposable category" (cannot be written as nontrivial direct sum)
-3. Proof that the linked equivalence classes give the block decomposition
+We define the key concepts:
+1. `TrivialCategory` — a category where every object is a zero object
+2. `IndecomposableCategory` — cannot be written as a nontrivial product of categories
+-/
 
-For now, we record the key definitions and leave full formalization as future work.
+section CategoryDecomposition
+
+/-! ### Trivial (Zero) Categories
+
+A category is trivial if every object is a zero object. This is the categorical
+analogue of the trivial group or zero module. -/
+
+/-- A category is trivial if every object is a zero object.
+
+Book context: In a block decomposition C = ⊕ C_α, the trivial blocks are
+those containing only zero objects. An indecomposable category is one that
+cannot be decomposed into nontrivial summands.
+
+Mathlib: Uses `IsZero X` from `Mathlib.CategoryTheory.Limits.Shapes.ZeroObjects` -/
+class TrivialCategory (C : Type*) [Category C] [HasZeroObject C] : Prop where
+  /-- Every object in a trivial category is zero. -/
+  isZero_of_obj : ∀ (X : C), IsZero X
+
+/-- In a trivial category, the zero object exists and every object is zero. -/
+lemma isZero_all {C : Type*} [Category C] [HasZeroObject C] [TrivialCategory C]
+    (X : C) : IsZero X :=
+  TrivialCategory.isZero_of_obj X
+
+/-- A category is nontrivial if it has at least one non-zero object. -/
+def NontrivialCategory (C : Type*) [Category C] [HasZeroObject C] : Prop :=
+  ∃ (X : C), ¬IsZero X
+
+/-- A nontrivial category is not trivial. -/
+lemma not_trivial_of_nontrivial {C : Type*} [Category C] [HasZeroObject C]
+    (h : NontrivialCategory C) : ¬TrivialCategory C := by
+  intro ⟨hz⟩
+  obtain ⟨X, hX⟩ := h
+  exact hX (hz X)
+
+/-! ### Indecomposable Categories
+
+A category is indecomposable if it cannot be decomposed as a product of two
+nontrivial categories. This is the analogue of an indecomposable object. -/
+
+/-- A category C is indecomposable if whenever C ≃ D × E (as categories),
+one of D or E must be trivial.
+
+Book Definition: "The categories C_α are called indecomposable" (§1.5.10)
+
+This uses the product of categories from `Mathlib.CategoryTheory.Products.Basic`.
+The product C × D has objects (X, Y) where X : C, Y : D, and morphisms
+are pairs of morphisms. -/
+class IndecomposableCategory (C : Type*) [Category C] [HasZeroObject C] : Prop where
+  /-- If C is equivalent to a product, one factor must be trivial. -/
+  trivial_factor_of_equiv_prod :
+    ∀ (D E : Type*) [Category D] [Category E] [HasZeroObject D] [HasZeroObject E],
+      Nonempty (C ≌ D × E) → TrivialCategory D ∨ TrivialCategory E
+
+end CategoryDecomposition
+
+/-! ## Notes on Block Decomposition
+
+The full formalization of block decomposition would require:
+1. Proof that for a finite-length category, C ≃ ∏_{α} C_α (finite product of blocks)
+2. The blocks C_α are exactly the full subcategories on each linked class of simples
+3. This decomposition is unique up to equivalence
+
+This requires significant additional infrastructure:
+- Full subcategory on a predicate
+- Showing the full subcategory is abelian
+- Showing objects decompose uniquely into block components
 -/
 
 /-! ## Notes on Part (iii)

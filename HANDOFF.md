@@ -2,68 +2,35 @@
 
 ## Completed This Session
 
-**CRITICAL AUDIT OF CHAPTER 1 COMPLETED**
-
-Spawned 6 parallel auditors to check all 58 Chapter 1 Lean files against the book.
-
-### Audit Results
-
-| Category | Count | Percentage |
-|----------|-------|------------|
-| **REAL CODE** | 37 files | 64% |
-| **FAKE** | 20 files | 34% |
-| **EMPTY** | 1 file | 2% |
-
-### What "FAKE" Means
-
-These files contain ONLY:
-- `#check` statements verifying mathlib has things
-- `example` statements demonstrating mathlib API
-- Documentation comments claiming mathlib coverage
-- **ZERO actual `def`, `theorem`, `lemma`, `abbrev`, or `instance` declarations**
-
-This is documentation masquerading as formalization.
-
-### Issues Created
-
-20 issues created for fake files (all P3):
-- lemmafeld-0dej through lemmafeld-7d15
-
-### Blacklist Created
-
-See `docs/BLACKLIST_FAKE_LEAN_FILES.md` for the complete list of fake files with their issue IDs.
+- **lemmafeld-vnku**: TC 1.5.10(i): Define indecomposable category
+  - Added `TrivialCategory` class — category where every object is zero
+  - Added `NontrivialCategory` definition — has at least one non-zero object
+  - Added `IndecomposableCategory` class — cannot be decomposed into product of nontrivial categories
+  - Added supporting lemma `isZero_all`, `not_trivial_of_nontrivial`
 
 ## Current State
 
-**Chapter 1 Real Formalization (37 files with actual Lean code):**
+**Chapter 1 Progress:**
+- Exercise 1.5.10(i) now has the key definitions: TrivialCategory, NontrivialCategory, IndecomposableCategory
+- Exercise 1.5.10(ii) already has Linked relation and equivalence
+- The block decomposition theorem itself (proving C = ⊕ C_α) is still open
 
-Strong files:
-- `FittingLemma.lean` (797 lines) - Complete Fitting's Lemma
-- `KrullSchmidt/` (9 files, ~1600 LOC) - Complete Krull-Schmidt theorem
-- `SemidirectProduct.lean` - 15+ definitions/theorems
-- `FiniteDual.lean`, `Coalgebras.lean`, `Comodules.lean` - Real algebraic structures
-- `IterateComap.lean`, `ChainStabilization.lean` - Categorical infrastructure
-- `GrothendieckGroup.lean`, `BlockDecomposition.lean` - Core category theory
-
-**Chapter 1 Fake Files (20 files - documentation only):**
-
-Listed in `docs/BLACKLIST_FAKE_LEAN_FILES.md`. These show mathlib correspondence but contribute no new formalization.
+**Next section-order issues:**
+- TC 1.5.10(i): Define direct sum of abelian categories (lemmafeld-r7fn) — NOTE: partially addressed via mathlib's Prod category
+- TC 1.6.7: Definition - Injective hull (lemmafeld-vbf5)
+- TC 1.8.x: Various §1.8 issues
 
 ## Next Steps
 
-1. **Do NOT close issues for fake files** - they need real formalization
-2. When working on book sections, check blacklist first
-3. Priority: Fix fake files OR work on chapters 2+ with real formalization
-4. Always verify output is LEAN CODE, not just documentation
+1. Work on TC 1.6.7 (injective hull) — next section in order
+2. Or work on lemmafeld-r7fn to clarify the direct sum definition
 
 ## Known Issues / Gotchas
 
-- Agents have repeatedly closed issues after creating fake files
-- `#check` statements and `example` demonstrations are NOT formalization
-- Documentation comments are NOT formalization
-- The only acceptable output is `.lean` files with actual `def`/`theorem`/`lemma`/`abbrev`/`instance` declarations
+- The product of categories C × D in mathlib is NOT the same as the categorical coproduct — it's just the type-theoretic product with pointwise morphisms
+- For abelian categories, "direct sum of categories" is equivalent to product at the level of objects
 
 ## Files Modified
 
-- Created `docs/BLACKLIST_FAKE_LEAN_FILES.md` - Blacklist of fake files
-- 20 new issues created in beads tracker
+- `LemmaFeld/CategoryTheory/TensorCategories/Chapter1/BlockDecomposition.lean` — added TrivialCategory, NontrivialCategory, IndecomposableCategory definitions
+- `docs/learnings/chapter1/length_objects.md` — updated with new definitions

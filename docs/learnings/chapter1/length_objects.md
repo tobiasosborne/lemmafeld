@@ -722,14 +722,44 @@ def Linked (X Y : C) : Prop :=
 **Key insight:** Using `Relation.ReflTransGen` from `Mathlib.Logic.Relation` gives us
 the transitive closure automatically. Symmetry follows from the symmetry of DirectlyLinked.
 
-### Gaps for Parts (i) and (iii)
+### Part (i): Indecomposable Categories (2026-01-31)
 
-**Part (i) - Block decomposition:**
-- Requires definition of "direct sum of categories" (not in mathlib for abelian categories)
-- Requires definition of "indecomposable category"
-- Would need to show that linked equivalence classes give the blocks
+**Definitions implemented:**
 
-**Part (iii) - A-mod blocks:**
+```lean
+/-- A category is trivial if every object is a zero object. -/
+class TrivialCategory (C : Type*) [Category C] [HasZeroObject C] : Prop where
+  isZero_of_obj : ∀ (X : C), IsZero X
+
+/-- A category is nontrivial if it has at least one non-zero object. -/
+def NontrivialCategory (C : Type*) [Category C] [HasZeroObject C] : Prop :=
+  ∃ (X : C), ¬IsZero X
+
+/-- A category C is indecomposable if whenever C ≃ D × E, one factor must be trivial. -/
+class IndecomposableCategory (C : Type*) [Category C] [HasZeroObject C] : Prop where
+  trivial_factor_of_equiv_prod :
+    ∀ (D E : Type*) [Category D] [Category E] [HasZeroObject D] [HasZeroObject E],
+      Nonempty (C ≌ D × E) → TrivialCategory D ∨ TrivialCategory E
+```
+
+**Key lemmas:**
+- `isZero_all` — in a trivial category, every object is zero
+- `not_trivial_of_nontrivial` — nontrivial implies not trivial
+
+**Mathlib correspondence:**
+- Product of categories: `CategoryTheory.prod` from `Mathlib.CategoryTheory.Products.Basic`
+- Category equivalence: `CategoryTheory.Equivalence` from `Mathlib.CategoryTheory.Equivalence`
+
+### Remaining Gaps for Part (i)
+
+**Still needed:**
+- Proof that finite-length categories decompose into blocks
+- The blocks are exactly the full subcategories on linked equivalence classes
+- Uniqueness of the block decomposition
+
+### Gaps for Part (iii) - A-mod blocks
+
+**Part (iii):**
 - Requires `Algebra.center A`
 - Requires characters χ : Z(A) → k
 - More specialized to module categories
