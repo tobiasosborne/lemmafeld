@@ -230,3 +230,32 @@ Ext.postcomp : Abelian.Ext X Y n → Abelian.Ext X Y' n  -- given Y ⟶ Y'
 **`F.Additive` vs exactness:** The mathlib definition of derived functors requires `[F.Additive]` (functor preserves addition of morphisms), NOT exactness conditions. Exactness is only used for specific theorems like `leftDerivedZeroIsoSelf`.
 
 **Two Ext APIs:** Use `Ext R C n` (functor) for general theory, use `Abelian.Ext X Y n` (element) for explicit calculations with specific objects.
+
+---
+
+## Example 1.7.4: Cohomology of Cyclic Groups
+
+**Lean file:** `Chapter1/CyclicCohomology.lean`
+
+**Book:** For G = ℤ/nℤ, there is a smaller periodic resolution P_i = ℤG with:
+- ∂_i = (g-1) if i is odd
+- ∂_i = 1 + g + ⋯ + g^{n-1} (norm) if i is even
+
+**Result:**
+- H⁰(G, ℤ) = ℤ
+- H^{2j}(G, ℤ) = ℤ/nℤ for j > 0
+- H^{2j+1}(G, ℤ) = 0 for j ≥ 0
+
+**Mathlib (`Mathlib.RepresentationTheory.Homological.FiniteCyclic`):**
+
+| Book | Mathlib | Notes |
+|------|---------|-------|
+| Periodic complex | `moduleCatCochainComplex A g` | Alternating (g-1) and norm |
+| (g-1) map | `subCompNormHom.f` | "Sub" = g - id |
+| norm map | `A.norm` / `subCompNormHom.g` | Σ ρ(h) over h ∈ G |
+| A →^{g-1} A →^{norm} A | `subCompNormHom` | Short complex |
+| A →^{norm} A →^{g-1} A | `normHomCompSub` | Short complex |
+
+**Gap:** The actual cohomology computation (H^n(ℤ/nℤ, ℤ) ≅ ...) is NOT in mathlib.
+The periodic complex structure exists but theorems computing its cohomology
+groups (quasi-iso to bar resolution, explicit kernel/image calculations) are missing.
