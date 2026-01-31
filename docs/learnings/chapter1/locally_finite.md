@@ -181,6 +181,35 @@ of C) will be called the Cartan matrix of C."
 
 ---
 
+## §1.8.15: Endomorphism Algebras of Tensor Product Functors — ✓ DONE
+
+**Lean file:** `Chapter1/FunctorEndomorphisms.lean`
+
+**Book Proposition 1.8.15:** Let F₁, F₂ : C → Vec be two exact faithful functors.
+Define F₁ ⊗ F₂ : C × C → Vec by (X, Y) ↦ F₁(X) ⊗ F₂(Y). Then there is a canonical
+algebra isomorphism α_{F₁,F₂}: End(F₁) ⊗ End(F₂) ≅ End(F₁ ⊗ F₂).
+
+**Our formalization:**
+- `tensorProductFunctor k C F₁ F₂` — the tensor product of functors
+- `endPairToTensorEnd k C F₁ F₂ η₁ η₂` — the map (η₁, η₂) ↦ η₁ ⊗ η₂
+- `endTensor_one` — proves the map respects identity (✓ proved)
+- `endTensor_comp` — proves the map respects composition (✓ proved)
+- `prop_1_8_15` — full isomorphism (sorry — Exercise 1.8.16)
+
+**Mathlib correspondence:**
+- `MonoidalCategory.tensor (ModuleCat k)` — tensor functor on modules
+- `tensorHom_comp_tensorHom` — tensor product of morphisms composes correctly
+
+---
+
+## §1.8.16: Exercise — Prove Proposition 1.8.15
+
+**Issue:** lemmafeld-cgdr (blocked by lemmafeld-40za, now closed)
+
+This exercise asks to prove the full isomorphism in Proposition 1.8.15.
+
+---
+
 ## 🚨 ONLY ACCEPTABLE OUTPUT IS LEAN CODE 🚨
 **THE DELIVERABLE IS REAL LEAN FILES, NOT #checks, NOT COMMENTS, NOT DOCUMENTATION. DO NOT DELETE THIS REQUIREMENT**
 
