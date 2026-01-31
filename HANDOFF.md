@@ -1,32 +1,28 @@
-# Handoff: 2026-01-31 (Night Session - Part 2)
+# Handoff: 2026-01-31 (Night Session - Part 3)
 
 ## Project Stats
 
-- **Issues:** ~469 total, ~380 open, ~63 closed
+- **Issues:** ~469 total, ~380 open, ~64 closed
 - **Chapter 1 Files:** 43+ Lean files, all building
-- **KS Uniqueness:** (1,1) component proof COMPLETE; next step is Biprod.isoElim
+- **KS Uniqueness:** Remainder iso COMPLETE; next step is build decompositions
 
 ---
 
 ## Completed This Session
 
-### lemmafeld-dlgr: Prove (1,1) component equals exchange lemma f (COMPLETE)
+### lemmafeld-bh5d: Apply Biprod.isoElim to get remainder iso (COMPLETE)
 
-**Goal:** Show `biprod.inl ≫ iso_full.hom ≫ biprod.fst = f.hom ≫ eqToHom _`
+**Goal:** Given `iso_full` with `IsIso comp_11`, derive `rest₁ ≅ rest₂`
 
 **Key changes:**
-1. Refactored `exchangeLemma` to return `Σ j, (Y ⟨0, hn⟩ ≅ Z j)` instead of existential
-   - Uses `Classical.choose` to extract witness
-   - Enables definitional access to morphism
-2. Added `exchangeMorphism` definition exposing the underlying morphism
-3. Added `exchangeLemma_hom` simp lemma for rewriting
+1. Added `haveI := hcomp_11_iso` to make IsIso instance available
+2. Applied `Biprod.isoElim iso_full` to get `iso_remainder`
 
-**Proof technique:**
-1. Unfold iso_full and let definitions via simp
-2. Apply simp lemmas: `biproductHeadTailIso_hom_fst`, `biproductSwapFrontIso_hom_π_zero`
-3. Reassociate and apply `biproductHeadTailIso_inl_inv`
-4. Unfold `exch`, `j`, `f` to expose `exchangeLemma` structure
-5. Apply `exchangeLemma_hom`, `exchangeMorphism`, `Category.assoc` to close
+**Result:**
+```lean
+let iso_remainder : ⨁ (finTail hn_pos d₁.components) ≅ ⨁ (finTail hd2_pos d2_swapped) :=
+  Biprod.isoElim iso_full
+```
 
 ---
 
@@ -43,10 +39,12 @@
     ↓
 ✓ lemmafeld-zpys  ←── DONE
     ↓
-✓ lemmafeld-dlgr  ←── DONE (this session)
+✓ lemmafeld-dlgr  ←── DONE
     ↓
-○ lemmafeld-bh5d  ←── READY (no blockers!)
-    ↓ Apply Biprod.isoElim to get remainder iso
+✓ lemmafeld-bh5d  ←── DONE (this session)
+    ↓
+○ lemmafeld-u2wc  ←── READY (no blockers!)
+    ↓ Build IndecomposableDecomposition for remainders
 ... (rest of chain to KS uniqueness)
 ```
 
@@ -54,29 +52,28 @@
 
 ## Current State
 
-- **Exchange.lean:**
-  - `exchangeLemma` returns `Σ j, (Y ⟨0, hn⟩ ≅ Z j)` (refactored)
-  - `exchangeMorphism` definition (new)
-  - `exchangeLemma_hom` simp lemma (new)
-  - `exchangeMorphism_isIso` theorem (simplified)
-
 - **Uniqueness.lean:**
   - `hcomp_11_iso : IsIso comp_11` PROVED
-  - Remaining sorry: inductive step (apply Biprod.isoElim, build remainder decompositions)
+  - `iso_remainder` defined via `Biprod.isoElim` ✓
+  - Remaining sorry: build decompositions for remainders + strong induction
 
 ---
 
 ## Immediate Next Steps
 
-### Issue bh5d (P2): Apply Biprod.isoElim to get remainder iso
+### Issue u2wc (P2): Build IndecomposableDecomposition for remainder biproducts
 
-**Goal:** Given `iso_full : Y₀ ⊞ rest₁ ≅ Z_j ⊞ rest₂` with `IsIso comp_11`, get `rest₁ ≅ rest₂`
+**Goal:** Construct `IndecomposableDecomposition` structures for:
+- `finTail hn_pos d₁.components` (n-1 components)
+- `finTail hd2_pos d2_swapped` (m-1 components)
 
 **Approach:**
-1. Apply `Biprod.isoElim` (from mathlib) with `hcomp_11_iso`
-2. Build `IndecomposableDecomposition` for rest₁ and rest₂
-3. Apply strong induction hypothesis
-4. Construct permutation for full equivalence
+1. For d₁ remainder:
+   - components: `finTail hn_pos d₁.components`
+   - indecomposable: inherited from `d₁.indecomposable`
+   - iso: compose `biproductHeadTailIso.symm` with `d₁.iso`
+2. For d₂ remainder:
+   - More complex due to swap - needs careful composition
 
 **File:** Chapter1/KrullSchmidt/Uniqueness.lean
 
@@ -84,33 +81,24 @@
 
 ## Files Modified This Session
 
-- `LemmaFeld/CategoryTheory/TensorCategories/Chapter1/KrullSchmidt/Exchange.lean`
-  - Refactored `exchangeLemma` to return Sigma type
-  - Added `exchangeMorphism` definition
-  - Added `exchangeLemma_hom` simp lemma
-  - Simplified `exchangeMorphism_isIso`
-
 - `LemmaFeld/CategoryTheory/TensorCategories/Chapter1/KrullSchmidt/Uniqueness.lean`
-  - Proved `hcomp_11_iso` (the (1,1) component is an iso)
-  - Used explicit projections `exch.1`, `exch.2` instead of pattern matching
+  - Added `iso_remainder` via `Biprod.isoElim`
 
 - `docs/learnings/chapter1/length_objects.md`
-  - Added (1,1) component proof documentation
+  - Added Biprod.isoElim application documentation
 
 ---
 
-## Key Learnings Documented
+## Key Learnings
 
-1. **Sigma vs Existential:** For computational proofs needing morphism access, use `Σ` type
-2. **Classical.choose:** Required when eliminating existential into Type (not Prop)
-3. **Let bindings:** Pattern-matched lets (`let ⟨a, b⟩ := ...`) don't create unfoldable defs
-4. **Associativity:** After simp rewrites, may need `Category.assoc` for definitional equality
+1. **Biprod.isoElim:** Takes `(f : X₁ ⊞ X₂ ≅ Y₁ ⊞ Y₂)` with `[IsIso (biprod.inl ≫ f.hom ≫ biprod.fst)]` and produces `X₂ ≅ Y₂`
+2. **haveI pattern:** Use `haveI := hcomp_11_iso` to make instance available for typeclass inference
 
 ---
 
 ## Session Orientation for Next Agent
 
-1. **Issue bh5d is ready** - next step in KS uniqueness proof
-2. **Use `Biprod.isoElim`** from mathlib for the cancellation step
-3. **Build IndecomposableDecomposition** for the remainders (finTail versions)
-4. **Strong induction** needed to complete the proof
+1. **Issue u2wc is ready** - build decompositions for remainder biproducts
+2. **Need IndecomposableDecomposition** for both finTail'd components
+3. **Indecomposability inheritance:** `d₁.indecomposable (Fin.succ i)` works for tail
+4. **Iso composition:** head-tail inverse composed with original iso

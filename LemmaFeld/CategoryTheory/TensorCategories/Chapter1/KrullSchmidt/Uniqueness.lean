@@ -182,14 +182,18 @@ theorem krullSchmidt_uniqueness {X : C} (hX : IsFiniteLengthObject X)
         -- By exchangeLemma_hom, exch.snd.hom = exchangeMorphism ... exch.fst
         simp only [exch, exchangeLemma_hom, exchangeMorphism, Category.assoc]
 
+      -- Apply Biprod.isoElim: given iso_full with IsIso comp_11, get remainder iso
+      haveI := hcomp_11_iso
+      let iso_remainder : ⨁ (finTail hn_pos d₁.components) ≅ ⨁ (finTail hd2_pos d2_swapped) :=
+        Biprod.isoElim iso_full
+
       -- The remaining work requires:
-      -- b) Apply Biprod.isoElim to get remainder iso
       -- c) Build IndecomposableDecomposition for remainders (n-1 components each)
       -- d) Apply strong induction hypothesis
       -- e) Combine permutations
       --
       -- This requires restructuring the proof to use Nat.strong_induction_on.
-      -- Tracked in: lemmafeld-vxyi (this sorry)
+      -- Tracked in: lemmafeld-u2wc (build decompositions for remainders)
       sorry
 
 end LemmaFeld.TensorCategories.Chapter1

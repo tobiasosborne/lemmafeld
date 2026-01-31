@@ -583,6 +583,25 @@ where `iso_full = biproductHeadTailIso.symm ≪≫ d₁.iso.symm ≪≫ d₂.iso
 
 **Lean file:** `Chapter1/KrullSchmidt/Uniqueness.lean`
 
+### Remainder iso via Biprod.isoElim (2026-01-31)
+
+**Goal:** Apply `Biprod.isoElim` to get `⨁ (finTail hn_pos d₁.components) ≅ ⨁ (finTail hd2_pos d2_swapped)`.
+
+**Mathlib lemma:**
+```lean
+-- CategoryTheory.Biprod.isoElim (Mathlib.CategoryTheory.Preadditive.Biproducts)
+def Biprod.isoElim (f : X₁ ⊞ X₂ ≅ Y₁ ⊞ Y₂) [IsIso (biprod.inl ≫ f.hom ≫ biprod.fst)] : X₂ ≅ Y₂
+```
+
+**Application:**
+```lean
+haveI := hcomp_11_iso
+let iso_remainder : ⨁ (finTail hn_pos d₁.components) ≅ ⨁ (finTail hd2_pos d2_swapped) :=
+  Biprod.isoElim iso_full
+```
+
+**Result:** `iso_remainder` gives the isomorphism between the (n-1)-component and (m-1)-component remainder biproducts. Next: build `IndecomposableDecomposition` for each remainder, apply IH.
+
 ---
 
 ## §1.5.8: Grothendieck Group
