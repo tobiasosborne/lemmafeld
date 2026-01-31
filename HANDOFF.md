@@ -1,12 +1,12 @@
-# Handoff: 2026-01-31 (TC 1.7.2 Complete)
+# Handoff: 2026-01-31 (TC 1.7.3 Complete)
 
 ## Completed This Session
 
-- **lemmafeld-rm4u**: TC 1.7.2 - H⁰ and H¹ for trivial action — COMPLETE
-  - Extended `Chapter1/GroupCohomology.lean` with Example 1.7.2
-  - H⁰(G,A) = A^G: `groupCohomology.H0Iso`
-  - H⁰(G,A) = A for trivial: `groupCohomology.H0IsoOfIsTrivial`
-  - H¹(G,A) = Hom(G,A) for trivial: `groupCohomology.H1IsoOfIsTrivial`
+- **lemmafeld-wlki**: TC 1.7.3 - Non-abelian 1-cocycles remark — COMPLETE
+  - Extended `Chapter1/GroupCohomology.lean` with Remark 1.7.3
+  - Mathlib: `IsMulCocycle₁` for multiplicative cocycles
+  - Noted convention difference: mathlib `g•f(h)*f(g)` vs book `f(g)*g•f(h)`
+  - Referenced `SemidirectProduct` for classification result
 
 ## Current State
 
@@ -15,32 +15,30 @@
 **Chapter 1 §1.7 Coverage:**
 - Example 1.7.1 (d₁-d₄ formulas): COMPLETE
 - Example 1.7.2 (H⁰, H¹): COMPLETE
-- Remark 1.7.3 (non-abelian 1-cocycles): Not started
+- Remark 1.7.3 (non-abelian 1-cocycles): COMPLETE
 - Example 1.7.4 (ℤ/nℤ cohomology): Not started
 - Exercise 1.7.5 (ring structure): Not started
 
 ## Next Steps (SECTION ORDER)
 
-### 1. TC 1.7.3: Non-abelian 1-cocycles remark
-- Issue: `lemmafeld-wlki`
-- Book: f(gh) = f(g) · g·f(h) for non-abelian A
-
-### 2. TC 1.7.4: ℤ/nℤ cohomology computation
+### 1. TC 1.7.4: ℤ/nℤ cohomology computation
 - Issue: `lemmafeld-j2mh`
-- Book: H^{2j+1}(ℤ/nℤ, ℤ) = 0, H^{2j}(ℤ/nℤ, ℤ) = ℤ/nℤ for j > 0
+- Book: Uses smaller resolution P_i = ℤG, ∂_i = (g-1) or (1+g+...+g^{n-1})
+- Result: H^{2j+1} = 0, H^{2j} = ℤ/nℤ for j > 0
 
-### 3. TC 1.7.5: Ring structure on H*(ℤ/nℤ, ℤ)
+### 2. TC 1.7.5: Ring structure on H*(ℤ/nℤ, ℤ)
 - Issue: `lemmafeld-7jnu`
+- Book: H* = ℤ[x]/(nx) with x in degree 2
 
 ## Files Modified
 
-- `LemmaFeld/CategoryTheory/TensorCategories/Chapter1/GroupCohomology.lean` — Extended (+35 LOC)
-  - Added Example 1.7.2: H⁰ = invariants, H¹ = Hom for trivial action
-  - Documented H² extension classification (partial mathlib support)
-- `docs/learnings/chapter1/derived_functors.md` — Updated with Example 1.7.2
+- `LemmaFeld/CategoryTheory/TensorCategories/Chapter1/GroupCohomology.lean` — Extended (+30 LOC)
+  - Added Remark 1.7.3: Non-abelian 1-cocycles
+  - `IsMulCocycle₁` and `cocyclesOfIsMulCocycle₁` references
+- `docs/learnings/chapter1/derived_functors.md` — Updated with Remark 1.7.3
 
 ## Notes
 
-- `Rep.IsTrivial` typeclass marks representations with trivial G-action
-- Mathlib uses `Additive G →+ A.V` for group homomorphisms (additive notation)
-- H² classification of extensions: mathlib has partial support via `GroupExtension`
+- Mathlib's multiplicative cocycle convention differs from book by multiplication order
+- Both conventions are valid; they're related by taking inverses
+- `CommGroup M` required for mathlib's `IsMulCocycle₁` (not truly non-abelian)

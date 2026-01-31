@@ -158,6 +158,28 @@ classification theorem needs development. See `Mathlib.GroupTheory.GroupExtensio
 
 ---
 
+## Remark 1.7.3: Non-Abelian 1-Cocycles
+
+**Lean file:** `Chapter1/GroupCohomology.lean`
+
+**Book:** For non-abelian A, a 1-cocycle satisfies:
+  f(gh) = f(g) · g·f(h)
+
+Cocycles form a set (not a group) with A-action: (a ∘ f)(g) = a · f(g) · g(a)⁻¹.
+H¹(G,A) = orbits. Classifies sections G → A ⋊ G.
+
+**Mathlib:**
+```lean
+def IsMulCocycle₁ (f : G → M) : Prop := ∀ g h, f (g * h) = g • f h * f g
+```
+
+**Convention difference:** Mathlib uses `f(gh) = (g • f(h)) * f(g)`, book uses
+`f(gh) = f(g) * (g • f(h))`. Order of multiplication differs.
+
+Semidirect product: `SemidirectProduct N G φ` in `Mathlib.GroupTheory.SemidirectProduct`.
+
+---
+
 ## §1.7.2: Ext^n(X, Y) Definition
 
 **Lean file:** `Chapter1/ExtGroups.lean`

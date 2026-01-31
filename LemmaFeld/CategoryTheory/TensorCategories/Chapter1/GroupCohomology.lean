@@ -181,6 +181,40 @@ relating it to group extensions requires additional development.
 See also: `Mathlib.GroupTheory.GroupExtension` for extension theory.
 -/
 
+/-! ## Remark 1.7.3: Non-Abelian 1-Cocycles
+
+**Book:** "The definition of a 1-cocycle can be generalized to the case when A
+is not necessarily abelian. Writing the operation in A multiplicatively, the
+equation for a 1-cocycle takes the form:
+  f(gh) = f(g) · g·f(h)
+
+Such cocycles do not form a group (only a set), but this set has an action of A:
+  (a ∘ f)(g) = a · f(g) · g(a)⁻¹
+
+The set of orbits is the first cohomology H¹(G, A). This classifies
+homomorphisms G → A ⋊ G which are right inverse to the projection."
+
+**Mathlib:** The multiplicative 1-cocycle condition is:
+```
+def IsMulCocycle₁ (f : G → M) : Prop := ∀ g h, f (g * h) = g • f h * f g
+```
+
+Note: Mathlib's convention is `f(gh) = (g • f(h)) * f(g)` while the book uses
+`f(gh) = f(g) * (g • f(h))`. These differ by the order of multiplication.
+Both are valid conventions for 1-cocycles.
+
+The semidirect product is `SemidirectProduct N G φ` in `Mathlib.GroupTheory.SemidirectProduct`.
+-/
+
+section NonAbelianCocycles
+
+variable {G' M : Type*} [Group G'] [CommGroup M] [MulDistribMulAction G' M]
+
+#check @groupCohomology.IsMulCocycle₁
+#check @groupCohomology.cocyclesOfIsMulCocycle₁
+
+end NonAbelianCocycles
+
 /-! ## The Bar Resolution
 
 The bar resolution P_i = ℤ[G^{i+1}] with ∂_i as in the book is:
