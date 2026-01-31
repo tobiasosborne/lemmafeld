@@ -259,3 +259,26 @@ Ext.postcomp : Abelian.Ext X Y n → Abelian.Ext X Y' n  -- given Y ⟶ Y'
 **Gap:** The actual cohomology computation (H^n(ℤ/nℤ, ℤ) ≅ ...) is NOT in mathlib.
 The periodic complex structure exists but theorems computing its cohomology
 groups (quasi-iso to bar resolution, explicit kernel/image calculations) are missing.
+
+---
+
+## Exercise 1.7.5: Ring Structure on H*(ℤ/nℤ, ℤ)
+
+**Lean file:** `Chapter1/CohomologyRing.lean`
+
+**Book:** The graded ring H*(ℤ/nℤ, ℤ) is:
+  H*(ℤ/nℤ, ℤ) = ℤ[x]/(nx) = ℤ ⊕ x(ℤ/nℤ)[x]
+where x is a generator in degree 2.
+
+**Mathlib:** The cup product comes from the Yoneda product on Ext:
+
+| Book | Mathlib | Notes |
+|------|---------|-------|
+| Cup product | `Ext.comp` | Yoneda product |
+| Graded ring | `GradedRing` | Internal grading |
+| Direct sum ring | `DirectSum.GRing` | External grading |
+
+**Gap:** Mathlib does NOT have:
+1. Explicit cup product `H^a(G, A) → H^b(G, A) → H^{a+b}(G, A)`
+2. Graded ring structure on `⨁_n H^n(G, k)`
+3. The isomorphism H*(ℤ/nℤ, ℤ) ≅ ℤ[x]/(nx)

@@ -20,7 +20,7 @@ This directory contains organized learnings from the Tensor Categories formaliza
 |---------|----------|--------|
 | §1.1-1.2 | 100% | ✓ Complete |
 | §1.3-1.6 | 43-78% | Partial - gaps tracked |
-| §1.7 | **80%** | Ex 1.7.1-1.7.4 done, Ex 1.7.5 remains |
+| §1.7 | **100%** | ✓ Complete (Ex 1.7.1-1.7.5 documented) |
 | §1.8 | 42% | Representable functors gap |
 | §1.9 | 54% | Comodules + Theorem 1.9.15 missing |
 | §1.10 | **0%** | ⚠️ Coend reconstruction missing |
