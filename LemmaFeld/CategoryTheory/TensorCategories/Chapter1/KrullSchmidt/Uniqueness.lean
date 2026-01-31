@@ -60,8 +60,11 @@ theorem krullSchmidt_uniqueness {X : C} (hX : IsFiniteLengthObject X)
       fun i => isFiniteLengthObject_of_biproduct_iso d₁.components d₁.iso hX i
     have hZfl : ∀ j, IsFiniteLengthObject (d₂.components j) :=
       fun j => isFiniteLengthObject_of_biproduct_iso d₂.components d₂.iso hX j
-    obtain ⟨j, ⟨f⟩⟩ := exchangeLemma hn_pos d₁.components d₂.components
+    -- exchangeLemma returns Σ j, (Y ⟨0, hn⟩ ≅ Z j)
+    let exch := exchangeLemma hn_pos d₁.components d₂.components
       d₁.indecomposable d₂.indecomposable hYfl hZfl d₁.iso d₂.iso
+    let j := exch.1
+    let f := exch.2
     by_cases hn1 : d₁.n = 1
     · -- Single component case: d₁.n = 1
       have hd2_n : d₂.n = 1 := by
@@ -81,7 +84,8 @@ theorem krullSchmidt_uniqueness {X : C} (hX : IsFiniteLengthObject X)
       have heqj : j = ⟨0, by omega⟩ := Fin.ext hj0
       rw [heqi]
       simp only [Equiv.refl_apply]
-      exact ⟨f ≪≫ eqToIso (by rw [heqj])⟩
+      -- j = exch.fst, and we need d₂.components j = d₂.components ⟨0, ...⟩
+      exact ⟨f ≪≫ eqToIso (congrArg d₂.components heqj)⟩
     · -- Inductive case: d₁.n > 1
       -- The full proof requires strong induction on n + biproduct cancellation.
       -- Key steps:
@@ -151,17 +155,32 @@ theorem krullSchmidt_uniqueness {X : C} (hX : IsFiniteLengthObject X)
         -- Expand comp_11
         change biprod.inl ≫ iso_full.hom ≫ biprod.fst = f.hom ≫ eqToHom hd2_swapped_0.symm
 
-        -- iso_full.hom = iso_d1_split.inv ≫ d₁.iso.inv ≫ d₂.iso.hom ≫ iso_d2_swap.hom ≫ iso_d2_split.hom
+        -- iso_full.hom = split.inv ≫ d₁.iso.inv ≫ d₂.iso.hom ≫ swap.hom ≫ split.hom
         simp only [iso_full, Iso.trans_hom, Iso.symm_hom]
 
-        -- The computation requires tracing through the head-tail splits and swap.
-        -- Key insight: the exchange lemma's f.hom is exactly
-        --   biproduct.ι d₁.components ⟨0, hn_pos⟩ ≫ d₁.iso.inv ≫ d₂.iso.hom ≫ biproduct.π d₂.components j
-        -- And the iso chain transforms this to pass through the splits.
+        -- Unfold let definitions and iso_full
+        simp only [iso_d1_split, iso_d2_swap, iso_d2_split, d2_swapped,
+                   Category.assoc, biproductHeadTailIso_hom_fst,
+                   biproductSwapFrontIso_hom_π_zero]
+        -- Now: biprod.inl ≫ (biproductHeadTailIso hn_pos d₁.components).inv ≫
+        --      d₁.iso.inv ≫ d₂.iso.hom ≫ biproduct.π d₂.components j ≫ eqToHom _
 
-        -- This detailed computation is the core of issue lemmafeld-dlgr.
-        -- It requires helper lemmas about biproductHeadTailIso and biproductSwapFrontIso.
-        sorry
+        -- For biproductHeadTailIso_inl_inv, we need to temporarily reassociate
+        -- Reassociate the first two morphisms to the left so the lemma pattern matches
+        rw [← Category.assoc biprod.inl _ _]
+        rw [biproductHeadTailIso_inl_inv]
+        -- Now: biproduct.ι d₁.components ⟨0, hn_pos⟩ ≫ d₁.iso.inv ≫ d₂.iso.hom ≫
+        --      biproduct.π d₂.components j ≫ eqToHom _
+
+        -- Both sides now equal:
+        -- biproduct.ι d₁.components ⟨0, hn_pos⟩ ≫ d₁.iso.inv ≫ d₂.iso.hom ≫
+        -- biproduct.π d₂.components j ≫ eqToHom _
+        -- f = exch.2, so f.hom = exch.2.hom
+        simp only [f, j]
+        -- Now: LHS = ... ≫ biproduct.π d₂.components exch.fst ≫ eqToHom _
+        --      RHS = exch.snd.hom ≫ eqToHom _
+        -- By exchangeLemma_hom, exch.snd.hom = exchangeMorphism ... exch.fst
+        simp only [exch, exchangeLemma_hom, exchangeMorphism, Category.assoc]
 
       -- The remaining work requires:
       -- b) Apply Biprod.isoElim to get remainder iso

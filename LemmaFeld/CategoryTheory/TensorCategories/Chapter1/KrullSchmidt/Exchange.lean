@@ -36,6 +36,13 @@ private lemma biproduct_sum_π_ι {n : ℕ} (f : Fin n → C) :
   simp only [dite_comp, zero_comp, Finset.sum_dite_eq, Finset.mem_univ, ↓reduceIte, eqToHom_refl,
     Category.id_comp]
 
+/-- The candidate isomorphism morphism from Y₀ to Zⱼ used in the exchange lemma.
+This is extracted as a definition to enable rewriting in proofs. -/
+def exchangeMorphism {X : C} {n m : ℕ} (hn : 0 < n)
+    (Y : Fin n → C) (Z : Fin m → C)
+    (iso₁ : X ≅ ⨁ Y) (iso₂ : X ≅ ⨁ Z) (j : Fin m) : Y ⟨0, hn⟩ ⟶ Z j :=
+  biproduct.ι Y ⟨0, hn⟩ ≫ iso₁.inv ≫ iso₂.hom ≫ biproduct.π Z j
+
 /-- **Exchange Lemma**: Given two indecomposable decompositions of the same object,
 the first component of one decomposition is isomorphic to some component of the other.
 
@@ -43,13 +50,15 @@ This is the key lemma for Krull-Schmidt uniqueness. The proof uses:
 1. The endomorphism projections Y₀ → X → Zⱼ → X → Y₀ sum to the identity
 2. By local ring property, one of these is an isomorphism
 3. Since both Y₀ and Zⱼ are indecomposable finite-length, the map Y₀ → Zⱼ is an iso
+
+Returns a Sigma type to provide definitional access to the isomorphism's hom.
 -/
-lemma exchangeLemma {X : C} {n m : ℕ} (hn : 0 < n)
+def exchangeLemma {X : C} {n m : ℕ} (hn : 0 < n)
     (Y : Fin n → C) (Z : Fin m → C)
     (hY : ∀ i, Indecomposable (Y i)) (hZ : ∀ j, Indecomposable (Z j))
     (hYfl : ∀ i, IsFiniteLengthObject (Y i)) (hZfl : ∀ j, IsFiniteLengthObject (Z j))
     (iso₁ : X ≅ ⨁ Y) (iso₂ : X ≅ ⨁ Z) :
-    ∃ j, Nonempty (Y ⟨0, hn⟩ ≅ Z j) := by
+    Σ j, (Y ⟨0, hn⟩ ≅ Z j) := by
   let Y₀ : C := Y ⟨0, hn⟩
   let f : (j : Fin m) → (Y₀ ⟶ Z j) := fun j =>
     biproduct.ι Y ⟨0, hn⟩ ≫ iso₁.inv ≫ iso₂.hom ≫ biproduct.π Z j
@@ -78,7 +87,10 @@ lemma exchangeLemma {X : C} {n m : ℕ} (hn : 0 < n)
     rfl
   haveI : IsLocalRing (End Y₀) :=
     isLocalRing_end_of_indecomposable_finiteLength (hY ⟨0, hn⟩) (hYfl ⟨0, hn⟩)
-  obtain ⟨j, hj⟩ := exists_isUnit_of_finsum_eq_one p sum_eq_id
+  -- Use Classical.choose since we need to return a Type (Sigma), not a Prop
+  have hex : ∃ i, IsUnit (p i) := exists_isUnit_of_finsum_eq_one p sum_eq_id
+  let j : Fin m := Classical.choose hex
+  have hj : IsUnit (p j) := Classical.choose_spec hex
   have hfg_iso : IsIso (p j) := by rwa [isUnit_iff_isIso] at hj
   haveI hfg_mono : Mono (f j ≫ g j) := inferInstance
   have hf_mono : Mono (f j) := mono_of_mono_fac (g := g j) (h := f j ≫ g j) rfl
@@ -119,6 +131,35 @@ lemma exchangeLemma {X : C} {n m : ℕ} (hn : 0 < n)
   haveI hgf_epi : Epi (g j ≫ f j) := inferInstance
   have hf_epi : Epi (f j) := epi_of_epi_fac (f := g j) (h := g j ≫ f j) rfl
   have hf_iso : IsIso (f j) := isIso_of_mono_of_epi (f j)
-  exact ⟨j, ⟨asIso (f j)⟩⟩
+  -- Note: f j = exchangeMorphism hn Y Z iso₁ iso₂ j by definition
+  -- The key fact is that the iso's hom is definitionally f j
+  exact ⟨j, asIso (f j)⟩
+
+/-- The hom of the iso from exchangeLemma is definitionally exchangeMorphism. -/
+@[simp]
+theorem exchangeLemma_hom {X : C} {n m : ℕ} (hn : 0 < n)
+    (Y : Fin n → C) (Z : Fin m → C)
+    (hY : ∀ i, Indecomposable (Y i)) (hZ : ∀ j, Indecomposable (Z j))
+    (hYfl : ∀ i, IsFiniteLengthObject (Y i)) (hZfl : ∀ j, IsFiniteLengthObject (Z j))
+    (iso₁ : X ≅ ⨁ Y) (iso₂ : X ≅ ⨁ Z) :
+    (exchangeLemma hn Y Z hY hZ hYfl hZfl iso₁ iso₂).2.hom =
+    exchangeMorphism hn Y Z iso₁ iso₂ (exchangeLemma hn Y Z hY hZ hYfl hZfl iso₁ iso₂).1 := rfl
+
+/-- Under the exchange lemma conditions, the exchange morphism is an isomorphism.
+
+This is the key computational fact: for the j found by exchangeLemma, the
+morphism exchangeMorphism is an isomorphism.
+-/
+theorem exchangeMorphism_isIso {X : C} {n m : ℕ} (hn : 0 < n)
+    (Y : Fin n → C) (Z : Fin m → C)
+    (hY : ∀ i, Indecomposable (Y i)) (hZ : ∀ j, Indecomposable (Z j))
+    (hYfl : ∀ i, IsFiniteLengthObject (Y i)) (hZfl : ∀ j, IsFiniteLengthObject (Z j))
+    (iso₁ : X ≅ ⨁ Y) (iso₂ : X ≅ ⨁ Z) :
+    ∃ j, IsIso (exchangeMorphism hn Y Z iso₁ iso₂ j) := by
+  let result := exchangeLemma hn Y Z hY hZ hYfl hZfl iso₁ iso₂
+  use result.1
+  -- The iso from exchangeLemma has hom = exchangeMorphism (by exchangeLemma_hom rfl)
+  rw [← exchangeLemma_hom]
+  exact result.2.isIso_hom
 
 end LemmaFeld.TensorCategories.Chapter1

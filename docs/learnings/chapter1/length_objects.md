@@ -558,6 +558,31 @@ split_ifs with h1 h2 h3
 
 **Lean file:** `Chapter1/KrullSchmidt/BiproductCancellation.lean`
 
+### (1,1) Component Proof (2026-01-31 - lemmafeld-dlgr COMPLETE)
+
+**Goal:** Prove `biprod.inl ≫ iso_full.hom ≫ biprod.fst = f.hom ≫ eqToHom _`
+
+where `iso_full = biproductHeadTailIso.symm ≪≫ d₁.iso.symm ≪≫ d₂.iso ≪≫ biproductSwapFrontIso ≪≫ biproductHeadTailIso`
+
+**Key changes:**
+1. Refactored `exchangeLemma` to return `Σ j, (Y ⟨0, hn⟩ ≅ Z j)` instead of `∃ j, Nonempty ...`
+   - Uses `Classical.choose` to extract witness from existential
+   - Enables definitional access to the morphism
+2. Added `exchangeMorphism` definition exposing the underlying morphism
+3. Added `exchangeLemma_hom` simp lemma: `exch.2.hom = exchangeMorphism ... exch.1`
+
+**Proof technique:**
+1. Unfold iso_full using simp with let definitions
+2. Apply `biproductHeadTailIso_hom_fst` to extract π at the end
+3. Apply `biproductSwapFrontIso_hom_π_zero` to trace through swap
+4. Reassociate and apply `biproductHeadTailIso_inl_inv` to extract ι at the front
+5. Unfold `exch`, `j`, `f` to expose `exchangeLemma` structure
+6. Apply `exchangeLemma_hom` and `exchangeMorphism` with `Category.assoc` to match
+
+**Result:** `hcomp_11_iso : IsIso comp_11` is proved, enabling `Biprod.isoElim` application.
+
+**Lean file:** `Chapter1/KrullSchmidt/Uniqueness.lean`
+
 ---
 
 ## §1.5.8: Grothendieck Group
