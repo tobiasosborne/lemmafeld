@@ -99,4 +99,10 @@ def biproductHeadTailIso {n : ℕ} (hn : 0 < n) (f : Fin n → C) :
     · simp [biproduct.lift_desc]
   exact iso_reindex ≪≫ iso_cast ≪≫ iso_concat ≪≫ iso_split ≪≫ biprod.mapIso iso_head (Iso.refl _)
 
+/-- finSwapFront is self-inverse (swap is involutive). -/
+@[simp]
+lemma finSwapFront_apply_apply {n : ℕ} (j k : Fin n) :
+    finSwapFront j (finSwapFront j k) = k := by
+  simp only [finSwapFront, Equiv.swap_apply_self]
+
 end LemmaFeld.TensorCategories.Chapter1

@@ -1,16 +1,28 @@
-# Handoff: 2026-01-31 (Afternoon Session)
+# Handoff: 2026-01-31 (Evening Session)
 
 ## Project Stats
 
 - **Issues:** ~468 total, ~380 open, ~59 closed
-- **Chapter 1 Files:** 43 Lean files (was 33), all building
-- **KS Uniqueness:** 1 sorry remaining in `KrullSchmidt/Uniqueness.lean`
+- **Chapter 1 Files:** 43 Lean files, all building
+- **KS Uniqueness:** 2 sorries in `KrullSchmidt/Uniqueness.lean` (was 1)
+  - Original sorry at line 163 (inductive case)
+  - New sorry at line 158 (proving `comp_11 = f_transported`)
 
 ---
 
 ## Completed This Session
 
-### 1. KrullSchmidt.lean Refactoring (1165 LOC → 10 files, all ≤200 LOC)
+### 1. Structural Progress on lemmafeld-dlgr (1,1) Component
+
+Set up the framework for proving the (1,1) component of iso_full equals f:
+
+- Defined `comp_11 : d₁.components 0 ⟶ d2_swapped 0` as `biprod.inl ≫ iso_full.hom ≫ biprod.fst`
+- Defined `f_transported` as `f.hom ≫ eqToHom hd2_swapped_0.symm`
+- Reduced the proof of `IsIso comp_11` to showing `comp_11 = f_transported`
+- Added helper lemmas to `BiproductCancellation.lean`:
+  - `finSwapFront_apply_apply` - swap is involutive
+
+### 2. Prior Session: KrullSchmidt.lean Refactoring (1165 LOC → 10 files, all ≤200 LOC)
 
 Refactored the monolithic `KrullSchmidt.lean` into a modular directory structure:
 
@@ -72,19 +84,26 @@ lemmafeld-01k3 (KS uniqueness complete)
 
 ## Next Steps (Priority Order)
 
-1. **lemmafeld-dlgr**: Prove (1,1) component of iso_full equals f
-   - Show `biprod.inl ≫ iso_full.hom ≫ biprod.fst = f.hom`
-   - ~20 LOC
+1. **lemmafeld-dlgr (IN PROGRESS)**: Complete the (1,1) component proof
+   - **Goal**: Show `comp_11 = f_transported` (i.e., `biprod.inl ≫ iso_full.hom ≫ biprod.fst = f.hom ≫ eqToHom ...`)
+   - **Approach**: Need helper lemmas for biproductHeadTailIso:
+     1. `biprod.inl ≫ biproductHeadTailIso.inv = biproduct.ι f ⟨0, hn⟩ ≫ (some eqToHom)`
+     2. `biproductHeadTailIso.hom ≫ biprod.fst = (some eqToHom) ≫ biproduct.π f ⟨0, hn⟩`
+     3. The swap correctly routes: `iso_d2_swap.hom ≫ proj_to_0 = proj_to_j ≫ eqToHom`
+   - The definition of `biproductHeadTailIso` involves 5 chained isos, so these lemmas are nontrivial
 
-2. **FittingLemma.lean refactoring** (optional, 797 LOC)
+2. **lemmafeld-bh5d**: Apply `Biprod.isoElim` (depends on dlgr)
+   - Once `IsIso comp_11` is proved, use `Biprod.isoElim iso_full` to get remainder iso
+
+3. **FittingLemma.lean refactoring** (optional, 797 LOC)
    - Similar split into ~5 files
 
 ---
 
 ## Files Modified This Session
 
-- `Chapter1/KrullSchmidt.lean` — Now a 45-line re-export file
-- `Chapter1/KrullSchmidt/*.lean` — 10 new modular files
+- `Chapter1/KrullSchmidt/BiproductCancellation.lean` — Added `finSwapFront_apply_apply`
+- `Chapter1/KrullSchmidt/Uniqueness.lean` — Structured the (1,1) component proof
 - `HANDOFF.md` — This file
 
 ---
@@ -92,8 +111,12 @@ lemmafeld-01k3 (KS uniqueness complete)
 ## Session Orientation for Next Agent
 
 1. **KrullSchmidt is now modular**: All code is in `Chapter1/KrullSchmidt/`
-2. **The sorry lives in**: `KrullSchmidt/Uniqueness.lean:137`
-3. **Key helpers available**:
-   - `exchangeLemma` in `KrullSchmidt/Exchange.lean`
-   - `biproductHeadTailIso`, `finSwapFront` in `KrullSchmidt/BiproductCancellation.lean`
-4. **Learnings doc**: `docs/learnings/chapter1/length_objects.md`
+2. **Current work**: `KrullSchmidt/Uniqueness.lean:158` - proving `comp_11 = f_transported`
+3. **The final sorry**: `KrullSchmidt/Uniqueness.lean:163` - inductive case
+4. **Key insight**: The exchange lemma's `f.hom` is defined as:
+   ```lean
+   biproduct.ι Y ⟨0, hn⟩ ≫ iso₁.inv ≫ iso₂.hom ≫ biproduct.π Z j
+   ```
+   And `comp_11` should equal this with an `eqToHom` for the swap.
+5. **Challenge**: `biproductHeadTailIso` is a 5-way composition, making it hard to compute through
+6. **Learnings doc**: `docs/learnings/chapter1/length_objects.md`

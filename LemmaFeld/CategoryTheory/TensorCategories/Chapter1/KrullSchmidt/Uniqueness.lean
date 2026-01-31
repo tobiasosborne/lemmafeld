@@ -123,8 +123,47 @@ theorem krullSchmidt_uniqueness {X : C} (hX : IsFiniteLengthObject X)
           (d2_swapped ⟨0, hd2_pos⟩ ⊞ ⨁ (finTail hd2_pos d2_swapped)) :=
         iso_d1_split.symm ≪≫ d₁.iso.symm ≪≫ d₂.iso ≪≫ iso_d2_swap ≪≫ iso_d2_split
 
+      -- The (1,1) component of iso_full is essentially f composed with an eqToHom
+      -- Since f is an iso and eqToHom is an iso, the (1,1) component is an iso.
+      -- This is the key observation needed for Biprod.isoElim.
+
+      -- Component (1,1) of iso_full: d₁.components 0 → d2_swapped 0
+      let comp_11 : d₁.components ⟨0, hn_pos⟩ ⟶ d2_swapped ⟨0, hd2_pos⟩ :=
+        biprod.inl ≫ iso_full.hom ≫ biprod.fst
+
+      -- Show comp_11 is an iso by relating it to f (which is known to be an iso)
+      -- f : d₁.components 0 ≅ d₂.components j
+      -- d2_swapped 0 = d₂.components j (by hd2_swapped_0)
+      -- So comp_11 should equal f.hom ≫ eqToHom (hd2_swapped_0).symm
+
+      -- f.hom composed with the eqToHom for the swapped equality
+      let f_transported : d₁.components ⟨0, hn_pos⟩ ⟶ d2_swapped ⟨0, hd2_pos⟩ :=
+        f.hom ≫ eqToHom hd2_swapped_0.symm
+
+      have hcomp_11_iso : IsIso comp_11 := by
+        -- f_transported is iso because f is iso and eqToHom is iso
+        have h_ftrans_iso : IsIso f_transported := IsIso.comp_isIso
+
+        -- We show comp_11 = f_transported
+        -- Then comp_11 is iso since f_transported is iso
+        suffices h : comp_11 = f_transported by rw [h]; exact h_ftrans_iso
+
+        -- Expand comp_11
+        change biprod.inl ≫ iso_full.hom ≫ biprod.fst = f.hom ≫ eqToHom hd2_swapped_0.symm
+
+        -- iso_full.hom = iso_d1_split.inv ≫ d₁.iso.inv ≫ d₂.iso.hom ≫ iso_d2_swap.hom ≫ iso_d2_split.hom
+        simp only [iso_full, Iso.trans_hom, Iso.symm_hom]
+
+        -- The computation requires tracing through the head-tail splits and swap.
+        -- Key insight: the exchange lemma's f.hom is exactly
+        --   biproduct.ι d₁.components ⟨0, hn_pos⟩ ≫ d₁.iso.inv ≫ d₂.iso.hom ≫ biproduct.π d₂.components j
+        -- And the iso chain transforms this to pass through the splits.
+
+        -- This detailed computation is the core of issue lemmafeld-dlgr.
+        -- It requires helper lemmas about biproductHeadTailIso and biproductSwapFrontIso.
+        sorry
+
       -- The remaining work requires:
-      -- a) Prove the (1,1) component equals f (the exchange lemma iso)
       -- b) Apply Biprod.isoElim to get remainder iso
       -- c) Build IndecomposableDecomposition for remainders (n-1 components each)
       -- d) Apply strong induction hypothesis
