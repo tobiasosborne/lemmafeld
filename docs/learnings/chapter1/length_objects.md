@@ -795,23 +795,44 @@ ict0 (Second iso theorem for Subobject X)
 - `subobject_second_iso : SubobjectIso (A, A⊔B) (A⊓B, B)` wired up, COMPILES
 - SORRY: `secondIso` core iso — needs mono+epi proof
 
-**Mono proof strategy (researched, not formalized):**
-- Use `Preadditive.mono_of_cancel_zero`
-- Key: kernel of `B.ofLE(A⊔B) ≫ cokernel.π(A→A⊔B)` is pullback of `image(A.ofLE)` along `B.ofLE`
-- In abelian category: `kernel(cokernel.π f) = image f`; since `A.ofLE` is mono, image = A
-- Pullback of A and B (as subobjects of A⊔B) = A⊓B (as subobject of B)
-- This is killed by `cokernel.π((A⊓B)→B)`, so kernel of `cokernel.desc` = 0
+**Proof approach: `isIso_of_mono_of_epi` on `secondIsoMap A B`**
 
-**Epi proof strategy (researched, not formalized):**
-- At MonoOver level: `A.ofLE(A⊔B) = coprod.inl ≫ factorThruImage(coprod.desc A.arrow B.arrow)`
-- Similarly for B with `coprod.inr`
-- `coprod.desc (A.ofLE) (B.ofLE) = coprod.desc (coprod.inl ≫ fTI) (coprod.inr ≫ fTI) = fTI`
-- `factorThruImage` is epi; composed with `cokernel.π` (epi) gives epi composition
-- Composition = `coprod.desc 0 (B.ofLE ≫ cokernel.π)` since A component is killed
-- `coprod.desc 0 g` epi implies `g` epi: if `g ≫ h₁ = g ≫ h₂` then `coprod.desc 0 g ≫ h₁ = coprod.desc 0 g ≫ h₂` and epi cancels
-- CHALLENGE: relating Subobject.ofLE to MonoOver.leSupLeft through the quotient
+Overall: show `secondIsoMap` is mono AND epi, then `asIso (secondIsoMap A B)`.
+Tested: `haveI : Mono .. := by sorry; haveI : Epi .. := by sorry; haveI : IsIso .. := isIso_of_mono_of_epi ..; exact asIso ..` COMPILES with sorries.
 
-**Alternative epi approach:** show square `A⊓B → B, A⊓B → A, B → A⊔B, A → A⊔B` is a pushout (abelian pullback+mono = pushout)
+**Mono proof strategy (2026-02-03, researched, concrete):**
+Uses `Preadditive.mono_of_cancel_zero` + refinements + Subobject.Factors:
+1. Given `g : T → cokernel(i₁)` with `g ≫ secondIsoMap = 0`
+2. `surjective_up_to_refinements_of_epi (cokernel.π i₁) g` → get `T', π epi, f` with `f ≫ cokernel.π(i₁) = π ≫ g`
+3. `f ≫ B.ofLE(A⊔B) ≫ cokernel.π(j₂) = 0` (from cokernel.π_desc + hg)
+4. `exact_cokernel(j₂).exact_up_to_refinements (f ≫ B.ofLE(A⊔B)) (step 3)` → get `T'', π' epi, h` with `π' ≫ (f ≫ B.ofLE) = h ≫ A.ofLE(A⊔B)`
+5. Compose with `(A⊔B).arrow`: `(π' ≫ f) ≫ B.arrow = h ≫ A.arrow`
+6. `A.Factors ((π' ≫ f) ≫ B.arrow)` (via h) and `B.Factors ((π' ≫ f) ≫ B.arrow)` (via π' ≫ f)
+7. `inf_factors` → `(A ⊓ B).Factors ((π' ≫ f) ≫ B.arrow)`
+8. `k := (A ⊓ B).factorThru ..`, then `k ≫ (A⊓B).arrow = (π' ≫ f) ≫ B.arrow`
+9. `k ≫ (A⊓B).ofLE B ≫ B.arrow = (π' ≫ f) ≫ B.arrow`, so `k ≫ i₁ = π' ≫ f` (B.arrow mono)
+10. `(π' ≫ f) ≫ cokernel.π(i₁) = k ≫ i₁ ≫ cokernel.π(i₁) = 0`
+11. `π' ≫ π ≫ g = 0`, epi cancel → `g = 0` ✓
+
+**Key Lean API for mono:** `surjective_up_to_refinements_of_epi`, `ShortComplex.Exact.exact_up_to_refinements`, `exact_cokernel`, `Subobject.Factors`, `Subobject.factorThru`, `inf_factors`, `Subobject.factorThru_arrow`, `Subobject.ofLE_comp_ofLE`
+
+**Epi proof strategy (2026-02-03, researched, concrete):**
+Uses kernel argument + Subobject lattice:
+1. Given `g : cokernel(j₂) → Z` with `secondIsoMap ≫ g = 0`
+2. Let `f = cokernel.π(j₂) ≫ g : (A⊔B).underlying → Z`
+3. `A.ofLE(A⊔B) ≫ f = 0` (cokernel condition) and `B.ofLE(A⊔B) ≫ f = 0` (from step 1 via cokernel.π_desc)
+4. `kernel.lift f (A.ofLE) (step 3a)` and `kernel.lift f (B.ofLE) (step 3b)` give lifts
+5. `(kernel.lift ..) ≫ kernel.ι f ≫ (A⊔B).arrow = A.arrow` (similarly for B)
+6. So A and B both ≤ `Subobject.mk(kernel.ι f ≫ (A⊔B).arrow)` as subobjects of X
+7. Hence `A ⊔ B ≤ Subobject.mk(kernel.ι f ≫ (A⊔B).arrow)`
+8. Also `Subobject.mk(kernel.ι f ≫ (A⊔B).arrow) ≤ A ⊔ B` (kernel.ι factors through id)
+9. Equality → `kernel.ι f` is iso (from Subobject.mk equality + mono cancel)
+10. `f = 0`: use `IsIso.inv_hom_id` + `kernel.condition` + `comp_zero`
+11. `cokernel.π ≫ g = 0` → `g = 0` (cokernel.π epi) ✓
+
+**Key Lean API for epi:** `Preadditive.epi_of_cancel_zero` (or direct constructor), `kernel.lift`, `kernel.condition`, `Subobject.mk_le_mk_of_comm` (or equivalent), `sup_le`, `le_antisymm`, `isIso_of_mono_of_epi`
+
+**Mathlib gaps confirmed:** No `IsPullback → IsPushout` for abelian categories in mathlib. No categorical second isomorphism theorem. Module version uses `LinearMap.quotientInfEquivSupQuotient`.
 
 **Mathlib pattern:** `JordanHolderModule.instJordanHolderLattice` in `Mathlib.RingTheory.SimpleModule.Basic`
 

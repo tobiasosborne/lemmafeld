@@ -57,12 +57,12 @@ This is the root blocker for the multiplicity chain.
 - DONE: `cokernelIsoOfEq_sup/inf` conversions for `A ⊓ (A⊔B) = A` and `(A⊓B) ⊓ B = A⊓B`
 - DONE: `subobject_second_iso` wiring `SubobjectIso (A, A⊔B) (A⊓B, B)` from core iso
 - SORRY: `secondIso` — the core iso `cokernel((A⊓B)→B) ≅ cokernel(A→A⊔B)`
-- **Proof strategy (researched, not yet formalized):**
-  - Forward map is `secondIsoMap` via `cokernel.desc`
-  - **Mono**: kernel of `B.ofLE(A⊔B) ≫ cokernel.π(A→A⊔B)` = pullback of image(A) along B.ofLE = A⊓B; this is killed by cokernel condition, so `cokernel.desc` is mono
-  - **Epi**: `coprod.desc (A.ofLE(A⊔B)) (B.ofLE(A⊔B))` = `factorThruImage(coprod.desc A.arrow B.arrow)` at MonoOver level, which is epi; compose with `cokernel.π` (epi) to get epi composition; deduce `B.ofLE ≫ cokernel.π` is epi since `coprod.desc 0 g` epi implies `g` epi
-  - Then `isIso_of_mono_of_epi` in balanced (abelian) category
-- **Key Lean API**: `Subobject.ofLE_comp_ofLE`, `cokernel.desc_epi`, `isIso_of_mono_of_epi`, `Preadditive.mono_of_cancel_zero`
+- **Proof approach (2026-02-03, fully researched):**
+  - Overall: `isIso_of_mono_of_epi` + `asIso (secondIsoMap A B)`. Skeleton COMPILES with sorries.
+  - **Mono**: `Preadditive.mono_of_cancel_zero` + refinement lift through `cokernel.π` + `exact_cokernel.exact_up_to_refinements` + `Subobject.Factors`/`factorThru`/`inf_factors` to factor through `A⊓B`, then cancel via cokernel condition. See `docs/learnings/chapter1/length_objects.md` for 11-step proof.
+  - **Epi**: `kernel.lift` for both `A.ofLE` and `B.ofLE` into `kernel(cokernel.π ≫ g)`, show `Subobject.mk(kernel.ι ≫ (A⊔B).arrow) = A⊔B` via `sup_le` + `le_antisymm`, deduce `kernel.ι` is iso, hence `f = 0`. See learnings for 11-step proof.
+- **Key Lean API**: `surjective_up_to_refinements_of_epi`, `exact_cokernel`, `ShortComplex.Exact.exact_up_to_refinements`, `Subobject.factorThru_arrow`, `inf_factors`, `kernel.lift`, `kernel.condition`, `isIso_of_mono_of_epi`, `Subobject.mk_le_mk_of_comm`
+- **Mathlib gap confirmed**: No `IsPullback → IsPushout` for abelian categories. No categorical 2nd iso theorem.
 
 **Step B4: Build the `JordanHolderLattice (Subobject X)` instance** (~30 LOC) — issue lemmafeld-ehiv
 - File: `Chapter1/JordanHolderSubobject.lean` (extend)
