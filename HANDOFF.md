@@ -51,22 +51,11 @@ This is the root blocker for the multiplicity chain.
 
 **Step B2: COMPLETE ✓** — `SubobjectIso` defined using `cokernel` isomorphism of pairs, with `iso_symm`, `iso_trans`
 
-**Step B3: Second isomorphism theorem for subobjects** (~40 LOC) — issue lemmafeld-ict0 — IN PROGRESS (1 sorry)
-- File: `Chapter1/JordanHolderSubobject.lean` (extended)
-- DONE: `secondIsoMap` forward map via `cokernel.desc` (compiles, no sorry)
-- DONE: `cokernel_π_comp_secondIsoMap` simp lemma
-- DONE: `mono_secondIsoMap` — **PROVED, 0 sorries** (via `Preadditive.mono_of_cancel_zero` + refinements + `inf_factors`)
-- DONE: `secondIso` wired up via `isIso_of_mono_of_epi` + `asIso` (depends on epi)
-- DONE: `cokernelIsoOfEq_sup/inf` conversions
-- DONE: `subobject_second_iso` wiring `SubobjectIso (A, A⊔B) (A⊓B, B)` from core iso
-- SORRY: `epi_secondIsoMap` — 1 sorry remaining
-- **Epi proof state (2026-02-03):**
-  - Structure complete: if `secondIsoMap ≫ g = 0`, suffices `cokernel.π ≫ g = 0`
-  - Proved: both `A.ofLE ≫ (cokernel.π ≫ g) = 0` and `B.ofLE ≫ (cokernel.π ≫ g) = 0`
-  - Proved: `biprod.desc(A.ofLE)(B.ofLE) ≫ (cokernel.π ≫ g) = 0`
-  - **REMAINING**: show `biprod.desc(A.ofLE(A⊔B))(B.ofLE(A⊔B))` is epi, then cancel
-  - **Approach**: `biprod.desc ≫ (A⊔B).arrow = biprod.desc A.arrow B.arrow = factorThruImage ≫ image.ι`. Since `factorThruImage` is epi and `(A⊔B).arrow` is mono, `biprod.desc = factorThruImage` is epi. Need to understand `Subobject.sup` internal construction or find alternative.
-- **Mathlib gap confirmed**: No categorical 2nd iso theorem.
+**Step B3: COMPLETE ✓** — Second isomorphism theorem (0 sorries) — issue lemmafeld-ict0 CLOSED
+- File: `Chapter1/JordanHolderSubobject.lean`
+- `secondIsoMap`, `mono_secondIsoMap`, `epi_secondIsoMap`, `secondIso`, `subobject_second_iso` — all proved
+- `epi_secondIsoMap` proved via kernel/subobject argument: lift A, B through kernel.ι, show kernel contains A⊔B via Subobject.mk_le_mk_of_comm + sup_le, conclude kernel.ι is iso via isoOfMkEqMk, then zero_of_epi_comp
+- **Mathlib gap confirmed**: No categorical 2nd iso theorem (our contribution).
 
 **Step B4: Build the `JordanHolderLattice (Subobject X)` instance** (~30 LOC) — issue lemmafeld-ehiv
 - File: `Chapter1/JordanHolderSubobject.lean` (extend)

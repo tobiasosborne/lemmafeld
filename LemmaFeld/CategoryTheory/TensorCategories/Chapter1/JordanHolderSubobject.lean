@@ -152,15 +152,24 @@ instance epi_secondIsoMap (A B : Subobject X) : Epi (secondIsoMap A B) := by
     have : cokernel.π ((A ⊓ B).ofLE B inf_le_right) ≫ (secondIsoMap A B ≫ g) = 0 := by
       rw [hg, comp_zero]
     rwa [← Category.assoc, cokernel_π_comp_secondIsoMap, Category.assoc] at this
-  -- biprod.desc (A.ofLE) (B.ofLE) kills cokernel.π ≫ g
-  have key : biprod.desc (A.ofLE (A ⊔ B) le_sup_left) (B.ofLE (A ⊔ B) le_sup_right) ≫
-      (cokernel.π (A.ofLE (A ⊔ B) le_sup_left) ≫ g) = 0 := by
-    rw [biprod.desc_eq, Preadditive.add_comp, Category.assoc, Category.assoc, hA, hB,
-      comp_zero, comp_zero, add_zero]
-  -- TODO: show biprod.desc (A.ofLE) (B.ofLE) is epi, then cancel
-  -- biprod.desc ≫ (A⊔B).arrow = biprod.desc A.arrow B.arrow = factorThruImage ≫ image.ι
-  -- factorThruImage is epi, and (A⊔B).arrow is mono, so biprod.desc = factorThruImage is epi
-  sorry
+  -- Kernel/subobject argument: both A and B land in kernel, so kernel.ι is iso
+  set f := cokernel.π (A.ofLE (A ⊔ B) le_sup_left) ≫ g with hf_def
+  haveI : Mono (kernel.ι f ≫ (A ⊔ B).arrow) := mono_comp _ _
+  have hA_le : A ≤ Subobject.mk (kernel.ι f ≫ (A ⊔ B).arrow) := by
+    conv_lhs => rw [← Subobject.mk_arrow A]
+    exact Subobject.mk_le_mk_of_comm (kernel.lift f (A.ofLE (A ⊔ B) le_sup_left) hA)
+      (by rw [← Category.assoc, kernel.lift_ι, Subobject.ofLE_arrow])
+  have hB_le : B ≤ Subobject.mk (kernel.ι f ≫ (A ⊔ B).arrow) := by
+    conv_lhs => rw [← Subobject.mk_arrow B]
+    exact Subobject.mk_le_mk_of_comm (kernel.lift f (B.ofLE (A ⊔ B) le_sup_right) hB)
+      (by rw [← Category.assoc, kernel.lift_ι, Subobject.ofLE_arrow])
+  have heq : Subobject.mk (kernel.ι f ≫ (A ⊔ B).arrow) = Subobject.mk (A ⊔ B).arrow :=
+    le_antisymm (Subobject.mk_le_mk_of_comm (kernel.ι f) rfl)
+      (by rw [Subobject.mk_arrow]; exact sup_le hA_le hB_le)
+  have hφ : (Subobject.isoOfMkEqMk _ _ heq).hom = kernel.ι f :=
+    (cancel_mono (A ⊔ B).arrow).mp (Subobject.ofMkLEMk_comp heq.le)
+  haveI : IsIso (kernel.ι f) := hφ ▸ inferInstance
+  exact zero_of_epi_comp (kernel.ι f) (kernel.condition f)
 
 /-- The second isomorphism theorem: cokernel(A⊓B → B) ≅ cokernel(A → A⊔B).
     The forward map secondIsoMap is mono and epi, hence iso in abelian category. -/
