@@ -752,48 +752,62 @@ class IndecomposableCategory (C : Type*) [Category C] [HasZeroObject C] : Prop w
 
 ---
 
-## §1.5 Completion Plan (2026-02-03)
+## §1.5 Completion Plan (2026-02-03, updated)
 
-### Status Update: Krull-Schmidt is SORRY-FREE
+### Status Update
 
-As of 2026-02-03, all KS files have 0 sorries:
-- `KrullSchmidt/Existence.lean` — `krullSchmidt_existence` ✓
-- `KrullSchmidt/Uniqueness.lean` — `krullSchmidt_uniqueness` ✓
-- `KrullSchmidt/Exchange.lean` — `exchangeLemma` ✓
-- `KrullSchmidt/BiproductCancellation.lean` — all simp lemmas ✓
-- `FittingLemma.lean` — `fitting_lemma`, `isLocalRing_end_of_indecomposable_finiteLength` ✓
+All KS files, Fitting, and GrothendieckGroup have 0 sorries.
+JordanHolderSubobject.lean created with IsMaximal + Iso definitions.
 
-### Remaining §1.5 Sorries
-
-1. `GrothendieckGroup.lean:173` — `grothendieckGroup_generated_by_simples`
-   - **Approach:** `FreeAbelianGroup.induction_on` gives zero/of/neg/add cases
-   - Each case constructs explicit `(n, coeffs, simples)` triple
-   - ~15 LOC, unblocked
+### Remaining §1.5 Sorries: NONE
 
 ### §1.5 Dependency Chain
 
 ```
-mfs8 (JordanHolderLattice (Subobject X))
-  → awcn (HasMultiplicity from JHL)
-    → 2hzv (objectClass map [X])
+ict0 (Second iso theorem for Subobject X)
+  → ehiv (JordanHolderLattice instance)
+    → awcn (HasMultiplicity from JHL)
+      → 2hzv (objectClass map [X])
 ```
 
-Root blocker `mfs8` requires:
-1. `IsMaximal` for subobjects (~20 LOC)
-2. `Iso` for subobject pairs via quotients (~20 LOC)
-3. Second isomorphism theorem for subobjects (~40 LOC)
-4. Instance assembly (~30 LOC)
+### JordanHolderLattice Instance Progress (2026-02-03)
+
+**Lean file:** `Chapter1/JordanHolderSubobject.lean`
+
+**Completed:**
+- `SubobjectIsMaximal A B` := `A ⋖ B` (Covby, following module case)
+- `SubobjectQuotient h` := `cokernel (A.ofLE B h)` for A ≤ B
+- `SubobjectIso p q` := `Nonempty (cokernel (inf.ofLE ...) ≅ cokernel (inf.ofLE ...))`
+- `subobjectIso_symm`, `subobjectIso_trans` proved
+- `subobjectIsMaximal_lt` proved
+
+**Key findings for instance assembly:**
+- `sup_eq_of_isMaximal`: use `WCovBy.sup_eq` (works for any SemilatticeSup) ✓
+- `isMaximal_inf_left_of_isMaximal_sup`: needs `IsWeakLowerModularLattice (Subobject X)`
+  - NOT in mathlib for Subobject
+  - `inf_covBy_of_covBy_sup_of_covBy_sup_left` is the mathlib lemma (needs the instance)
+  - Proof: follows from second isomorphism theorem
+- `second_iso`: need categorical second iso theorem for subobjects
+
+**Second Isomorphism Theorem approach (for ict0):**
+- Need: `cokernel (A.ofLE (A ⊔ B) le_sup_left) ≅ cokernel ((A ⊓ B).ofLE B inf_le_right)`
+- Simplifications: `A ⊓ (A ⊔ B) = A` via `inf_sup_self`, `(A ⊓ B) ⊓ B = A ⊓ B` via `inf_eq_left`
+- `ofLE` is functorial: `A.ofLE C (h₁.trans h₂) = A.ofLE B h₁ ≫ B.ofLE C h₂` (via `underlying.map_comp`)
+- Forward map ψ: `cokernel.desc` of `B.ofLE (A⊔B) _ ≫ cokernel.π _`
+  - Condition verified: factors through A, which is killed by cokernel
+- Backward map φ: harder — needs map `underlying (A ⊔ B) → cokernel ((A⊓B) → B)`
+  - Requires understanding how `Subobject.sup` constructs its underlying object
+- Alternative: construct ψ only, prove mono+epi, conclude iso in abelian category
+
+**Mathlib pattern:** `JordanHolderModule.instJordanHolderLattice` in `Mathlib.RingTheory.SimpleModule.Basic`
 
 ### Unblocked §1.5 Work Items
 
-| Step | LOC | Description |
-|------|-----|-------------|
-| Fill GrothendieckGroup sorry | ~15 | `FreeAbelianGroup.induction_on` |
-| JHL Step 1: IsMaximal | ~20 | New file `JordanHolderSubobject.lean` |
-| JHL Step 2: Iso pairs | ~20 | Same file |
-| JHL Step 3: 2nd iso thm | ~40 | Abelian cokernel machinery |
-| JHL Step 4: Instance | ~30 | Wire up axioms |
-| Ex 1.5.10(ii) proof | ~50 | Indecomposable ⟺ linked |
-| Ex 1.5.9 Vec_S | ~30 | New file `GradedSpaces.lean` |
+| Step | LOC | Description | Issue |
+|------|-----|-------------|-------|
+| JHL Step 3: 2nd iso thm | ~40 | Abelian cokernel machinery | lemmafeld-ict0 |
+| JHL Step 4: Instance | ~30 | Wire up axioms | lemmafeld-ehiv |
+| Ex 1.5.10(ii) proof | ~50 | Indecomposable ⟺ linked | lemmafeld-x279 |
+| Ex 1.5.10(i) proof | ~50 | Block decomposition | lemmafeld-77w9 |
 
-See `HANDOFF.md` for full plan with tracks A-F and recommended session order.
+See `HANDOFF.md` for full plan with tracks and recommended session order.

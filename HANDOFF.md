@@ -39,41 +39,35 @@ All sessions should prioritize §1.5 (Length Objects) until fully formalized.
 
 ## §1.5 Completion Plan (10-50 LOC steps)
 
-### Track A: Grothendieck Group Sorry (unblocked)
+### Track A: Grothendieck Group Sorry — COMPLETE ✓
 
-**Step A1: Fill `grothendieckGroup_generated_by_simples`** (~15 LOC)
-- File: `Chapter1/GrothendieckGroup.lean:169-173`
-- Use `FreeAbelianGroup.induction_on` to decompose any element
-- Zero case: n=0, empty coeffs
-- Generator case: n=1, coeff=1
-- Neg case: n=1, coeff=-1
-- Add case: concatenate Fin families
+**A1 done:** 0 sorries confirmed, issue lemmafeld-nwka closed.
 
-### Track B: JordanHolderLattice for Subobject (deep gap, unblocked)
+### Track B: JordanHolderLattice for Subobject (deep gap)
 
 This is the root blocker for the multiplicity chain.
 
-**Step B1: Define `IsMaximal` for subobjects** (~20 LOC)
-- File: NEW `Chapter1/JordanHolderSubobject.lean`
-- `IsMaximal (A B : Subobject X)` := A < B ∧ cokernel of A → B is simple
-- In abelian categories: A ⊂ B maximal iff B/A is simple
-- Needs: `Subobject.ofLE`, cokernel construction
+**Step B1: COMPLETE ✓** — `SubobjectIsMaximal` defined as `Covby` in `Chapter1/JordanHolderSubobject.lean`
 
-**Step B2: Define `Iso` for subobject pairs** (~20 LOC)
-- Same file
-- `Iso (A₁ B₁) (A₂ B₂)` := quotient B₁/A₁ ≅ B₂/A₂ as objects
-- Construct via cokernel of the inclusion maps
+**Step B2: COMPLETE ✓** — `SubobjectIso` defined using `cokernel` isomorphism of pairs, with `iso_symm`, `iso_trans`
 
-**Step B3: Second isomorphism theorem for subobjects** (~40 LOC)
-- Same file
-- For A, B : Subobject X: (A ⊔ B) / B ≅ A / (A ⊓ B)
-- Key property needed by JordanHolderLattice
-- Uses abelian category cokernel/kernel machinery
+**Step B3: Second isomorphism theorem for subobjects** (~40 LOC) — issue lemmafeld-ict0
+- File: `Chapter1/JordanHolderSubobject.lean` (extend)
+- Need: `cokernel (A.ofLE (A ⊔ B) _) ≅ cokernel ((A ⊓ B).ofLE B _)`
+- Forward map ψ: `B → A⊔B → cokernel(A→A⊔B)`, kernel is A⊓B, factor via `cokernel.desc`
+- Backward map φ: harder, needs understanding of how `A ⊔ B` underlying relates to A, B
+- Then show φ ∘ ψ = id and ψ ∘ φ = id (or use mono+epi=iso in abelian)
+- Key simplifications: `A ⊓ (A ⊔ B) = A` (inf_sup_self), `(A ⊓ B) ⊓ B = A ⊓ B` (inf_eq_left)
+- Key discovery: `ofLE` is functorial (`underlying.map`), so transitivity is free
 
-**Step B4: Build the `JordanHolderLattice (Subobject X)` instance** (~30 LOC)
-- Same file
-- Wire up IsMaximal, Iso, second_iso_theorem
-- Prove sup_eq_of_isMaximal and iso_symm axioms
+**Step B4: Build the `JordanHolderLattice (Subobject X)` instance** (~30 LOC) — issue lemmafeld-ehiv
+- File: `Chapter1/JordanHolderSubobject.lean` (extend)
+- `sup_eq_of_isMaximal`: use `WCovBy.sup_eq` (general lattice, works immediately)
+- `isMaximal_inf_left_of_isMaximal_sup`: needs `IsWeakLowerModularLattice (Subobject X)`
+  - NOT in mathlib — must prove from second iso theorem
+  - `inf_covBy_of_covBy_sup_of_covBy_sup_left` is the lemma (requires the instance)
+- `second_iso`: from Step B3
+- Pattern: follows `JordanHolderModule.instJordanHolderLattice` in mathlib
 
 ### Track C: HasMultiplicity Instance (blocked by B4)
 
@@ -136,8 +130,8 @@ This is the root blocker for the multiplicity chain.
 
 ## Recommended Session Order
 
-1. **A1** — Quick win, fills the only sorry in Grothendieck group
-2. **B1-B4** — Deep work, unblocks the multiplicity chain
+1. **B3** — Second iso theorem (hardest remaining step, unblocks B4)
+2. **B4** — JordanHolderLattice instance (after B3)
 3. **E1-E3** — Independent of B, completes Exercise 1.5.10
 4. **C1-C3** → **D1-D2** — After B4, completes Grothendieck group
 5. **F1** — Easy example
