@@ -697,33 +697,6 @@ theorem fitting_lemma (f : End X) (hX : Indecomposable X) (hfl : IsFiniteLengthO
 def EndomorphismRingIsLocal (X : C) : Prop :=
   ∀ f g : X ⟶ X, IsIso (f + g) → IsIso f ∨ IsIso g
 
-/-- If x is nilpotent and has a left inverse, then x = 0 in a nontrivial ring.
-This is a key lemma for showing nilpotents form an ideal. -/
-lemma eq_zero_of_isNilpotent_of_left_inv {R : Type*} [Ring R] [Nontrivial R] {x l : R}
-    (hx : IsNilpotent x) (hl : l * x = 1) : x = 0 := by
-  obtain ⟨n, hn⟩ := hx
-  have key : ∀ k, l * x ^ (k + 1) = x ^ k := by
-    intro k
-    induction k with
-    | zero => simp [pow_one, hl]
-    | succ k ih =>
-      calc l * x ^ (k + 2) = l * (x * x ^ (k + 1)) := by rw [pow_succ']
-        _ = (l * x) * x ^ (k + 1) := by rw [mul_assoc]
-        _ = 1 * x ^ (k + 1) := by rw [hl]
-        _ = x ^ (k + 1) := one_mul _
-  suffices h : x ^ 1 = 0 by simpa [pow_one] using h
-  induction n with
-  | zero => simp at hn
-  | succ n ih =>
-    cases n with
-    | zero => exact hn
-    | succ m =>
-      apply ih
-      calc x ^ (m + 1) = l * x ^ (m + 2) := (key (m + 1)).symm
-        _ = l * x ^ (m + 1 + 1) := rfl
-        _ = l * 0 := by rw [hn]
-        _ = 0 := mul_zero l
-
 /-- End(X) is nontrivial when X is not zero. -/
 lemma nontrivial_end_of_not_isZero (hX : ¬IsZero X) : Nontrivial (End X) := by
   refine ⟨⟨0, 𝟙 X, ?_⟩⟩
@@ -749,46 +722,34 @@ theorem isLocalRing_end_of_indecomposable_finiteLength
   rcases fitting_lemma f hX hfl with hf_nil | hf_unit
   · -- f is nilpotent, apply Fitting to g
     rcases fitting_lemma g hX hfl with hg_nil | hg_unit
-    · -- Both f and g are nilpotent, but f + g is a unit - contradiction
+    · -- Both f and g are nilpotent, but f + g is a unit
+      -- For indecomposable X of finite length, this is a contradiction
+      -- The nilpotent elements form the Jacobson radical, which can't contain units
       exfalso
-      -- Get the inverse of f + g
-      have hfg' := hfg  -- save before destructuring
-      obtain ⟨u, hu⟩ := hfg
-      let v : End X := ↑u⁻¹
-      have hvu : v * (f + g) = 1 := by simp only [v, ← hu, Units.inv_mul]
-      have hvfg : v * f + v * g = 1 := by rw [← mul_add, hvu]
-      -- Apply Fitting to v * f
+      -- Apply Fitting's lemma to u⁻¹ * f; both cases give contradiction
+      set v := (↑hfg.unit⁻¹ : End X) with hv
+      have hv_sum : v * f + v * g = 1 := by
+        rw [← mul_add, hv]
+        have h : (↑hfg.unit⁻¹ : End X) * ↑hfg.unit = 1 := by
+          rw [← Units.val_mul, inv_mul_cancel, Units.val_one]
+        rwa [hfg.unit_spec] at h
       rcases fitting_lemma (v * f) hX hfl with hvf_nil | hvf_unit
-      · -- v * f is nilpotent, so 1 - v * f = v * g is a unit
-        have heq : v * g = 1 - v * f := by
-          have h := hvfg
-          calc v * g = 1 - v * f + (v * g - 1 + v * f) := by abel
-            _ = 1 - v * f + (v * f + v * g - 1) := by abel
-            _ = 1 - v * f + (1 - 1) := by rw [h]
-            _ = 1 - v * f := by abel
-        have hvg_unit : IsUnit (v * g) := by rw [heq]; exact hvf_nil.isUnit_one_sub
-        -- g has a left inverse: if w * (v * g) = 1, then (w * v) * g = 1
-        obtain ⟨w, hw⟩ := hvg_unit
-        have hleft : (↑w⁻¹ * v) * g = 1 := by
-          calc (↑w⁻¹ * v) * g = ↑w⁻¹ * (v * g) := by rw [mul_assoc]
-            _ = ↑w⁻¹ * ↑w := by rw [← hw]
-            _ = 1 := Units.inv_mul w
-        -- g is nilpotent with a left inverse, so g = 0
-        have hg0 : g = 0 := eq_zero_of_isNilpotent_of_left_inv hg_nil hleft
-        -- Then f + g = f is a unit, but f is nilpotent - contradiction
-        have hunf : IsUnit f := by rwa [hg0, add_zero] at hfg'
-        exact hf_nil.not_isUnit hunf
-      · -- v * f is a unit, so f has a left inverse
-        obtain ⟨w, hw⟩ := hvf_unit
-        have hleft : (↑w⁻¹ * v) * f = 1 := by
-          calc (↑w⁻¹ * v) * f = ↑w⁻¹ * (v * f) := by rw [mul_assoc]
-            _ = ↑w⁻¹ * ↑w := by rw [← hw]
-            _ = 1 := Units.inv_mul w
-        -- f is nilpotent with a left inverse, so f = 0
-        have hf0 : f = 0 := eq_zero_of_isNilpotent_of_left_inv hf_nil hleft
-        -- Then f + g = g is a unit, but g is nilpotent - contradiction
-        have hung : IsUnit g := by rwa [hf0, zero_add] at hfg'
-        exact hg_nil.not_isUnit hung
+      · -- v * f nilpotent → v * g = 1 - v * f is a unit → g is a unit → contradiction
+        have hvg_eq : v * g = 1 - v * f := by
+          rw [eq_sub_iff_add_eq, add_comm]; exact hv_sum
+        have hg_unit : IsUnit g := by
+          have hmul : (↑hfg.unit : End X) * v * g = g := by
+            rw [hv, ← Units.val_mul, mul_inv_cancel, Units.val_one, one_mul]
+          rw [← hmul, mul_assoc]
+          exact (Units.isUnit hfg.unit).mul (hvg_eq ▸ hvf_nil.isUnit_one_sub)
+        exact hg_nil.not_isUnit hg_unit
+      · -- v * f is a unit → f is a unit → contradiction
+        have hf_unit : IsUnit f := by
+          have hmul : (↑hfg.unit : End X) * v * f = f := by
+            rw [hv, ← Units.val_mul, mul_inv_cancel, Units.val_one, one_mul]
+          rw [← hmul, mul_assoc]
+          exact (Units.isUnit hfg.unit).mul hvf_unit
+        exact hf_nil.not_isUnit hf_unit
     · right; exact hg_unit
   · left; exact hf_unit
 

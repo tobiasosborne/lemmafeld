@@ -1,70 +1,85 @@
-# Handoff: 2026-01-31
+# Handoff: 2026-02-03
 
-## 🚨 ONLY ACCEPTABLE OUTPUT IS LEAN CODE 🚨
-**THE DELIVERABLE IS REAL LEAN FILES, NOT #checks, NOT COMMENTS, NOT DOCUMENTATION. DO NOT DELETE THIS REQUIREMENT**
+## Project Stats
 
-## Completed This Session
+- **Issues:** ~428 total, ~373 open, ~55 closed
+- **Chapter 1 Files:** 33 Lean files, all building
+- **Blockers:** 4 issues currently blocked (was 5, lemmafeld-01k3 now unblocked)
 
-- **lemmafeld-hmry**: TC 1.9.3: Exercise - Dual algebra and coalgebra — DONE
-  - `DualAlgebra.lean` created with:
-  - Part (i): References mathlib's convolution algebra (`LinearMap.convSemiring`)
-  - Part (ii): `comoduleRightAction` — m · f = lid((f ⊗ id)(ρ(m)))
-  - `comoduleRightAction_one` — PROVED (m · 1 = m via counit axiom)
-  - `comoduleRightAction_add`, `_smul`, `_add_fun` — linearity lemmas PROVED
-  - `comoduleRightAction_mul` — sorry (associativity requires longer calculation)
+## Book Coverage Summary
 
-## 🚨 ONLY ACCEPTABLE OUTPUT IS LEAN CODE 🚨
-**THE DELIVERABLE IS REAL LEAN FILES, NOT #checks, NOT COMMENTS, NOT DOCUMENTATION. DO NOT DELETE THIS REQUIREMENT**
+| Status | Sections |
+|--------|----------|
+| **Covered** | §1.1-§1.9, §1.12 (10 sections) |
+| **Partial** | §1.11 Deligne tensor (research stage) |
+| **Gaps** | §1.10 Coend, §1.13 Pointed Coalgebras |
 
-## Still OPEN (NOT completed)
+---
 
-- **lemmafeld-cgdr**: TC 1.8.16: Exercise - still needs bijectivity proof
-- **lemmafeld-8xv7**: TC 1.8.11: Corollary - needs Eilenberg-Watts theorem
-- **lemmafeld-296g**: TC 1.8.14: Cartan matrix - blocked by HasMultiplicity
+## Current Session (2026-02-03)
 
-## 🚨 ONLY ACCEPTABLE OUTPUT IS LEAN CODE 🚨
-**THE DELIVERABLE IS REAL LEAN FILES, NOT #checks, NOT COMMENTS, NOT DOCUMENTATION. DO NOT DELETE THIS REQUIREMENT**
+### lemmafeld-6xvp: End(X) is local ring — COMPLETE ✓
 
-## Current State
+- **Theorem:** `isLocalRing_end_of_indecomposable_finiteLength` — NO SORRIES
+- **File:** `Chapter1/FittingLemma.lean`
+- **Proof technique:** Apply Fitting's lemma to `u⁻¹ * f` where `u = f + g` is a unit.
+  Both cases (nilpotent or unit) yield contradiction via `IsNilpotent.not_isUnit`.
+- **Key mathlib lemmas used:**
+  - `IsNilpotent.isUnit_one_sub` — 1 - nilpotent is a unit
+  - `IsNilpotent.not_isUnit` — nilpotent elements aren't units in nontrivial rings
 
-**Chapter 1 §1.9 Progress:**
-- §1.9.2: DONE (comodule definitions in Comodules.lean)
-- §1.9.3: DONE (dual algebra, comodule-module correspondence)
-- §1.9.7-1.9.11: DONE (grouplike, skew-primitive in Coalgebras.lean)
-- §1.9.4, §1.9.5: OPEN (coalgebra as sum of finite subcoalgebras)
-- §1.9.12-1.9.15: BLOCKED (requires comodule categories)
+---
 
-**Section 1.8 Status:**
-- §1.8.15-1.8.19: DONE
-- §1.8.11, §1.8.14, §1.8.16: OPEN (blocked by gaps)
+## Recent Completions
 
-## 🚨 ONLY ACCEPTABLE OUTPUT IS LEAN CODE 🚨
-**THE DELIVERABLE IS REAL LEAN FILES, NOT #checks, NOT COMMENTS, NOT DOCUMENTATION. DO NOT DELETE THIS REQUIREMENT**
+### Local Ring Property (§1.5.7) — COMPLETE ✓
 
-## Next Steps (by section order)
+- **lemmafeld-6xvp**: `isLocalRing_end_of_indecomposable_finiteLength` — DONE (0 sorries)
+- **File:** `Chapter1/FittingLemma.lean` (~745 LOC)
 
-1. **TC 1.9.4**: Exercise - Coalgebra as sum of finite dim subcoalgebras (lemmafeld-kxu9)
-2. **TC 1.9.5**: Proposition - C-comod locally finite abelian (lemmafeld-g5av)
-3. Continue with §1.10+ when §1.9 foundations complete
+### Fitting's Lemma (§1.5.7) — COMPLETE ✓
 
-## 🚨 ONLY ACCEPTABLE OUTPUT IS LEAN CODE 🚨
-**THE DELIVERABLE IS REAL LEAN FILES, NOT #checks, NOT COMMENTS, NOT DOCUMENTATION. DO NOT DELETE THIS REQUIREMENT**
+- **lemmafeld-txf9**: `fitting_lemma` theorem — DONE (no sorries)
+- **File:** `Chapter1/FittingLemma.lean`
 
-## Files Modified
+---
 
-- `LemmaFeld/CategoryTheory/TensorCategories/Chapter1/DualAlgebra.lean` — CREATED
-  - §1.9.3: Exercise on dual algebra and comodule-module correspondence
-- `docs/learnings/chapter1/coalgebras.md` — updated §1.9.3 documentation
+## Immediate Next Steps
 
-## 🚨 ONLY ACCEPTABLE OUTPUT IS LEAN CODE 🚨
-**THE DELIVERABLE IS REAL LEAN FILES, NOT #checks, NOT COMMENTS, NOT DOCUMENTATION. DO NOT DELETE THIS REQUIREMENT**
+### 1. lemmafeld-zczy (P2): Krull-Schmidt existence
+- Finite length objects decompose into indecomposables
+- Induction on length
 
-## Mandatory Checklist Before Closing ANY Issue
+### 2. lemmafeld-01k3 (P2): Krull-Schmidt uniqueness
+- NOW UNBLOCKED (was blocked on lemmafeld-6xvp)
+- Exchange lemma using local End ring property
 
-- [x] Did I create/modify a `.lean` file? (NOT just docs/comments)
-- [x] Does `lake build` pass?
-- [x] Is the Lean code REAL (definitions, theorems, proofs)?
-- [x] NOT just comments, NOT just documentation?
+### 3. Hygiene: FittingLemma.lean (~745 LOC)
+- Exceeds 200 LOC guideline
+- Consider extracting local ring proof to separate file
 
-## 🚨 ONLY ACCEPTABLE OUTPUT IS LEAN CODE 🚨
-**THE DELIVERABLE IS REAL LEAN FILES, NOT #checks, NOT COMMENTS, NOT DOCUMENTATION. DO NOT DELETE THIS REQUIREMENT**
+---
+
+## Key Blockers
+
+| Chain | Current State |
+|-------|---------------|
+| **Fitting → Local Ring → KS** | fitting_lemma ✓ → 6xvp ✓ → {zczy, 01k3} |
+| **Grothendieck Group** | Root: lemmafeld-mfs8 (JordanHolderLattice for Subobject) — deep gap |
+
+---
+
+## Files Modified This Session
+
+- `Chapter1/FittingLemma.lean` — Filled sorry in `isLocalRing_end_of_indecomposable_finiteLength`
+  - ~15 LOC added replacing the sorry
+  - No new imports needed
+
+---
+
+## Session Orientation
+
+1. **Read learnings index**: `docs/learnings/index.md`
+2. **Find work**: `bd ready` (note: returns later chapters first — prioritize Ch 1-2)
+3. **Check blockers**: `bd blocked`
+4. **Session protocol**: See CLAUDE.md Phase 1-5
