@@ -170,7 +170,20 @@ theorem grothendieckGroup_generated_by_simples :
     ∀ g : GrothendieckGroup C, ∃ (n : ℕ) (coeffs : Fin n → ℤ)
       (simples : Fin n → IsoClassSimple C),
       g = Finset.univ.sum fun i => coeffs i • FreeAbelianGroup.of (simples i) := by
-  intro g; sorry
+  intro g
+  induction g using FreeAbelianGroup.induction_on with
+  | C0 => exact ⟨0, Fin.elim0, Fin.elim0, by simp⟩
+  | C1 x => exact ⟨1, fun _ => 1, fun _ => x, by simp⟩
+  | Cn x _ => exact ⟨1, fun _ => -1, fun _ => x, by simp⟩
+  | Cp x y hx hy =>
+    obtain ⟨n₁, c₁, s₁, h₁⟩ := hx
+    obtain ⟨n₂, c₂, s₂, h₂⟩ := hy
+    refine ⟨n₁ + n₂, Fin.addCases c₁ c₂, Fin.addCases s₁ s₂, ?_⟩
+    rw [h₁, h₂, Fin.sum_univ_add]
+    congr 1 <;> {
+      apply Finset.sum_congr rfl; intro i _
+      simp only [Fin.addCases_left, Fin.addCases_right]
+    }
 
 /-- Isomorphic simple objects define the same class in Gr(C). -/
 theorem simpleClass_eq_of_iso {X Y : SimpleObject C} (h : X.val ≅ Y.val) :

@@ -20,13 +20,13 @@ All sessions should prioritize §1.5 (Length Objects) until fully formalized.
 | §1.5.7 KS Uniqueness | `Chapter1/KrullSchmidt/Uniqueness.lean` | `krullSchmidt_uniqueness` (0 sorries) |
 | §1.5.10(ii) Linking | `Chapter1/BlockDecomposition.lean` | `Linked`, `linked_equivalence` |
 | §1.5.10(i) Defs | `Chapter1/BlockDecomposition.lean` | `IndecomposableCategory`, `TrivialCategory` |
+| §1.5.8 Gr(C) generated | `Chapter1/GrothendieckGroup.lean` | `grothendieckGroup_generated_by_simples` (0 sorries) |
 
-### REMAINING WORK (1 sorry + 6 open issues)
+### REMAINING WORK (0 sorries + 6 open issues)
 
 | # | Issue | What | LOC est | Blocked by |
 |---|-------|------|---------|------------|
-| 1 | — | Fill `grothendieckGroup_generated_by_simples` sorry | ~15 | nothing |
-| 2 | lemmafeld-mfs8 | `JordanHolderLattice (Subobject X)` instance | ~50 | nothing (deep) |
+| 1 | lemmafeld-mfs8 | `JordanHolderLattice (Subobject X)` instance | ~50 | nothing (deep) |
 | 3 | lemmafeld-k1y1 | `HasMultiplicity` concrete impl | ~30 | nothing |
 | 4 | lemmafeld-awcn | `HasMultiplicity` from JHL instance | ~30 | mfs8 |
 | 5 | lemmafeld-2hzv | `objectClass` map `[X] : Ob(C) → Gr(C)` | ~40 | awcn |
