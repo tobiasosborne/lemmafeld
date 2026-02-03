@@ -789,15 +789,29 @@ ict0 (Second iso theorem for Subobject X)
   - Proof: follows from second isomorphism theorem
 - `second_iso`: need categorical second iso theorem for subobjects
 
-**Second Isomorphism Theorem approach (for ict0):**
-- Need: `cokernel (A.ofLE (A ⊔ B) le_sup_left) ≅ cokernel ((A ⊓ B).ofLE B inf_le_right)`
-- Simplifications: `A ⊓ (A ⊔ B) = A` via `inf_sup_self`, `(A ⊓ B) ⊓ B = A ⊓ B` via `inf_eq_left`
-- `ofLE` is functorial: `A.ofLE C (h₁.trans h₂) = A.ofLE B h₁ ≫ B.ofLE C h₂` (via `underlying.map_comp`)
-- Forward map ψ: `cokernel.desc` of `B.ofLE (A⊔B) _ ≫ cokernel.π _`
-  - Condition verified: factors through A, which is killed by cokernel
-- Backward map φ: harder — needs map `underlying (A ⊔ B) → cokernel ((A⊓B) → B)`
-  - Requires understanding how `Subobject.sup` constructs its underlying object
-- Alternative: construct ψ only, prove mono+epi, conclude iso in abelian category
+**Second Isomorphism Theorem (2026-02-03 session — 1 sorry remaining):**
+- Forward map `secondIsoMap` COMPILES via `cokernel.desc`
+- isoOfEq conversions `cokernelIsoOfEq_sup/inf` COMPILE for lattice simplifications
+- `subobject_second_iso : SubobjectIso (A, A⊔B) (A⊓B, B)` wired up, COMPILES
+- SORRY: `secondIso` core iso — needs mono+epi proof
+
+**Mono proof strategy (researched, not formalized):**
+- Use `Preadditive.mono_of_cancel_zero`
+- Key: kernel of `B.ofLE(A⊔B) ≫ cokernel.π(A→A⊔B)` is pullback of `image(A.ofLE)` along `B.ofLE`
+- In abelian category: `kernel(cokernel.π f) = image f`; since `A.ofLE` is mono, image = A
+- Pullback of A and B (as subobjects of A⊔B) = A⊓B (as subobject of B)
+- This is killed by `cokernel.π((A⊓B)→B)`, so kernel of `cokernel.desc` = 0
+
+**Epi proof strategy (researched, not formalized):**
+- At MonoOver level: `A.ofLE(A⊔B) = coprod.inl ≫ factorThruImage(coprod.desc A.arrow B.arrow)`
+- Similarly for B with `coprod.inr`
+- `coprod.desc (A.ofLE) (B.ofLE) = coprod.desc (coprod.inl ≫ fTI) (coprod.inr ≫ fTI) = fTI`
+- `factorThruImage` is epi; composed with `cokernel.π` (epi) gives epi composition
+- Composition = `coprod.desc 0 (B.ofLE ≫ cokernel.π)` since A component is killed
+- `coprod.desc 0 g` epi implies `g` epi: if `g ≫ h₁ = g ≫ h₂` then `coprod.desc 0 g ≫ h₁ = coprod.desc 0 g ≫ h₂` and epi cancels
+- CHALLENGE: relating Subobject.ofLE to MonoOver.leSupLeft through the quotient
+
+**Alternative epi approach:** show square `A⊓B → B, A⊓B → A, B → A⊔B, A → A⊔B` is a pushout (abelian pullback+mono = pushout)
 
 **Mathlib pattern:** `JordanHolderModule.instJordanHolderLattice` in `Mathlib.RingTheory.SimpleModule.Basic`
 

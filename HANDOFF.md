@@ -51,14 +51,18 @@ This is the root blocker for the multiplicity chain.
 
 **Step B2: COMPLETE ✓** — `SubobjectIso` defined using `cokernel` isomorphism of pairs, with `iso_symm`, `iso_trans`
 
-**Step B3: Second isomorphism theorem for subobjects** (~40 LOC) — issue lemmafeld-ict0
-- File: `Chapter1/JordanHolderSubobject.lean` (extend)
-- Need: `cokernel (A.ofLE (A ⊔ B) _) ≅ cokernel ((A ⊓ B).ofLE B _)`
-- Forward map ψ: `B → A⊔B → cokernel(A→A⊔B)`, kernel is A⊓B, factor via `cokernel.desc`
-- Backward map φ: harder, needs understanding of how `A ⊔ B` underlying relates to A, B
-- Then show φ ∘ ψ = id and ψ ∘ φ = id (or use mono+epi=iso in abelian)
-- Key simplifications: `A ⊓ (A ⊔ B) = A` (inf_sup_self), `(A ⊓ B) ⊓ B = A ⊓ B` (inf_eq_left)
-- Key discovery: `ofLE` is functorial (`underlying.map`), so transitivity is free
+**Step B3: Second isomorphism theorem for subobjects** (~40 LOC) — issue lemmafeld-ict0 — IN PROGRESS (1 sorry)
+- File: `Chapter1/JordanHolderSubobject.lean` (extended)
+- DONE: `secondIsoMap` forward map via `cokernel.desc` (compiles, no sorry)
+- DONE: `cokernelIsoOfEq_sup/inf` conversions for `A ⊓ (A⊔B) = A` and `(A⊓B) ⊓ B = A⊓B`
+- DONE: `subobject_second_iso` wiring `SubobjectIso (A, A⊔B) (A⊓B, B)` from core iso
+- SORRY: `secondIso` — the core iso `cokernel((A⊓B)→B) ≅ cokernel(A→A⊔B)`
+- **Proof strategy (researched, not yet formalized):**
+  - Forward map is `secondIsoMap` via `cokernel.desc`
+  - **Mono**: kernel of `B.ofLE(A⊔B) ≫ cokernel.π(A→A⊔B)` = pullback of image(A) along B.ofLE = A⊓B; this is killed by cokernel condition, so `cokernel.desc` is mono
+  - **Epi**: `coprod.desc (A.ofLE(A⊔B)) (B.ofLE(A⊔B))` = `factorThruImage(coprod.desc A.arrow B.arrow)` at MonoOver level, which is epi; compose with `cokernel.π` (epi) to get epi composition; deduce `B.ofLE ≫ cokernel.π` is epi since `coprod.desc 0 g` epi implies `g` epi
+  - Then `isIso_of_mono_of_epi` in balanced (abelian) category
+- **Key Lean API**: `Subobject.ofLE_comp_ofLE`, `cokernel.desc_epi`, `isIso_of_mono_of_epi`, `Preadditive.mono_of_cancel_zero`
 
 **Step B4: Build the `JordanHolderLattice (Subobject X)` instance** (~30 LOC) — issue lemmafeld-ehiv
 - File: `Chapter1/JordanHolderSubobject.lean` (extend)

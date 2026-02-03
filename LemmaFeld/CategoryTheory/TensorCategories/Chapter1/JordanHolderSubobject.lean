@@ -83,4 +83,56 @@ theorem subobjectIso_trans {p q r : Subobject X × Subobject X}
     (h₁ : SubobjectIso p q) (h₂ : SubobjectIso q r) : SubobjectIso p r :=
   ⟨h₁.some ≪≫ h₂.some⟩
 
+/-! ## Second Isomorphism Theorem for Subobjects
+
+§1.5: For subobjects A, B of X in an abelian category:
+  cokernel(A → A⊔B) ≅ cokernel((A⊓B) → B)
+
+This is the categorical second isomorphism theorem: (A⊔B)/A ≅ B/(A⊓B).
+
+Strategy: construct forward map via cokernel.desc, prove mono+epi → iso
+in the balanced (abelian) category.
+-/
+
+/-- The forward map for the second isomorphism theorem:
+    B/(A⊓B) → (A⊔B)/A, induced by the inclusion B → A⊔B. -/
+def secondIsoMap (A B : Subobject X) :
+    cokernel ((A ⊓ B).ofLE B inf_le_right) ⟶ cokernel (A.ofLE (A ⊔ B) le_sup_left) :=
+  cokernel.desc _ (B.ofLE (A ⊔ B) le_sup_right ≫ cokernel.π (A.ofLE (A ⊔ B) le_sup_left)) (by
+    rw [← Category.assoc, Subobject.ofLE_comp_ofLE]
+    have : (A ⊓ B).ofLE (A ⊔ B) (inf_le_left.trans le_sup_left) =
+      (A ⊓ B).ofLE A inf_le_left ≫ A.ofLE (A ⊔ B) le_sup_left :=
+      (Subobject.ofLE_comp_ofLE _ _ _ _ _).symm
+    rw [this, Category.assoc, cokernel.condition, comp_zero])
+
+/-- The second isomorphism theorem: cokernel(A → A⊔B) ≅ cokernel((A⊓B) → B).
+    The forward map secondIsoMap is mono (kernel = A⊓B, killed by cokernel condition)
+    and epi (coprod.desc of ofLE maps = factorThruImage, which is epi). -/
+def secondIso (A B : Subobject X) :
+    cokernel ((A ⊓ B).ofLE B inf_le_right) ≅ cokernel (A.ofLE (A ⊔ B) le_sup_left) := by
+  sorry
+
+/-- Convert cokernel using A ⊓ (A ⊔ B) = A (inf_sup_self). -/
+def cokernelIsoOfEq_sup (A B : Subobject X) :
+    cokernel ((A ⊓ (A ⊔ B)).ofLE (A ⊔ B) inf_le_right) ≅
+    cokernel (A.ofLE (A ⊔ B) le_sup_left) :=
+  cokernel.mapIso _ _ (Subobject.isoOfEq _ _ inf_sup_self) (Iso.refl _) (by
+    simp [Subobject.isoOfEq_hom, Subobject.ofLE_comp_ofLE])
+
+/-- Convert cokernel using (A ⊓ B) ⊓ B = A ⊓ B. -/
+def cokernelIsoOfEq_inf (A B : Subobject X) :
+    cokernel (((A ⊓ B) ⊓ B).ofLE B inf_le_right) ≅
+    cokernel ((A ⊓ B).ofLE B inf_le_right) :=
+  cokernel.mapIso _ _ (Subobject.isoOfEq _ _ (inf_eq_left.mpr inf_le_right)) (Iso.refl _) (by
+    simp [Subobject.isoOfEq_hom, Subobject.ofLE_comp_ofLE])
+
+/-- The second isomorphism theorem adapted to SubobjectIso format:
+    SubobjectIso (A, A ⊔ B) (A ⊓ B, B).
+
+    Uses isoOfEq conversions to handle A ⊓ (A ⊔ B) = A and (A ⊓ B) ⊓ B = A ⊓ B,
+    then applies the core secondIso. -/
+theorem subobject_second_iso (A B : Subobject X) :
+    SubobjectIso (A, A ⊔ B) (A ⊓ B, B) :=
+  ⟨cokernelIsoOfEq_sup A B ≪≫ (secondIso A B).symm ≪≫ (cokernelIsoOfEq_inf A B).symm⟩
+
 end LemmaFeld.TensorCategories.Chapter1
