@@ -253,7 +253,7 @@ def iterateComap {X : C} (f : X ⟶ X) (K : Subobject X) (n : ℕ) : Subobject X
 
 **Lean file:** `Chapter1/FittingLemma.lean`
 
-### Krull-Schmidt Existence (2026-01-30 - lemmafeld-zczy PARTIAL, 2 sorries)
+### Krull-Schmidt Existence (2026-01-30 - lemmafeld-zczy COMPLETE, 0 sorries)
 
 **Statement:** Any finite length object admits an indecomposable decomposition.
 
@@ -285,19 +285,9 @@ Helper lemmas:
 - `biproduct_ι_cast'` - reindexing biproduct inclusions via eqToHom
 - `biproduct_ι_fin_eq'` - biproduct.ι with equal indices via congrArg
 
-**Remaining sorries (2):**
-1. Recursive decomposition of Y - needs well-founded recursion
-2. Recursive decomposition of Z - needs well-founded recursion
-
-**Key insight:** The recursive calls need well-founded recursion. The termination
-argument is that Y and Z embed into X via proper monomorphisms, and the Artinian
-property ensures well-foundedness. Setting up this well-founded relation is the
-main remaining work.
-
-**Approach for well-founded recursion:**
-- Define relation: Y ≺ X iff Y iso to proper subobject of X
-- Show this is well-founded for finite-length objects (by Artinian)
-- Use `WellFounded.fix` with this relation
+**RESOLVED (2026-02-03):** Both sorries filled. Uses `WellFoundedLT.induction` on
+`Subobject X` lattice. Key helpers: `subobjectOfBiprodFst_via`, `subobjectOfBiprodSnd_via`
+with `_lt` lemmas showing proper subobjects.
 
 **Lean file:** `Chapter1/KrullSchmidt.lean`
 
@@ -342,7 +332,7 @@ with both nonzero:
 
 **Lean file:** `Chapter1/KrullSchmidt.lean`
 
-### Krull-Schmidt Uniqueness (2026-01-30 - lemmafeld-01k3 PARTIAL, 1 sorry)
+### Krull-Schmidt Uniqueness (2026-01-30 - lemmafeld-01k3 COMPLETE, 0 sorries)
 
 **Statement:** Indecomposable decompositions are unique up to permutation and isomorphism.
 
@@ -371,21 +361,15 @@ lemma exchangeLemma {X : C} {n m : ℕ} (hn : 0 < n) ... :
 5. Show gⱼ ≫ fⱼ is unit in End(Zⱼ) using Fitting's lemma
 6. Conclude fⱼ is iso (mono + epi in abelian category)
 
-**Uniqueness Theorem (krullSchmidt_uniqueness — 1 SORRY):**
+**Uniqueness Theorem (krullSchmidt_uniqueness — COMPLETE, 0 sorries):**
 
-**Base case (n = 0):** COMPLETE
-- If d₁.n = 0, X is zero (biproduct over empty index)
-- Therefore d₂.n = 0 as well (no indecomposables in zero)
+**Structure:** Helper `krullSchmidt_uniqueness_aux` takes explicit IH parameter.
+Main theorem uses `Nat.strong_induction_on` feeding into aux.
 
-**Single component case (n = 1):** COMPLETE
-- If d₁.n = 1, X is indecomposable
-- Therefore d₂.n = 1 as well
-- The iso f from exchange lemma provides the component matching
-
-**Inductive case (n > 1):** PARTIAL (1 SORRY)
-- Proved: If d₁.n > 1, then d₂.n > 1 (via indecomposability argument)
-- Exchange lemma gives Y₀ ≅ Z_j for some j
-- Remaining: biproduct cancellation + strong induction
+**Base case (n = 0):** X is zero → d₂.n = 0.
+**Single component (n = 1):** X indecomposable → d₂.n = 1, exchange gives iso.
+**Inductive case (n > 1):** Uses `Biprod.isoElim` for cancellation, `prependSwapPerm`
+for permutation construction, strong induction on remainder decompositions.
 
 **Key Mathlib lemma for cancellation (2026-01-31):**
 ```lean
@@ -765,3 +749,51 @@ class IndecomposableCategory (C : Type*) [Category C] [HasZeroObject C] : Prop w
 - More specialized to module categories
 
 **Lean file:** `Chapter1/BlockDecomposition.lean`
+
+---
+
+## §1.5 Completion Plan (2026-02-03)
+
+### Status Update: Krull-Schmidt is SORRY-FREE
+
+As of 2026-02-03, all KS files have 0 sorries:
+- `KrullSchmidt/Existence.lean` — `krullSchmidt_existence` ✓
+- `KrullSchmidt/Uniqueness.lean` — `krullSchmidt_uniqueness` ✓
+- `KrullSchmidt/Exchange.lean` — `exchangeLemma` ✓
+- `KrullSchmidt/BiproductCancellation.lean` — all simp lemmas ✓
+- `FittingLemma.lean` — `fitting_lemma`, `isLocalRing_end_of_indecomposable_finiteLength` ✓
+
+### Remaining §1.5 Sorries
+
+1. `GrothendieckGroup.lean:173` — `grothendieckGroup_generated_by_simples`
+   - **Approach:** `FreeAbelianGroup.induction_on` gives zero/of/neg/add cases
+   - Each case constructs explicit `(n, coeffs, simples)` triple
+   - ~15 LOC, unblocked
+
+### §1.5 Dependency Chain
+
+```
+mfs8 (JordanHolderLattice (Subobject X))
+  → awcn (HasMultiplicity from JHL)
+    → 2hzv (objectClass map [X])
+```
+
+Root blocker `mfs8` requires:
+1. `IsMaximal` for subobjects (~20 LOC)
+2. `Iso` for subobject pairs via quotients (~20 LOC)
+3. Second isomorphism theorem for subobjects (~40 LOC)
+4. Instance assembly (~30 LOC)
+
+### Unblocked §1.5 Work Items
+
+| Step | LOC | Description |
+|------|-----|-------------|
+| Fill GrothendieckGroup sorry | ~15 | `FreeAbelianGroup.induction_on` |
+| JHL Step 1: IsMaximal | ~20 | New file `JordanHolderSubobject.lean` |
+| JHL Step 2: Iso pairs | ~20 | Same file |
+| JHL Step 3: 2nd iso thm | ~40 | Abelian cokernel machinery |
+| JHL Step 4: Instance | ~30 | Wire up axioms |
+| Ex 1.5.10(ii) proof | ~50 | Indecomposable ⟺ linked |
+| Ex 1.5.9 Vec_S | ~30 | New file `GradedSpaces.lean` |
+
+See `HANDOFF.md` for full plan with tracks A-F and recommended session order.
