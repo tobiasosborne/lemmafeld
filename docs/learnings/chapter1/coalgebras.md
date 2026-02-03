@@ -151,7 +151,7 @@ lemma IsGrouplike.span_isSubcoalgebra (hx : IsGrouplike R x) :
 | §1.9.8: Grouplike ↔ 1-dim subcoalgebras | ✅ DONE | lemmafeld-e96f | Subcoalgebra def + span lemma |
 | §1.9.9: Set coalgebra k[X] | ✅ DONE | lemmafeld-663t | |
 | §1.9.12: Prim/k(g-h) ≅ Ext¹ | BLOCKED | — | Requires comodule categories |
-| §1.9.13: Pointed coalgebra | BLOCKED | — | Requires "simple comodule" |
+| §1.9.13: Pointed coalgebra | ✅ DONE | lemmafeld-v7gb | PointedCoalgebra.lean |
 | §1.9.15: LocallyFinite ≃ C-comod | BLOCKED | lemmafeld-cwxw | Requires comodule cat (~500 LOC) |
 
 **Next steps:** With comodules defined, can now work on:

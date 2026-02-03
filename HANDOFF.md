@@ -18,15 +18,19 @@
 
 ## Current Session (2026-02-03)
 
-### lemmafeld-6xvp: End(X) is local ring — COMPLETE ✓
+### lemmafeld-v7gb: TC 1.9.13 Pointed Coalgebra — COMPLETE ✓
+
+- **File:** `Chapter1/PointedCoalgebra.lean` (~100 LOC)
+- **Definitions:**
+  - `IsRightSubcomodule` — submodule stable under coaction
+  - `IsSimpleRightComodule` — comodule with no nontrivial subcomodules
+  - `IsPointedCoalgebra` — every simple right comodule is 1-dimensional
+- **Proved:** `isRightSubcomodule_bot`, `isRightSubcomodule_top`
+
+### lemmafeld-6xvp: End(X) is local ring — COMPLETE ✓ (previous session)
 
 - **Theorem:** `isLocalRing_end_of_indecomposable_finiteLength` — NO SORRIES
 - **File:** `Chapter1/FittingLemma.lean`
-- **Proof technique:** Apply Fitting's lemma to `u⁻¹ * f` where `u = f + g` is a unit.
-  Both cases (nilpotent or unit) yield contradiction via `IsNilpotent.not_isUnit`.
-- **Key mathlib lemmas used:**
-  - `IsNilpotent.isUnit_one_sub` — 1 - nilpotent is a unit
-  - `IsNilpotent.not_isUnit` — nilpotent elements aren't units in nontrivial rings
 
 ---
 
@@ -71,9 +75,8 @@
 
 ## Files Modified This Session
 
-- `Chapter1/FittingLemma.lean` — Filled sorry in `isLocalRing_end_of_indecomposable_finiteLength`
-  - ~15 LOC added replacing the sorry
-  - No new imports needed
+- `Chapter1/PointedCoalgebra.lean` — NEW: §1.9.13 pointed coalgebra definitions
+- `Chapter1/FittingLemma.lean` — Filled sorry (previous session)
 
 ---
 
