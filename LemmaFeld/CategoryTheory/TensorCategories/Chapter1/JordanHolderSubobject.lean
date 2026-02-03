@@ -5,6 +5,8 @@ Authors: LemmaFeld Contributors
 -/
 import Mathlib.CategoryTheory.Subobject.Lattice
 import Mathlib.CategoryTheory.Abelian.Basic
+import Mathlib.CategoryTheory.Abelian.Refinements
+import Mathlib.CategoryTheory.Abelian.Exact
 import Mathlib.Order.JordanHolder
 import Mathlib.CategoryTheory.Simple
 
@@ -105,12 +107,69 @@ def secondIsoMap (A B : Subobject X) :
       (Subobject.ofLE_comp_ofLE _ _ _ _ _).symm
     rw [this, Category.assoc, cokernel.condition, comp_zero])
 
-/-- The second isomorphism theorem: cokernel(A → A⊔B) ≅ cokernel((A⊓B) → B).
-    The forward map secondIsoMap is mono (kernel = A⊓B, killed by cokernel condition)
-    and epi (coprod.desc of ofLE maps = factorThruImage, which is epi). -/
+@[simp] lemma cokernel_π_comp_secondIsoMap (A B : Subobject X) :
+    cokernel.π ((A ⊓ B).ofLE B inf_le_right) ≫ secondIsoMap A B =
+    B.ofLE (A ⊔ B) le_sup_right ≫ cokernel.π (A.ofLE (A ⊔ B) le_sup_left) := by
+  simp [secondIsoMap]
+
+instance mono_secondIsoMap (A B : Subobject X) : Mono (secondIsoMap A B) := by
+  apply Preadditive.mono_of_cancel_zero
+  intro T g hg
+  obtain ⟨T', π, hπ, f, hf⟩ := surjective_up_to_refinements_of_epi
+    (cokernel.π ((A ⊓ B).ofLE B inf_le_right)) g
+  have h2 : f ≫ B.ofLE (A ⊔ B) le_sup_right ≫ cokernel.π (A.ofLE (A ⊔ B) le_sup_left) = 0 := by
+    have key : f ≫ (cokernel.π ((A ⊓ B).ofLE B inf_le_right) ≫ secondIsoMap A B) = 0 := by
+      rw [← Category.assoc, ← hf, Category.assoc, hg, comp_zero]
+    rwa [cokernel_π_comp_secondIsoMap] at key
+  have hexact := ShortComplex.exact_cokernel (A.ofLE (A ⊔ B) le_sup_left)
+  obtain ⟨T'', π', hπ', h, hh⟩ := hexact.exact_up_to_refinements
+    (f ≫ B.ofLE (A ⊔ B) le_sup_right) (by rw [Category.assoc]; exact h2)
+  have h4 : (π' ≫ f) ≫ B.arrow = h ≫ A.arrow := by
+    have := congr_arg (· ≫ (A ⊔ B).arrow) hh
+    simp only [Category.assoc, Subobject.ofLE_arrow] at this
+    rw [← Category.assoc] at this; exact this
+  have hAf : A.Factors ((π' ≫ f) ≫ B.arrow) := by rw [h4]; exact Subobject.factors_comp_arrow h
+  have hBf : B.Factors ((π' ≫ f) ≫ B.arrow) := Subobject.factors_comp_arrow (π' ≫ f)
+  have hinf : (A ⊓ B).Factors ((π' ≫ f) ≫ B.arrow) := (Subobject.inf_factors _).mpr ⟨hAf, hBf⟩
+  let k := (A ⊓ B).factorThru _ hinf
+  have hk := (A ⊓ B).factorThru_arrow _ hinf
+  have h7 : k ≫ (A ⊓ B).ofLE B inf_le_right = π' ≫ f :=
+    (cancel_mono B.arrow).mp (by rw [Category.assoc, Subobject.ofLE_arrow]; exact hk)
+  have h8 : (π' ≫ f) ≫ cokernel.π ((A ⊓ B).ofLE B inf_le_right) = 0 := by
+    rw [← h7, Category.assoc, cokernel.condition, comp_zero]
+  have h9 : π' ≫ π ≫ g = 0 := by rw [hf, ← Category.assoc, h8]
+  haveI : Epi (π' ≫ π) := epi_comp π' π
+  exact zero_of_epi_comp _ (by rw [Category.assoc]; exact h9)
+
+instance epi_secondIsoMap (A B : Subobject X) : Epi (secondIsoMap A B) := by
+  apply Preadditive.epi_of_cancel_zero
+  intro Z g hg
+  suffices hπg : cokernel.π (A.ofLE (A ⊔ B) le_sup_left) ≫ g = 0 from
+    zero_of_epi_comp (cokernel.π _) hπg
+  have hA : A.ofLE (A ⊔ B) le_sup_left ≫ (cokernel.π (A.ofLE (A ⊔ B) le_sup_left) ≫ g) = 0 := by
+    rw [← Category.assoc, cokernel.condition, zero_comp]
+  have hB : B.ofLE (A ⊔ B) le_sup_right ≫ (cokernel.π (A.ofLE (A ⊔ B) le_sup_left) ≫ g) = 0 := by
+    have : cokernel.π ((A ⊓ B).ofLE B inf_le_right) ≫ (secondIsoMap A B ≫ g) = 0 := by
+      rw [hg, comp_zero]
+    rwa [← Category.assoc, cokernel_π_comp_secondIsoMap, Category.assoc] at this
+  -- biprod.desc (A.ofLE) (B.ofLE) kills cokernel.π ≫ g
+  have key : biprod.desc (A.ofLE (A ⊔ B) le_sup_left) (B.ofLE (A ⊔ B) le_sup_right) ≫
+      (cokernel.π (A.ofLE (A ⊔ B) le_sup_left) ≫ g) = 0 := by
+    rw [biprod.desc_eq, Preadditive.add_comp, Category.assoc, Category.assoc, hA, hB,
+      comp_zero, comp_zero, add_zero]
+  -- TODO: show biprod.desc (A.ofLE) (B.ofLE) is epi, then cancel
+  -- biprod.desc ≫ (A⊔B).arrow = biprod.desc A.arrow B.arrow = factorThruImage ≫ image.ι
+  -- factorThruImage is epi, and (A⊔B).arrow is mono, so biprod.desc = factorThruImage is epi
+  sorry
+
+/-- The second isomorphism theorem: cokernel(A⊓B → B) ≅ cokernel(A → A⊔B).
+    The forward map secondIsoMap is mono and epi, hence iso in abelian category. -/
 def secondIso (A B : Subobject X) :
     cokernel ((A ⊓ B).ofLE B inf_le_right) ≅ cokernel (A.ofLE (A ⊔ B) le_sup_left) := by
-  sorry
+  haveI := mono_secondIsoMap A B
+  haveI := epi_secondIsoMap A B
+  haveI : IsIso (secondIsoMap A B) := isIso_of_mono_of_epi _
+  exact asIso (secondIsoMap A B)
 
 /-- Convert cokernel using A ⊓ (A ⊔ B) = A (inf_sup_self). -/
 def cokernelIsoOfEq_sup (A B : Subobject X) :

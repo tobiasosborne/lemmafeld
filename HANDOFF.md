@@ -54,15 +54,19 @@ This is the root blocker for the multiplicity chain.
 **Step B3: Second isomorphism theorem for subobjects** (~40 LOC) — issue lemmafeld-ict0 — IN PROGRESS (1 sorry)
 - File: `Chapter1/JordanHolderSubobject.lean` (extended)
 - DONE: `secondIsoMap` forward map via `cokernel.desc` (compiles, no sorry)
-- DONE: `cokernelIsoOfEq_sup/inf` conversions for `A ⊓ (A⊔B) = A` and `(A⊓B) ⊓ B = A⊓B`
+- DONE: `cokernel_π_comp_secondIsoMap` simp lemma
+- DONE: `mono_secondIsoMap` — **PROVED, 0 sorries** (via `Preadditive.mono_of_cancel_zero` + refinements + `inf_factors`)
+- DONE: `secondIso` wired up via `isIso_of_mono_of_epi` + `asIso` (depends on epi)
+- DONE: `cokernelIsoOfEq_sup/inf` conversions
 - DONE: `subobject_second_iso` wiring `SubobjectIso (A, A⊔B) (A⊓B, B)` from core iso
-- SORRY: `secondIso` — the core iso `cokernel((A⊓B)→B) ≅ cokernel(A→A⊔B)`
-- **Proof approach (2026-02-03, fully researched):**
-  - Overall: `isIso_of_mono_of_epi` + `asIso (secondIsoMap A B)`. Skeleton COMPILES with sorries.
-  - **Mono**: `Preadditive.mono_of_cancel_zero` + refinement lift through `cokernel.π` + `exact_cokernel.exact_up_to_refinements` + `Subobject.Factors`/`factorThru`/`inf_factors` to factor through `A⊓B`, then cancel via cokernel condition. See `docs/learnings/chapter1/length_objects.md` for 11-step proof.
-  - **Epi**: `kernel.lift` for both `A.ofLE` and `B.ofLE` into `kernel(cokernel.π ≫ g)`, show `Subobject.mk(kernel.ι ≫ (A⊔B).arrow) = A⊔B` via `sup_le` + `le_antisymm`, deduce `kernel.ι` is iso, hence `f = 0`. See learnings for 11-step proof.
-- **Key Lean API**: `surjective_up_to_refinements_of_epi`, `exact_cokernel`, `ShortComplex.Exact.exact_up_to_refinements`, `Subobject.factorThru_arrow`, `inf_factors`, `kernel.lift`, `kernel.condition`, `isIso_of_mono_of_epi`, `Subobject.mk_le_mk_of_comm`
-- **Mathlib gap confirmed**: No `IsPullback → IsPushout` for abelian categories. No categorical 2nd iso theorem.
+- SORRY: `epi_secondIsoMap` — 1 sorry remaining
+- **Epi proof state (2026-02-03):**
+  - Structure complete: if `secondIsoMap ≫ g = 0`, suffices `cokernel.π ≫ g = 0`
+  - Proved: both `A.ofLE ≫ (cokernel.π ≫ g) = 0` and `B.ofLE ≫ (cokernel.π ≫ g) = 0`
+  - Proved: `biprod.desc(A.ofLE)(B.ofLE) ≫ (cokernel.π ≫ g) = 0`
+  - **REMAINING**: show `biprod.desc(A.ofLE(A⊔B))(B.ofLE(A⊔B))` is epi, then cancel
+  - **Approach**: `biprod.desc ≫ (A⊔B).arrow = biprod.desc A.arrow B.arrow = factorThruImage ≫ image.ι`. Since `factorThruImage` is epi and `(A⊔B).arrow` is mono, `biprod.desc = factorThruImage` is epi. Need to understand `Subobject.sup` internal construction or find alternative.
+- **Mathlib gap confirmed**: No categorical 2nd iso theorem.
 
 **Step B4: Build the `JordanHolderLattice (Subobject X)` instance** (~30 LOC) — issue lemmafeld-ehiv
 - File: `Chapter1/JordanHolderSubobject.lean` (extend)
