@@ -836,6 +836,67 @@ Uses kernel argument + Subobject lattice:
 
 **Mathlib pattern:** `JordanHolderModule.instJordanHolderLattice` in `Mathlib.RingTheory.SimpleModule.Basic`
 
+### Modularity Axiom Research (2026-02-04)
+
+**Problem:** `isMaximal_inf_left_of_isMaximal_sup` sorry in JHL instance.
+Need: `x ⋖ x⊔y → y ⋖ x⊔y → x⊓y ⋖ x`.
+
+**Mathlib fact:** `inf_covBy_of_covBy_sup_of_covBy_sup_left` exists but needs `IsWeakLowerModularLattice (Subobject X)`. Mathlib has `Submodule.instIsModularLattice` but NOT for categorical `Subobject X`.
+
+**Proof skeleton (verified in Lean):**
+1. `x⊓y < x`: If `x⊓y = x` then `x ≤ y`, `x⊔y = y`, contradicts `y ⋖ y`. ✓
+2. Case split via `CovBy.eq_or_eq` on `hy` applied to `z⊔y`: ✓
+3. Case `z⊔y = y`: `z ≤ y`, `z ≤ x⊓y`, done. ✓
+4. Case `z⊔y = x⊔y`: Need `z = x`. **THIS IS THE HARD CASE.**
+
+**Case 4 approach (diagram commutativity):**
+- `z⊓y = x⊓y` (squeeze: `x⊓y ≤ z⊓y ≤ x⊓y`)
+- `y⊔z = y⊔x` (from `z⊔y = x⊔y` + commutativity)
+- Both second isos target the same cokernel (up to transport):
+  - `secondIso y z : cokernel((y⊓z).ofLE z) ≅ cokernel(y.ofLE (y⊔z))`
+  - `secondIso y x : cokernel((y⊓x).ofLE x) ≅ cokernel(y.ofLE (y⊔x))`
+- Natural map `φ : cokernel((x⊓y).ofLE z) → cokernel((x⊓y).ofLE x)` induced by `z.ofLE x`
+- **Key commuting equation VERIFIED:** `z.ofLE x ≫ x.ofLE (y⊔x) = z.ofLE (y⊔z) ≫ (isoOfEq h_sup).hom`
+- This gives `φ ≫ secondIsoMap y x = secondIsoMap y z ≫ τ` (transport iso)
+- So φ is iso (composition of isos), then `φ ≫ ψ = 0` → `ψ = 0` → `cokernel.π(z.ofLE x) = 0` → `z.ofLE x` epi → iso → `z = x`
+
+**Blocking issue:** Dependent type transport between `cokernel(y.ofLE (y⊔z))` and `cokernel(y.ofLE (y⊔x))` when `y⊔z = y⊔x` only propositionally. Need `cokernel.mapIso` or explicit `cokernel.desc` with `isoOfEq` transport.
+
+**Alternative: IsModularLattice directly (2026-02-04 session 2)**
+
+Instead of proving the CovBy axiom directly, prove `IsModularLattice (Subobject X)` which gives the axiom via `inf_covBy_of_covBy_sup_of_covBy_sup_left`. Goal: `(a ⊔ b) ⊓ c ≤ a ⊔ b ⊓ c` given `a ≤ c`.
+
+**Key API verified:**
+- `Subobject.le_of_comm f hf` : construct ≤ from morphism `f ≫ Y.arrow = X.arrow`
+- `Subobject.ofLE_arrow` : `X.ofLE Y h ≫ Y.arrow = X.arrow`
+- `Subobject.factors_add` : `P.Factors f → P.Factors g → P.Factors (f + g)` (preadditive)
+- `Subobject.factors_of_le` : `P ≤ Q → P.Factors f → Q.Factors f`
+- `Subobject.inf_factors` : `(X ⊓ Y).Factors f ↔ X.Factors f ∧ Y.Factors f`
+- `Subobject.factors_comp_arrow` : `P.Factors (f ≫ P.arrow)`
+- NO `Subobject.factors_sub` but derivable: factors(-g) via `⟨-h, by simp⟩`
+- `Subobject.Factors` is NOT an inductive—cannot `obtain ⟨g, hg⟩` directly on quotient type
+
+**Proof strategy (preadditive decomposition):**
+1. `d := (a ⊔ b) ⊓ c`. Have `d ≤ a ⊔ b` and `d ≤ c`.
+2. Need: `d.arrow = f_a + f_b` where `a.Factors f_a` and `b.Factors f_b`.
+3. This requires decomposing through `a ⊔ b`. The sup is `image(biprod.desc a.arrow b.arrow)`.
+4. Use `surjective_up_to_refinements_of_epi` to refine `d.ofLE (a⊔b)` through the biproduct epi.
+5. Get `π : T ↠ d.underlying`, `g : T → a.underlying ⊕ b.underlying` with decomposition.
+6. `π ≫ d.arrow = (g ≫ biprod.fst) ≫ a.arrow + (g ≫ biprod.snd) ≫ b.arrow`.
+7. Since `a ≤ c`: `(g ≫ fst) ≫ a.arrow` factors through `c`.
+8. Since `d ≤ c`: `π ≫ d.arrow` factors through `c`.
+9. By subtraction: `(g ≫ snd) ≫ b.arrow` factors through `c`.
+10. So `(g ≫ snd) ≫ b.arrow` factors through `b ⊓ c`.
+11. Hence `π ≫ d.arrow` factors through `a ⊔ (b ⊓ c)`.
+12. **Descent step:** `π` epi + `d.arrow` mono + abelian ⟹ `d.arrow` factors through `a ⊔ (b ⊓ c)`.
+    - Key: `image(π ≫ d.arrow) = image(d.arrow) = d` (since π epi doesn't change image, d.arrow mono means image = d).
+    - `image(g ≫ m) ≤ Subobject.mk(m)` for any mono m.
+    - So `d = image(π ≫ d.arrow) = image(stuff factoring through (a⊔(b⊓c)).arrow) ≤ a⊔(b⊓c)`.
+
+**Blocking question:** How to get the epi from biproduct to `(a ⊔ b).underlying`? Sup of subobjects is defined via `image` of coprod.desc. Need to find/prove: `factorThruImage(biprod.desc a.arrow b.arrow) : biprod ↠ (a⊔b).underlying` is epi.
+
+**Next session recommendation:** Try the sorry-filler-deep agent or write proof step-by-step using `run_code` to verify each component. The epi from biproduct is the key missing piece.
+
 ### Unblocked §1.5 Work Items
 
 | Step | LOC | Description | Issue |
