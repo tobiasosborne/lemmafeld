@@ -60,17 +60,13 @@ This is the root blocker for the multiplicity chain.
 **Step B4: Build the `JordanHolderLattice (Subobject X)` instance** (~30 LOC) — issue lemmafeld-ehiv
 - File: `Chapter1/JordanHolderSubobject.lean` (extend)
 - **PARTIALLY COMPLETE (1 sorry)** — instance `jordanHolderLattice_subobject` compiles
-- 6/7 axioms filled: `lt_of_isMaximal`, `sup_eq_of_isMaximal`, `Iso`, `iso_symm`, `iso_trans`, `second_iso`
-- **1 sorry**: `isMaximal_inf_left_of_isMaximal_sup` (modularity axiom)
-  - Needs: `x ⋖ x⊔y → y ⋖ x⊔y → x⊓y ⋖ x`
-  - Requires proving `IsWeakLowerModularLattice (Subobject X)` or equivalent
-  - Root: need `CovBy ↔ Simple(cokernel)` correspondence to transfer via second iso
-  - Mathlib chain: `IsModularLattice → IsLowerModularLattice → IsWeakLowerModularLattice`
-  - For Submodule: `Submodule.instIsModularLattice` exists; for Subobject: MISSING
-  - **Two approaches investigated:**
-    1. Prove `IsModularLattice (Subobject X)` directly (modular law `a ≤ c → (a⊔b)⊓c ≤ a⊔(b⊓c)`)
-    2. Prove CovBy transfer: `CovBy A B ↔ Simple(cokernel(A→B))`, then use second iso + `Simple` preserved by iso
-  - Neither completed — see follow-up issue
+- **7/7 axioms filled** — `isMaximal_inf_left_of_isMaximal_sup` now uses `isModularLattice_subobject`
+- **1 sorry**: `isModularLattice_subobject` (theorem, line ~219) — issue lemmafeld-hvws
+  - Proves `IsModularLattice (Subobject X)` for abelian categories
+  - Once proved, JHL instance has 0 sorries (uses `inf_covBy_of_covBy_sup_of_covBy_sup_left`)
+  - Mathlib has `Submodule.instIsModularLattice` (element-chasing) but NOT for `Subobject`
+  - **Proof strategy**: use `surjective_up_to_refinements_of_epi` to lift through coprod epi to `a ⊔ b`, then preadditive decomposition: the b-component also lands in c (since a ≤ c), hence in b ⊓ c
+  - See also issues lemmafeld-cq8n (blocked by hvws)
 - Pattern: follows `JordanHolderModule.instJordanHolderLattice` in mathlib
 
 ### Track C: HasMultiplicity Instance (blocked by B4)

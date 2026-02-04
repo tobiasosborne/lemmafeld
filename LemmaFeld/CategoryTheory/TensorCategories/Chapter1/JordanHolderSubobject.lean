@@ -8,6 +8,7 @@ import Mathlib.CategoryTheory.Abelian.Basic
 import Mathlib.CategoryTheory.Abelian.Refinements
 import Mathlib.CategoryTheory.Abelian.Exact
 import Mathlib.Order.JordanHolder
+import Mathlib.Order.ModularLattice
 import Mathlib.CategoryTheory.Simple
 
 /-!
@@ -203,6 +204,26 @@ theorem subobject_second_iso (A B : Subobject X) :
     SubobjectIso (A, A ⊔ B) (A ⊓ B, B) :=
   ⟨cokernelIsoOfEq_sup A B ≪≫ (secondIso A B).symm ≪≫ (cokernelIsoOfEq_inf A B).symm⟩
 
+/-! ## Modularity of the subobject lattice
+
+In an abelian category, the lattice of subobjects is modular. This is the
+categorical generalization of `Submodule.instIsModularLattice` (which uses
+element-chasing). The categorical proof uses the preadditive structure:
+given `a ≤ c` and `f` factoring through `(a ⊔ b) ⊓ c`, lift through the
+epi from `a ⊕ b` to `a ⊔ b`, then use `a ≤ c` to show the `b`-component
+lands in `b ⊓ c`, giving `f` factors through `a ⊔ (b ⊓ c)`.
+-/
+
+/-- The lattice of subobjects of an object in an abelian category is modular.
+This is the categorical analog of `Submodule.instIsModularLattice`. -/
+theorem isModularLattice_subobject : IsModularLattice (Subobject X) := by
+  constructor
+  intro a b c hac
+  -- Need: (a ⊔ b) ⊓ c ≤ a ⊔ (b ⊓ c) when a ≤ c
+  -- Proof strategy: lift through coprod epi, use preadditive decomposition
+  -- The b-component also factors through c (since a ≤ c), hence through b ⊓ c
+  sorry
+
 /-! ## JordanHolderLattice instance for Subobject X
 
 §1.5 Theorem 1.5.4 (Etingof et al.): The lattice of subobjects of an object
@@ -215,10 +236,10 @@ instance jordanHolderLattice_subobject :
   lt_of_isMaximal := CovBy.lt
   sup_eq_of_isMaximal := fun h1 h2 hne => WCovBy.sup_eq h1.wcovBy h2.wcovBy hne
   isMaximal_inf_left_of_isMaximal_sup := fun {x y} hx hy => by
-    -- x ⋖ x⊔y and y ⋖ x⊔y → x⊓y ⋖ x
-    -- Use second iso theorem: cokernel(y → y⊔x) ≅ cokernel(y⊓x → x)
-    -- Transfer CovBy from y ⋖ y⊔x (= x⊔y) to y⊓x ⋖ x (= x⊓y ⋖ x)
-    sorry
+    -- Follows from modularity: IsModularLattice → IsWeakLowerModularLattice
+    -- which provides inf_covBy_of_covBy_sup_of_covBy_sup_left
+    haveI : IsModularLattice (Subobject X) := isModularLattice_subobject
+    exact inf_covBy_of_covBy_sup_of_covBy_sup_left hx hy
   Iso := SubobjectIso
   iso_symm := subobjectIso_symm
   iso_trans := subobjectIso_trans
