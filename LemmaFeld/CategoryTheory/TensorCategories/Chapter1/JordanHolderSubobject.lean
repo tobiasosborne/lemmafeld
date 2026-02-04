@@ -203,4 +203,25 @@ theorem subobject_second_iso (A B : Subobject X) :
     SubobjectIso (A, A ⊔ B) (A ⊓ B, B) :=
   ⟨cokernelIsoOfEq_sup A B ≪≫ (secondIso A B).symm ≪≫ (cokernelIsoOfEq_inf A B).symm⟩
 
+/-! ## JordanHolderLattice instance for Subobject X
+
+§1.5 Theorem 1.5.4 (Etingof et al.): The lattice of subobjects of an object
+in an abelian category satisfies the Jordan-Hölder axioms.
+-/
+
+instance jordanHolderLattice_subobject :
+    JordanHolderLattice (Subobject X) where
+  IsMaximal := SubobjectIsMaximal
+  lt_of_isMaximal := CovBy.lt
+  sup_eq_of_isMaximal := fun h1 h2 hne => WCovBy.sup_eq h1.wcovBy h2.wcovBy hne
+  isMaximal_inf_left_of_isMaximal_sup := fun {x y} hx hy => by
+    -- x ⋖ x⊔y and y ⋖ x⊔y → x⊓y ⋖ x
+    -- Use second iso theorem: cokernel(y → y⊔x) ≅ cokernel(y⊓x → x)
+    -- Transfer CovBy from y ⋖ y⊔x (= x⊔y) to y⊓x ⋖ x (= x⊓y ⋖ x)
+    sorry
+  Iso := SubobjectIso
+  iso_symm := subobjectIso_symm
+  iso_trans := subobjectIso_trans
+  second_iso := fun {x y} _ => subobject_second_iso x y
+
 end LemmaFeld.TensorCategories.Chapter1

@@ -59,11 +59,18 @@ This is the root blocker for the multiplicity chain.
 
 **Step B4: Build the `JordanHolderLattice (Subobject X)` instance** (~30 LOC) — issue lemmafeld-ehiv
 - File: `Chapter1/JordanHolderSubobject.lean` (extend)
-- `sup_eq_of_isMaximal`: use `WCovBy.sup_eq` (general lattice, works immediately)
-- `isMaximal_inf_left_of_isMaximal_sup`: needs `IsWeakLowerModularLattice (Subobject X)`
-  - NOT in mathlib — must prove from second iso theorem
-  - `inf_covBy_of_covBy_sup_of_covBy_sup_left` is the lemma (requires the instance)
-- `second_iso`: from Step B3
+- **PARTIALLY COMPLETE (1 sorry)** — instance `jordanHolderLattice_subobject` compiles
+- 6/7 axioms filled: `lt_of_isMaximal`, `sup_eq_of_isMaximal`, `Iso`, `iso_symm`, `iso_trans`, `second_iso`
+- **1 sorry**: `isMaximal_inf_left_of_isMaximal_sup` (modularity axiom)
+  - Needs: `x ⋖ x⊔y → y ⋖ x⊔y → x⊓y ⋖ x`
+  - Requires proving `IsWeakLowerModularLattice (Subobject X)` or equivalent
+  - Root: need `CovBy ↔ Simple(cokernel)` correspondence to transfer via second iso
+  - Mathlib chain: `IsModularLattice → IsLowerModularLattice → IsWeakLowerModularLattice`
+  - For Submodule: `Submodule.instIsModularLattice` exists; for Subobject: MISSING
+  - **Two approaches investigated:**
+    1. Prove `IsModularLattice (Subobject X)` directly (modular law `a ≤ c → (a⊔b)⊓c ≤ a⊔(b⊓c)`)
+    2. Prove CovBy transfer: `CovBy A B ↔ Simple(cokernel(A→B))`, then use second iso + `Simple` preserved by iso
+  - Neither completed — see follow-up issue
 - Pattern: follows `JordanHolderModule.instJordanHolderLattice` in mathlib
 
 ### Track C: HasMultiplicity Instance (blocked by B4)
