@@ -1,4 +1,4 @@
-# Handoff: 2026-02-03
+# Handoff: 2026-02-06
 
 ## Priority Focus: §1.5 Completion
 
@@ -21,19 +21,18 @@ All sessions should prioritize §1.5 (Length Objects) until fully formalized.
 | §1.5.10(ii) Linking | `Chapter1/BlockDecomposition.lean` | `Linked`, `linked_equivalence` |
 | §1.5.10(i) Defs | `Chapter1/BlockDecomposition.lean` | `IndecomposableCategory`, `TrivialCategory` |
 | §1.5.8 Gr(C) generated | `Chapter1/GrothendieckGroup.lean` | `grothendieckGroup_generated_by_simples` (0 sorries) |
+| §1.5.8 JH multiplicity | `Chapter1/Multiplicity.lean` | `multiplicityCount`, `jhMultiplicity` (0 sorries) |
 
-### REMAINING WORK (0 sorries + 6 open issues)
+### REMAINING WORK (0 sorries + 4 open issues)
 
 | # | Issue | What | LOC est | Blocked by |
 |---|-------|------|---------|------------|
-| 1 | lemmafeld-mfs8 | `JordanHolderLattice (Subobject X)` instance | ~50 | nothing (deep) |
-| 3 | lemmafeld-k1y1 | `HasMultiplicity` concrete impl | ~30 | nothing |
-| 4 | lemmafeld-awcn | `HasMultiplicity` from JHL instance | ~30 | mfs8 |
-| 5 | lemmafeld-2hzv | `objectClass` map `[X] : Ob(C) → Gr(C)` | ~40 | awcn |
-| 6 | lemmafeld-4jc6 | Example 1.5.9: `Vec_S` graded spaces | ~30 | nothing |
-| 7 | lemmafeld-5bq2 | Exercise 1.5.10(iii): center characters | ~40 | nothing |
-| 8 | — | Exercise 1.5.10(i): block decomposition proof | ~50 | nothing |
-| 9 | — | Exercise 1.5.10(ii): indecomposable ⟺ linked proof | ~50 | nothing |
+| 1 | lemmafeld-awcn | `HasMultiplicity` instance from JHL | ~30 | nothing (unblocked!) |
+| 2 | lemmafeld-2hzv | `objectClass` map `[X] : Ob(C) → Gr(C)` | ~40 | awcn |
+| 3 | lemmafeld-4jc6 | Example 1.5.9: `Vec_S` graded spaces | ~30 | nothing |
+| 4 | lemmafeld-5bq2 | Exercise 1.5.10(iii): center characters | ~40 | nothing |
+| 5 | — | Exercise 1.5.10(i): block decomposition proof | ~50 | nothing |
+| 6 | — | Exercise 1.5.10(ii): indecomposable ⟺ linked proof | ~50 | nothing |
 
 ---
 
@@ -127,12 +126,11 @@ This is the root blocker for the multiplicity chain.
 
 ## Recommended Session Order
 
-1. **B3** — Second iso theorem (hardest remaining step, unblocks B4)
-2. **B4** — JordanHolderLattice instance (after B3)
-3. **E1-E3** — Independent of B, completes Exercise 1.5.10
-4. **C1-C3** → **D1-D2** — After B4, completes Grothendieck group
-5. **F1** — Easy example
-6. **E4** — Module-specific, lower priority
+1. **C3** — `HasMultiplicity` instance wiring (uses `jhMultiplicity` from Multiplicity.lean)
+2. **D1-D2** — `objectClass` map (after C3)
+3. **E1-E3** — Exercise 1.5.10 proofs (independent)
+4. **F1** — Easy example (Vec_S graded spaces)
+5. **E4** — Module-specific, lower priority
 
 ---
 
