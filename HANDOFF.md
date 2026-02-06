@@ -126,11 +126,15 @@ This is the root blocker for the multiplicity chain.
 
 ## Recommended Session Order
 
-1. **C3** — `HasMultiplicity` instance wiring (uses `jhMultiplicity` from Multiplicity.lean)
-2. **D1-D2** — `objectClass` map (after C3)
-3. **E1-E3** — Exercise 1.5.10 proofs (independent)
-4. **F1** — Easy example (Vec_S graded spaces)
-5. **E4** — Module-specific, lower priority
+1. **C3 multiplicity_add sorry** — Fill the remaining sorry in HasMultiplicity (SES additivity)
+2. **D1-D2** — `objectClass` map (lemmafeld-2hzv, after C3 fully done)
+3. **E1-E3** — Exercise 1.5.10 proof bodies (fill 2 sorries in BlockDecomposition.lean)
+4. **E4** — Module-specific center characters (lemmafeld-5bq2)
+
+### Completed This Session (2026-02-06)
+- **C3 partial** — `hasMultiplicity_of_finiteLengthCategory` instance (2/3 axioms proved, 1 sorry)
+- **F1** — Vec_S graded spaces example (GradedSpaces.lean, 0 sorries)
+- **E exercise** — `indecomposable_iff_all_simples_linked` statements (2 sorries)
 
 ---
 
