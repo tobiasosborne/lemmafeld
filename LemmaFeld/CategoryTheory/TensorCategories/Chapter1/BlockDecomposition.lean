@@ -205,6 +205,62 @@ class IndecomposableCategory (C : Type*) [Category C] [HasZeroObject C] : Prop w
 
 end CategoryDecomposition
 
+/-! ## §1.5.10 Part (ii): Indecomposable ↔ All Simples Linked
+
+Exercise 1.5.10(ii): "Show that C is indecomposable if and only if any two
+simple objects X, Y of C are linked."
+
+**Forward direction:** If C is indecomposable, then any two simple objects are linked.
+Proof sketch (contrapositive): If X, Y are simple and not linked, partition the simple
+objects into {Z : Linked Z X} and its complement. This gives a decomposition
+C ≅ C₁ × C₂ where both factors are nontrivial (since X ∈ C₁ and Y ∈ C₂),
+contradicting indecomposability.
+
+**Backward direction:** If all simples are linked, then C is indecomposable.
+Proof sketch (contrapositive): If C ≅ D × E with both nontrivial, pick simple
+objects X from D and Y from E. Then Hom(X', Y') = 0 for any D-object X' and
+E-object Y' in the product, so Ext¹(X, Y) = 0 and Ext¹(Y, X) = 0, hence X and Y
+are not linked. -/
+
+section IndecomposableIffLinked
+
+variable {C : Type*} [Category C] [Abelian C] [HasExt C] [HasZeroObject C]
+
+/-- Forward direction of Exercise 1.5.10(ii):
+If C is indecomposable, then any two simple objects are linked.
+
+Book: "Show that C is indecomposable ⟹ any two simple objects X, Y of C are linked."
+Proof: By contrapositive. If X and Y are not linked, the equivalence classes of the
+Linked relation give a nontrivial product decomposition of C, contradicting
+indecomposability. -/
+theorem all_simples_linked_of_indecomposable [IndecomposableCategory C]
+    (X Y : C) [Simple X] [Simple Y] : Linked X Y := by
+  sorry
+
+/-- Backward direction of Exercise 1.5.10(ii):
+If all simples are linked, then C is indecomposable.
+
+Book: "Show that any two simple objects X, Y of C are linked ⟹ C is indecomposable."
+Proof: By contrapositive. If C ≅ D × E nontrivially, simple objects from D and E
+have zero Ext between them (since Hom(D-obj, E-obj) = 0 in a product category),
+so simples from different factors are not linked. -/
+theorem indecomposable_of_all_simples_linked
+    (h : ∀ (X Y : C) [Simple X] [Simple Y], Linked X Y) :
+    IndecomposableCategory C := by
+  sorry
+
+/-- Exercise 1.5.10(ii): C is indecomposable if and only if any two simple objects
+are linked.
+
+Book: "Show that C is indecomposable if and only if any two simple objects X, Y
+of C are linked." (Etingof et al., §1.5, Exercise 1.5.10(ii)) -/
+theorem indecomposable_iff_all_simples_linked :
+    IndecomposableCategory C ↔
+    ∀ (X Y : C) [Simple X] [Simple Y], Linked X Y :=
+  ⟨fun _ => all_simples_linked_of_indecomposable, indecomposable_of_all_simples_linked⟩
+
+end IndecomposableIffLinked
+
 /-! ## Notes on Block Decomposition
 
 The full formalization of block decomposition would require:

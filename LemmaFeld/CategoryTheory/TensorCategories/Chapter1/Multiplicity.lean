@@ -162,4 +162,72 @@ theorem jhMultiplicity_eq_multiplicityCount {X : C} (hfl : IsFiniteLengthObject 
     (by rw [(Classical.choose_spec (exists_compositionSeries_subobject hfl)).1, hs.1])
     (by rw [(Classical.choose_spec (exists_compositionSeries_subobject hfl)).2, hs.2]) Y
 
+/-! ## HasMultiplicity Instance for Finite Length Categories
+
+When every object in an abelian category has finite length (i.e., is both Artinian
+and Noetherian), `jhMultiplicity` provides a concrete `HasMultiplicity` instance.
+This wires up the Jordan-Hölder multiplicities to the axiomatized interface
+in `GrothendieckGroup.lean`. -/
+
+/-- Explicit composition series of length 1 for a simple object: ⊥ ⋖ ⊤. -/
+def simpleCompositionSeries {Y : C} [Simple Y] : CompositionSeries (Subobject Y) :=
+  ⟨1, ![⊥, ⊤], fun ⟨i, hi⟩ => by
+    have : i = 0 := by omega
+    subst this
+    simp [Fin.castSucc, Fin.succ, Matrix.cons_val_zero, Matrix.cons_val_one]
+    exact bot_covBy_top⟩
+
+private theorem simpleCompositionSeries_head {Y : C} [Simple Y] :
+    simpleCompositionSeries.head = (⊥ : Subobject Y) := by
+  simp [simpleCompositionSeries, RelSeries.head, Matrix.cons_val_zero]
+
+private theorem simpleCompositionSeries_last {Y : C} [Simple Y] :
+    simpleCompositionSeries.last = (⊤ : Subobject Y) := by
+  simp [simpleCompositionSeries, RelSeries.last, Matrix.cons_val_one]
+
+private theorem multiplicityCount_simpleCompositionSeries {Y : C} [Simple Y] :
+    multiplicityCount (simpleCompositionSeries (Y := Y)) Y = 1 := by
+  unfold multiplicityCount
+  rw [show (Finset.univ : Finset (Fin 1)) = {0} from Finset.univ_unique,
+    Finset.filter_singleton]
+  rw [if_pos]
+  · rfl
+  · unfold factorIsIso compositionSeriesFactorObj simpleCompositionSeries
+    simp [Matrix.cons_val_zero, Matrix.cons_val_one]
+    haveI : IsIso (⊤ : Subobject Y).arrow := by rw [Subobject.isIso_arrow_iff_eq_top]
+    have hzbot : IsZero ((⊥ : Subobject Y) : C) :=
+      IsZero.of_iso (isZero_zero C) Subobject.botCoeIsoZero
+    have heq : Subobject.ofLE (⊥ : Subobject Y) ⊤ bot_le = 0 := hzbot.eq_of_src _ _
+    exact ⟨(cokernel.mapIso _ _ (Iso.refl _) (Iso.refl _) (by rw [heq]; simp)).symm ≪≫
+      cokernelZeroIsoTarget ≪≫ asIso (⊤ : Subobject Y).arrow⟩
+
+/-- `HasMultiplicity` instance derived from Jordan-Hölder multiplicities for
+finite length categories. Book §1.5.8. -/
+instance hasMultiplicity_of_finiteLengthCategory [FiniteLengthCategory C] :
+    HasMultiplicity C where
+  multiplicity X Y := jhMultiplicity (FiniteLengthCategory.isFiniteLength X) Y
+  multiplicity_zero_of_isZero := fun X hX Y => by
+    intro
+    unfold jhMultiplicity multiplicityCount
+    haveI := CategoryTheory.Subobject.subsingleton_of_isZero hX
+    set s := Classical.choose (exists_compositionSeries_subobject
+      (FiniteLengthCategory.isFiniteLength X))
+    have hlen : s.length = 0 := by
+      by_contra h
+      have h0 : 0 < s.length := Nat.pos_of_ne_zero h
+      exact absurd (Subsingleton.elim (s (Fin.castSucc ⟨0, h0⟩))
+        (s (⟨0, h0⟩ : Fin s.length).succ)) (ne_of_lt (s.step ⟨0, h0⟩).lt)
+    convert Finset.card_empty
+    rw [Finset.filter_eq_empty_iff]
+    intro i; exact Fin.elim0 (hlen ▸ i)
+  multiplicity_self := fun Y => by
+    intro
+    rw [show jhMultiplicity (FiniteLengthCategory.isFiniteLength Y) Y =
+        multiplicityCount simpleCompositionSeries Y from
+      jhMultiplicity_eq_multiplicityCount _ simpleCompositionSeries
+        ⟨simpleCompositionSeries_head, simpleCompositionSeries_last⟩ Y]
+    exact multiplicityCount_simpleCompositionSeries
+  multiplicity_add := fun S hS Y => by
+    sorry
+
 end LemmaFeld.TensorCategories.Chapter1
