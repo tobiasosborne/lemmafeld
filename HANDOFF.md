@@ -57,16 +57,13 @@ This is the root blocker for the multiplicity chain.
 - `epi_secondIsoMap` proved via kernel/subobject argument: lift A, B through kernel.ι, show kernel contains A⊔B via Subobject.mk_le_mk_of_comm + sup_le, conclude kernel.ι is iso via isoOfMkEqMk, then zero_of_epi_comp
 - **Mathlib gap confirmed**: No categorical 2nd iso theorem (our contribution).
 
-**Step B4: Build the `JordanHolderLattice (Subobject X)` instance** (~30 LOC) — issue lemmafeld-ehiv
-- File: `Chapter1/JordanHolderSubobject.lean` (extend)
-- **PARTIALLY COMPLETE (1 sorry)** — instance `jordanHolderLattice_subobject` compiles
-- **7/7 axioms filled** — `isMaximal_inf_left_of_isMaximal_sup` now uses `isModularLattice_subobject`
-- **1 sorry**: `isModularLattice_subobject` (theorem, line ~219) — issue lemmafeld-hvws
-  - Proves `IsModularLattice (Subobject X)` for abelian categories
-  - Once proved, JHL instance has 0 sorries (uses `inf_covBy_of_covBy_sup_of_covBy_sup_left`)
-  - Mathlib has `Submodule.instIsModularLattice` (element-chasing) but NOT for `Subobject`
-  - **Proof strategy**: use `surjective_up_to_refinements_of_epi` to lift through coprod epi to `a ⊔ b`, then preadditive decomposition: the b-component also lands in c (since a ≤ c), hence in b ⊓ c
-  - See also issues lemmafeld-cq8n (blocked by hvws)
+**Step B4: Build the `JordanHolderLattice (Subobject X)` instance** — issue lemmafeld-ehiv
+- File: `Chapter1/JordanHolderSubobject.lean`
+- **COMPLETE (0 sorries)** — instance `jordanHolderLattice_subobject` compiles
+- **7/7 axioms filled** — `isMaximal_inf_left_of_isMaximal_sup` uses `isModularLattice_subobject`
+- `isModularLattice_subobject` PROVED — issue lemmafeld-hvws CLOSED
+  - Categorical proof using biprod epi + refinement lifting + Factors arithmetic + exact sequence descent
+  - **Mathlib gap**: No `IsModularLattice (Subobject X)` in mathlib (our contribution)
 - Pattern: follows `JordanHolderModule.instJordanHolderLattice` in mathlib
 
 ### Track C: HasMultiplicity Instance (blocked by B4)

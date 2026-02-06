@@ -7,6 +7,7 @@ import Mathlib.CategoryTheory.Subobject.Lattice
 import Mathlib.CategoryTheory.Abelian.Basic
 import Mathlib.CategoryTheory.Abelian.Refinements
 import Mathlib.CategoryTheory.Abelian.Exact
+import Mathlib.CategoryTheory.Subobject.Limits
 import Mathlib.Order.JordanHolder
 import Mathlib.Order.ModularLattice
 import Mathlib.CategoryTheory.Simple
@@ -220,9 +221,78 @@ theorem isModularLattice_subobject : IsModularLattice (Subobject X) := by
   constructor
   intro a b c hac
   -- Need: (a ⊔ b) ⊓ c ≤ a ⊔ (b ⊓ c) when a ≤ c
-  -- Proof strategy: lift through coprod epi, use preadditive decomposition
-  -- The b-component also factors through c (since a ≤ c), hence through b ⊓ c
-  sorry
+  set d := (a ⊔ b) ⊓ c
+  -- The epi ψ : a ⊕ b ↠ a ⊔ b
+  let ψ := biprod.desc (a.ofLE (a ⊔ b) le_sup_left) (b.ofLE (a ⊔ b) le_sup_right)
+  have hψ_epi : Epi ψ := by
+    apply Preadditive.epi_of_cancel_zero
+    intro Z f hf
+    have hA : a.ofLE (a ⊔ b) le_sup_left ≫ f = 0 := by
+      have : biprod.inl ≫ ψ ≫ f = 0 := by rw [hf, comp_zero]
+      rwa [← Category.assoc, biprod.inl_desc] at this
+    have hB : b.ofLE (a ⊔ b) le_sup_right ≫ f = 0 := by
+      have : biprod.inr ≫ ψ ≫ f = 0 := by rw [hf, comp_zero]
+      rwa [← Category.assoc, biprod.inr_desc] at this
+    haveI : Mono (kernel.ι f ≫ (a ⊔ b).arrow) := mono_comp _ _
+    have hA_le : a ≤ Subobject.mk (kernel.ι f ≫ (a ⊔ b).arrow) := by
+      conv_lhs => rw [← Subobject.mk_arrow a]
+      exact Subobject.mk_le_mk_of_comm (kernel.lift f (a.ofLE (a ⊔ b) le_sup_left) hA)
+        (by rw [← Category.assoc, kernel.lift_ι, Subobject.ofLE_arrow])
+    have hB_le : b ≤ Subobject.mk (kernel.ι f ≫ (a ⊔ b).arrow) := by
+      conv_lhs => rw [← Subobject.mk_arrow b]
+      exact Subobject.mk_le_mk_of_comm (kernel.lift f (b.ofLE (a ⊔ b) le_sup_right) hB)
+        (by rw [← Category.assoc, kernel.lift_ι, Subobject.ofLE_arrow])
+    have heq : Subobject.mk (kernel.ι f ≫ (a ⊔ b).arrow) = Subobject.mk (a ⊔ b).arrow :=
+      le_antisymm (Subobject.mk_le_mk_of_comm (kernel.ι f) rfl)
+        (by rw [Subobject.mk_arrow]; exact sup_le hA_le hB_le)
+    have hφ : (Subobject.isoOfMkEqMk _ _ heq).hom = kernel.ι f :=
+      (cancel_mono (a ⊔ b).arrow).mp (Subobject.ofMkLEMk_comp heq.le)
+    haveI : IsIso (kernel.ι f) := hφ ▸ inferInstance
+    exact zero_of_epi_comp (kernel.ι f) (kernel.condition f)
+  -- Lift d through ψ via refinements
+  obtain ⟨T, π, hπ, h, hh⟩ := surjective_up_to_refinements_of_epi ψ (d.ofLE (a ⊔ b) inf_le_left)
+  -- Decompose h through biproduct components
+  let ha := h ≫ biprod.fst
+  let hb := h ≫ biprod.snd
+  have hψ_eq : h ≫ ψ =
+      (h ≫ biprod.fst) ≫ a.ofLE (a ⊔ b) le_sup_left +
+      (h ≫ biprod.snd) ≫ b.ofLE (a ⊔ b) le_sup_right := by
+    change h ≫ biprod.desc _ _ = _
+    conv_lhs => rw [← Category.comp_id h, ← biprod.total, Preadditive.comp_add]
+    simp only [Preadditive.add_comp, Category.assoc, biprod.inl_desc, biprod.inr_desc]
+  have hsum : π ≫ d.arrow = ha ≫ a.arrow + hb ≫ b.arrow := by
+    have h1 : π ≫ d.arrow = (π ≫ d.ofLE (a ⊔ b) inf_le_left) ≫ (a ⊔ b).arrow := by
+      rw [Category.assoc, Subobject.ofLE_arrow]
+    rw [h1, hh.trans hψ_eq, Preadditive.add_comp]
+    congr 1 <;> rw [Category.assoc, Subobject.ofLE_arrow]
+  -- The b-component factors through b ⊓ c (key step using a ≤ c)
+  have hπd_fac_c : c.Factors (π ≫ d.arrow) :=
+    Subobject.factors_of_le _ inf_le_right (Subobject.factors_comp_arrow π)
+  have ha_fac_c : c.Factors (ha ≫ a.arrow) :=
+    Subobject.factors_of_le _ hac (Subobject.factors_comp_arrow ha)
+  have hb_fac_c : c.Factors (hb ≫ b.arrow) :=
+    Subobject.factors_right_of_factors_add _ _ (hsum ▸ hπd_fac_c) ha_fac_c
+  have hb_fac_bc : (b ⊓ c).Factors (hb ≫ b.arrow) :=
+    (Subobject.inf_factors _).mpr ⟨Subobject.factors_comp_arrow hb, hb_fac_c⟩
+  -- Both components factor through a ⊔ (b ⊓ c)
+  have hπd_fac : (a ⊔ (b ⊓ c)).Factors (π ≫ d.arrow) := by
+    rw [hsum]
+    exact Subobject.factors_add _ _
+      (Subobject.factors_of_le _ le_sup_left (Subobject.factors_comp_arrow ha))
+      (Subobject.factors_of_le _ le_sup_right hb_fac_bc)
+  -- Descent via exact sequence: d ≤ a ⊔ (b ⊓ c)
+  have hd_comp_zero : d.arrow ≫ cokernel.π (a ⊔ (b ⊓ c)).arrow = 0 := by
+    suffices π ≫ (d.arrow ≫ cokernel.π (a ⊔ (b ⊓ c)).arrow) = 0 from
+      zero_of_epi_comp π this
+    rw [← Category.assoc, ← Subobject.factorThru_arrow _ _ hπd_fac,
+        Category.assoc, cokernel.condition, comp_zero]
+  calc d ≤ kernelSubobject (cokernel.π (a ⊔ (b ⊓ c)).arrow) :=
+        le_kernelSubobject _ d hd_comp_zero
+    _ = a ⊔ (b ⊓ c) := by
+        have hexact := ShortComplex.exact_cokernel (a ⊔ (b ⊓ c)).arrow
+        rw [ShortComplex.exact_iff_image_eq_kernel] at hexact
+        rw [← hexact, show imageSubobject _ = imageSubobject (a ⊔ (b ⊓ c)).arrow from rfl,
+            imageSubobject_mono, Subobject.mk_arrow]
 
 /-! ## JordanHolderLattice instance for Subobject X
 
