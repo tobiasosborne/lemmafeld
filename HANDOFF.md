@@ -126,28 +126,66 @@ This is the root blocker for the multiplicity chain.
 
 ## Recommended Session Order
 
-1. **C3 multiplicity_add sorry** — Fill the remaining sorry in HasMultiplicity (SES additivity)
-2. **D1-D2** — `objectClass` map (lemmafeld-2hzv, after C3 fully done)
-3. **E1-E3** — Exercise 1.5.10 proof bodies (fill 2 sorries in BlockDecomposition.lean)
-4. **E4** — Module-specific center characters (lemmafeld-5bq2)
+1. **P0 Bug fix** — Fix `DirectlyLinked` definition (lemmafeld-j9ro) + add `FiniteLengthCategory` (lemmafeld-taeh)
+2. **S1 chain** — `multiplicity_add` sorry (~138 LOC, 3 sessions). Start with S1.1/S1.2/S1.5 (unblocked)
+3. **S3 chain** — backward direction sorry (~105 LOC, 2 sessions). After bug fix, S3.1+S3.2 unblocked
+4. **S2 chain** — forward direction sorry (~400-600 LOC, 8-12 sessions). Blocked by S1.7
 
-### Completed This Session (2026-02-06, session 2)
-- **E exercise** — `all_simples_linked_of_indecomposable` and `indecomposable_of_all_simples_linked` now have real proofs (sorries pushed to isolated infrastructure lemmas)
-- **F1** — Closed lemmafeld-4jc6 (GradedSpaces.lean, 0 sorries)
-- **C3 attempted** — `multiplicity_add` sorry still open; `multiplicityCount_smash` approach explored but dependent type issues prevent compilation
+### CRITICAL BUG: `DirectlyLinked` definition is wrong!
+`¬IsEmpty (Abelian.Ext X Y 1)` is always True (Ext is AddCommGroup → always nonempty).
+Both BlockDecomposition sorries are UNPROVABLE until fixed to `∃ e, e ≠ 0`.
 
-### Remaining Sorries in §1.5
-| File | Line | Lemma | Difficulty |
-|------|------|-------|-----------|
-| Multiplicity.lean | 231 | `multiplicity_add` (SES additivity) | Hard — needs series transport across lattices |
-| BlockDecomposition.lean | 254 | `exists_nontrivial_product_of_unlinked_simples` | Hard — needs full subcategory + equivalence |
-| BlockDecomposition.lean | 296 | `exists_unlinked_simples_of_nontrivial_product` | Medium — needs Ext=0 in product categories |
+### Completed This Session (2026-02-06, session 3)
+- Analyzed all 3 remaining §1.5 sorries with dedicated planning agents
+- Discovered critical bug in `DirectlyLinked` definition
+- Created 21 granular beads issues with full dependency graph (see `bd list`)
+- Closed umbrella issues lemmafeld-x279, lemmafeld-k1y1 (now decomposed)
+
+### Completed Previously (2026-02-06, session 2)
+- `all_simples_linked_of_indecomposable` and `indecomposable_of_all_simples_linked` real proofs
+- Closed lemmafeld-4jc6 (GradedSpaces.lean, 0 sorries)
+
+### Remaining Sorries in §1.5 — Full Decomposition
+
+**Sorry 1: `multiplicity_add`** (Multiplicity.lean:231) — ~138 LOC, 3 sessions
+| Issue | Step | LOC | Difficulty | Blocked by |
+|-------|------|-----|-----------|------------|
+| lemmafeld-7zmw | S1.1: factorObj_iso_of_eq | 8 | Easy | — |
+| lemmafeld-uapj | S1.2: multiplicityCount_smash | 20 | Medium | — |
+| lemmafeld-d5wx | S1.3: map_covBy_of_mono | 25 | HARD | — |
+| lemmafeld-tuyb | S1.4: pullback_covBy_of_epi | 25 | HARD | — |
+| lemmafeld-jgt0 | S1.5: SES endpoint lemmas | 30 | Medium | — |
+| lemmafeld-9e6n | S1.6: compositionSeriesFromSES | 30 | Medium | S1.3,S1.4,S1.5 |
+| lemmafeld-ymix | S1.7: assembly (fill sorry) | 15 | Easy | S1.2,S1.6 |
+
+**Sorry 3: `exists_unlinked_simples_of_nontrivial_product`** (BlockDecomposition.lean:296) — ~105 LOC
+| Issue | Step | LOC | Difficulty | Blocked by |
+|-------|------|-----|-----------|------------|
+| lemmafeld-j9ro | P0: Fix DirectlyLinked bug | 10 | Easy | — |
+| lemmafeld-taeh | P0: Add FiniteLengthCategory | 5 | Easy | — |
+| lemmafeld-gj0o | S3.1: simples in factors | 30 | Medium | P0 |
+| lemmafeld-r71a | S3.2: Ext vanishing cross-factor | 80+ | VERY HARD | P0 |
+| lemmafeld-3r8x | S3.3: ¬Linked cross-factor | 40 | Medium | S3.1,S3.2 |
+| lemmafeld-qqai | S3.4: assembly (fill sorry) | 15 | Easy | S3.3 |
+
+**Sorry 2: `exists_nontrivial_product_of_unlinked_simples`** (BlockDecomposition.lean:254) — ~500 LOC
+| Issue | Step | LOC | Difficulty | Blocked by |
+|-------|------|-----|-----------|------------|
+| lemmafeld-f46v | S2.1: AllJHFactorsIn predicate | 20 | Easy | S1.7 |
+| lemmafeld-y76x | S2.2: Serre class proof | 40 | Medium | S2.1 |
+| lemmafeld-5fmh | S2.3: Abelian Serre subcategory | 100+ | EXTREMELY HARD | — |
+| lemmafeld-cas5 | S2.4: HasZeroObject blocks | 10 | Easy | S2.1,S2.3 |
+| lemmafeld-mygi | S2.5: Block decomposition | 70+ | HARD | S2.1,S2.2 |
+| lemmafeld-omrx | S2.6: Equivalence C≌D×E | 70+ | HARD | S2.3,S2.4,S2.5 |
+| lemmafeld-mc1m | S2.7: Nontriviality | 15 | Easy | S2.6 |
+| lemmafeld-nnv6 | S2.8: assembly (fill sorry) | 10 | Easy | S2.7 |
 
 ---
 
 ## Session Orientation
 
 1. **Read this file** for §1.5 plan
-2. **Read `docs/learnings/chapter1/length_objects.md`** for technical details
-3. **Pick a step** from the plan above (prefer unblocked, lowest number)
+2. Run `bd ready` to see unblocked issues
+3. **Priority**: P0 bug fix first, then S1 chain, then S3, then S2
 4. **One step per session** — target ≤50 LOC
+5. HARD/VERY HARD steps: create substep plans before coding
