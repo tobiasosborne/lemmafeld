@@ -131,10 +131,17 @@ This is the root blocker for the multiplicity chain.
 3. **E1-E3** — Exercise 1.5.10 proof bodies (fill 2 sorries in BlockDecomposition.lean)
 4. **E4** — Module-specific center characters (lemmafeld-5bq2)
 
-### Completed This Session (2026-02-06)
-- **C3 partial** — `hasMultiplicity_of_finiteLengthCategory` instance (2/3 axioms proved, 1 sorry)
-- **F1** — Vec_S graded spaces example (GradedSpaces.lean, 0 sorries)
-- **E exercise** — `indecomposable_iff_all_simples_linked` statements (2 sorries)
+### Completed This Session (2026-02-06, session 2)
+- **E exercise** — `all_simples_linked_of_indecomposable` and `indecomposable_of_all_simples_linked` now have real proofs (sorries pushed to isolated infrastructure lemmas)
+- **F1** — Closed lemmafeld-4jc6 (GradedSpaces.lean, 0 sorries)
+- **C3 attempted** — `multiplicity_add` sorry still open; `multiplicityCount_smash` approach explored but dependent type issues prevent compilation
+
+### Remaining Sorries in §1.5
+| File | Line | Lemma | Difficulty |
+|------|------|-------|-----------|
+| Multiplicity.lean | 231 | `multiplicity_add` (SES additivity) | Hard — needs series transport across lattices |
+| BlockDecomposition.lean | 254 | `exists_nontrivial_product_of_unlinked_simples` | Hard — needs full subcategory + equivalence |
+| BlockDecomposition.lean | 296 | `exists_unlinked_simples_of_nontrivial_product` | Medium — needs Ext=0 in product categories |
 
 ---
 

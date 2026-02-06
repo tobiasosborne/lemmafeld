@@ -184,6 +184,14 @@ lemma not_trivial_of_nontrivial {C : Type*} [Category C] [HasZeroObject C]
   obtain ⟨X, hX⟩ := h
   exact hX (hz X)
 
+/-- A non-trivial category is nontrivial: it has a non-zero object. -/
+lemma nontrivial_of_not_trivial {C : Type*} [Category C] [HasZeroObject C]
+    (h : ¬TrivialCategory C) : NontrivialCategory C := by
+  by_contra hc
+  unfold NontrivialCategory at hc
+  push_neg at hc
+  exact h ⟨fun X => hc X⟩
+
 /-! ### Indecomposable Categories
 
 A category is indecomposable if it cannot be decomposed as a product of two
@@ -226,15 +234,65 @@ section IndecomposableIffLinked
 
 variable {C : Type*} [Category C] [Abelian C] [HasExt C] [HasZeroObject C]
 
+/-- Key infrastructure lemma for the forward direction:
+If two simple objects are not linked, then C admits a nontrivial product decomposition.
+
+This encapsulates the hard part of the forward direction. The proof requires:
+- Partitioning objects of C into the linked component of X and its complement
+- Showing each part forms an abelian full subcategory
+- Constructing an equivalence C ≌ C₁ × C₂
+- Showing both factors are nontrivial (X is in C₁ and Y is in C₂)
+
+This requires significant infrastructure beyond what is currently available in mathlib
+(full subcategories closed under extensions, abelian structure on full subcategories,
+equivalence with product from semiorthogonal decomposition). -/
+lemma exists_nontrivial_product_of_unlinked_simples
+    (X Y : C) [Simple X] [Simple Y] (h : ¬Linked X Y) :
+    ∃ (D E : Type*) (_ : Category D) (_ : Category E)
+      (_ : HasZeroObject D) (_ : HasZeroObject E),
+      Nonempty (C ≌ D × E) ∧ NontrivialCategory D ∧ NontrivialCategory E := by
+  sorry
+
 /-- Forward direction of Exercise 1.5.10(ii):
 If C is indecomposable, then any two simple objects are linked.
 
 Book: "Show that C is indecomposable ⟹ any two simple objects X, Y of C are linked."
 Proof: By contrapositive. If X and Y are not linked, the equivalence classes of the
 Linked relation give a nontrivial product decomposition of C, contradicting
-indecomposability. -/
+indecomposability. The hard work is in `exists_nontrivial_product_of_unlinked_simples`. -/
 theorem all_simples_linked_of_indecomposable [IndecomposableCategory C]
     (X Y : C) [Simple X] [Simple Y] : Linked X Y := by
+  by_contra h
+  obtain ⟨D, E, catD, catE, zeroD, zeroE, ⟨e⟩, hD, hE⟩ :=
+    exists_nontrivial_product_of_unlinked_simples X Y h
+  have triv := @IndecomposableCategory.trivial_factor_of_equiv_prod
+    C _ _ _ D E catD catE zeroD zeroE ⟨e⟩
+  rcases triv with hDt | hEt
+  · exact (not_trivial_of_nontrivial hD) hDt
+  · exact (not_trivial_of_nontrivial hE) hEt
+
+/-- Key infrastructure lemma for the backward direction:
+If C ≌ D × E with both factors nontrivial, there exist simple objects in C
+that are not linked.
+
+This encapsulates the hard part of the backward direction. The proof requires:
+1. Nontrivial abelian factors have non-zero objects, hence simple subobjects
+   (needs finite length or Artinian hypothesis to guarantee simple subobjects)
+2. Simple objects from different product factors have zero Ext¹
+   (Hom between different factors is zero in a product category, and this
+   extends to Ext via derived functors)
+3. Therefore these simples are not directly linked, hence not linked
+
+Key missing infrastructure:
+- Product of abelian categories is abelian (not in mathlib)
+- Ext vanishes between objects from different product factors
+- Existence of simple objects in nontrivial factors (needs Artinian) -/
+lemma exists_unlinked_simples_of_nontrivial_product
+    {D E : Type*} [Category D] [Category E]
+    [HasZeroObject D] [HasZeroObject E]
+    (e : C ≌ D × E)
+    (hD : NontrivialCategory D) (hE : NontrivialCategory E) :
+    ∃ (X Y : C), Simple X ∧ Simple Y ∧ ¬Linked X Y := by
   sorry
 
 /-- Backward direction of Exercise 1.5.10(ii):
@@ -243,11 +301,21 @@ If all simples are linked, then C is indecomposable.
 Book: "Show that any two simple objects X, Y of C are linked ⟹ C is indecomposable."
 Proof: By contrapositive. If C ≅ D × E nontrivially, simple objects from D and E
 have zero Ext between them (since Hom(D-obj, E-obj) = 0 in a product category),
-so simples from different factors are not linked. -/
+so simples from different factors are not linked.
+The hard work is in `exists_unlinked_simples_of_nontrivial_product`. -/
 theorem indecomposable_of_all_simples_linked
     (h : ∀ (X Y : C) [Simple X] [Simple Y], Linked X Y) :
     IndecomposableCategory C := by
-  sorry
+  constructor
+  intro D E _ _ _ _ ⟨e⟩
+  by_contra h_contra
+  push_neg at h_contra
+  obtain ⟨hD, hE⟩ := h_contra
+  have hD' := nontrivial_of_not_trivial hD
+  have hE' := nontrivial_of_not_trivial hE
+  obtain ⟨X, Y, hSX, hSY, hNL⟩ :=
+    exists_unlinked_simples_of_nontrivial_product e hD' hE'
+  exact hNL (@h X Y hSX hSY)
 
 /-- Exercise 1.5.10(ii): C is indecomposable if and only if any two simple objects
 are linked.
